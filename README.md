@@ -20,7 +20,8 @@ Create a python based platform for automation on raspberry pi3<br>
 XBEE based battery operated hardware & sensors<br>
 ESP8266 based wifi hardware<br>
 Everything packaged in a great customizable UI<br>
-Using a DDNS service to access your pi from anywhere in the world
-
+Using a DDNS service to access your pi from anywhere in the world<br>
+Adding offline AI for listening to simple commands<br>
+Adding offline Text to Speech TTS service<br>
 
 
