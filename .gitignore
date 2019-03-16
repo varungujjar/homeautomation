@@ -1,0 +1,8 @@
+.git/
+.local/
+.nano/
+.bash_history
+.bash_logout
+.bashrc
+.gitconfig
+.profile
