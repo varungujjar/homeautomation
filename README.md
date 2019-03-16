@@ -14,7 +14,7 @@ I believe homeautomation should work seamlessly without any latency issues and i
 <b>Protocols</b><br>
 MQTT - Simple, lightweight can be implemented with Wifi based projects easily<br>
 Xbee - For battery operated sensors that could give us months of running time on a single/double cell.<br>
-<br><br>
+<br>
 <b>RoadMap</b><br>
 Create a python based platform for automation on raspberry pi3<br>
 XBEE based battery operated hardware & sensors<br>
