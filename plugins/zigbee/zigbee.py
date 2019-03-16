@@ -8,7 +8,6 @@ ser = serial.Serial(SERIALPORT, BAUDRATE)
 
 xbee = XBee(ser)
 
-print 'Starting Up Tempature Monitor'
 # Continuously read and print packets
 while True:
     try:
