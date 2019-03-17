@@ -3,6 +3,7 @@ import os, sys
 import json
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+_PROTOCOL = 'mqtt'
 
 # when connecting to mqtt do this;
 def on_connect(client, userdata, flags, rc):
@@ -12,7 +13,8 @@ def on_connect(client, userdata, flags, rc):
 # when receiving a mqtt message do this;
 def on_message(client, userdata, msg):
     message = str(msg.payload)
-    print(msg.topic+" "+message)
+    do_component(_PROTOCOL,message)
+    #print(msg.topic+" "+message)
 
 client = mqtt.Client()
 client.on_connect = on_connect

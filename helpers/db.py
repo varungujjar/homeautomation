@@ -1,7 +1,8 @@
 import sqlite3
+import time, datetime
 import json
 global db_path
-db_path = '/home/pi/database/smarthome'
+db_path = '/home/pi/db/db'
 
 
 def get_config():
@@ -72,17 +73,34 @@ def db_get_devices(platform):
 	db.commit()
 	return devices
 
+def db_sync_device(type,prop,actions,address,protocol):
+	device = db_get_device(protocol,address)
+	if not device:
+		db = sqlite3.connect(db_path)
+		cur = db.cursor()
+		cur.execute("INSERT INTO devices(address, type, protocol, properties, actions, modified, created) VALUES(?,?,?,?,?,datetime(CURRENT_TIMESTAMP, 'localtime'),datetime(CURRENT_TIMESTAMP, 'localtime'))", (str(address), str(type), str(protocol),str(prop), str(actions)))
+		db.commit()
+	else:
+		db = sqlite3.connect(db_path)
+		cur = db.cursor()
+		cur.execute("UPDATE devices SET address=?, type=?, protocol=?, properties=?, actions=?, modified=datetime(CURRENT_TIMESTAMP, 'localtime') WHERE id = ?",(str(address), str(type), str(protocol),str(prop), str(actions), device['id']))
+		db.commit()
+	print db_get_device(protocol,address)
 
-def db_get_device(id):
-	db = sqlite3.connect(db_path)
-	db.row_factory = lambda c, r: dict([(col[0], r[idx]) for idx, col in enumerate(c.description)])
-	cur = db.cursor()
-	cur.execute('SELECT * FROM devices WHERE id=?',(id,))
-	device = cur.fetchone()
-	db.commit()
-	if device is None:
-		return {}
+
+
+def db_get_device(protocol,address,id=None):
+	if id is None:
+		db = sqlite3.connect(db_path)
+		db.row_factory = lambda c, r: dict([(col[0], r[idx]) for idx, col in enumerate(c.description)])
+		cur = db.cursor()
+		cur.execute('SELECT * FROM "devices" WHERE protocol=? AND address=?',(protocol,address))
+		device = cur.fetchone()
+		db.commit()
+		if device is None:
+			return {}
 	return device
+
 
 
 def db_update_device(platform,data):	
