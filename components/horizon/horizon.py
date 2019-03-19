@@ -1,11 +1,11 @@
 import os, sys
 sys.path.insert(0, '../../')
 #sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-import json
 from astral import *
-import threading
-from time import strftime, strptime
+import json
 import pytz
+from apscheduler.schedulers.blocking import BlockingScheduler
+from time import strftime, strptime
 from datetime import datetime, timedelta, tzinfo
 from helpers.db import *
 from helpers.dt import *
@@ -17,7 +17,7 @@ UTC = DEFAULT_TIME_ZONE = pytz.utc  # type: dt.tzinfo
 ZERO = timedelta(0)
 
 COMPONENT = 'horizon'
-UPDATE_EVERY = 5 #in seconds
+UPDATE_EVERY = 1 #minutes
 
 def dispatch_data(type,prop,actions,address):
     db_sync_device(type,prop,actions,address,COMPONENT)
@@ -72,16 +72,10 @@ def horizon_handler():
 			data['next_astral_time'] =  str(get_age(tommorrow))
 		else:
 			data['next_astral_time'] =  str(get_age(astral['sunrise']))
-	print data		
-	#update_config(data,'sun')
+	actions = {}		
+	dispatch_data('system',data,actions,'')	
 
 
-def schedule(f_stop):
-    horizon_handler()
-    if not f_stop.is_set():
-        threading.Timer(UPDATE_EVERY, schedule, [f_stop]).start()
-
-
-f_stop = threading.Event()
-schedule(f_stop)	
-
+sched = BlockingScheduler()
+sched.add_job(horizon_handler, 'interval', minutes=UPDATE_EVERY)
+sched.start()

@@ -1,6 +1,7 @@
 .git/
 .local/
 .nano/
+.cache/
 .bash_history
 .bash_logout
 .bashrc
