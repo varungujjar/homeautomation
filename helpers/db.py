@@ -14,6 +14,35 @@ def get_config():
 	db.commit()
 	return config
 
+
+def db_sync_device(type,prop,actions,address,component):
+	device = db_get_device(component,address)
+	if not device:
+		db = sqlite3.connect(db_path)
+		cur = db.cursor()
+		cur.execute("INSERT INTO devices(address, type, component, properties, actions, modified, created) VALUES(?,?,?,?,?,datetime(CURRENT_TIMESTAMP, 'localtime'),datetime(CURRENT_TIMESTAMP, 'localtime'))", (str(address), str(type), str(component),str(prop), str(actions)))
+		db.commit()
+	else:
+		db = sqlite3.connect(db_path)
+		cur = db.cursor()
+		cur.execute("UPDATE devices SET address=?, type=?, component=?, properties=?, actions=?, modified=datetime(CURRENT_TIMESTAMP, 'localtime') WHERE id = ?",(str(address), str(type), str(component),str(prop), str(actions), device['id']))
+		db.commit()
+	print db_get_device(component,address)
+
+
+def db_get_device(component,address,id=None):
+	if id is None:
+		db = sqlite3.connect(db_path)
+		db.row_factory = lambda c, r: dict([(col[0], r[idx]) for idx, col in enumerate(c.description)])
+		cur = db.cursor()
+		cur.execute('SELECT * FROM "devices" WHERE component=? AND address=?',(component,address))
+		device = cur.fetchone()
+		db.commit()
+		if device is None:
+			return {}
+	return device
+
+
 def update_config(data,type):
 	db = sqlite3.connect(db_path)
 	if(type=='sun'):
@@ -26,10 +55,10 @@ def update_config(data,type):
 	db.commit()	
 
 
-def que_notification(platform,type,message):
+def que_notification(component,type,message):
 	db = sqlite3.connect(db_path)
 	cur = db.cursor()
-	cur.execute('INSERT INTO notifications(platform, type, message, unread, last_modified) VALUES(?,?,?,?,CURRENT_TIMESTAMP)', (str(platform), str(type), str(message),1))
+	cur.execute('INSERT INTO notifications(component, type, message, unread, last_modified) VALUES(?,?,?,?,CURRENT_TIMESTAMP)', (str(component), str(type), str(message),1))
 	db.commit()
 	
 
@@ -65,51 +94,25 @@ def db_get_all_devices():
 	
 
 
-def db_get_devices(platform):
+def db_get_devices(component):
 	db = sqlite3.connect(db_path)
 	cur = db.cursor()
-	cur.execute('SELECT * FROM devices WHERE device_platform=?', (platform,))
+	cur.execute('SELECT * FROM devices WHERE device_component=?', (component,))
 	devices = cur.fetchall()
 	db.commit()
 	return devices
 
-def db_sync_device(type,prop,actions,address,protocol):
-	device = db_get_device(protocol,address)
-	if not device:
-		db = sqlite3.connect(db_path)
-		cur = db.cursor()
-		cur.execute("INSERT INTO devices(address, type, protocol, properties, actions, modified, created) VALUES(?,?,?,?,?,datetime(CURRENT_TIMESTAMP, 'localtime'),datetime(CURRENT_TIMESTAMP, 'localtime'))", (str(address), str(type), str(protocol),str(prop), str(actions)))
-		db.commit()
-	else:
-		db = sqlite3.connect(db_path)
-		cur = db.cursor()
-		cur.execute("UPDATE devices SET address=?, type=?, protocol=?, properties=?, actions=?, modified=datetime(CURRENT_TIMESTAMP, 'localtime') WHERE id = ?",(str(address), str(type), str(protocol),str(prop), str(actions), device['id']))
-		db.commit()
-	print db_get_device(protocol,address)
 
 
 
-def db_get_device(protocol,address,id=None):
-	if id is None:
-		db = sqlite3.connect(db_path)
-		db.row_factory = lambda c, r: dict([(col[0], r[idx]) for idx, col in enumerate(c.description)])
-		cur = db.cursor()
-		cur.execute('SELECT * FROM "devices" WHERE protocol=? AND address=?',(protocol,address))
-		device = cur.fetchone()
-		db.commit()
-		if device is None:
-			return {}
-	return device
 
-
-
-def db_update_device(platform,data):	
+def db_update_device(component,data):	
 	if(data['id']):
 		device = db_get_device(data['id'])
 		if len(device) > 0:
 			db = sqlite3.connect(db_path)
 			cur = db.cursor()
-			cur.execute('UPDATE devices SET data=?, hardware_id=?, state=?, device_type=?, access=?, last_modified = CURRENT_TIMESTAMP WHERE id = ? AND device_platform=?',(str(json.dumps(data['data'])), data['hardware_id'], data['state'], data['device_type'], 1, data['id'], platform))
+			cur.execute('UPDATE devices SET data=?, hardware_id=?, state=?, device_type=?, access=?, last_modified = CURRENT_TIMESTAMP WHERE id = ? AND device_component=?',(str(json.dumps(data['data'])), data['hardware_id'], data['state'], data['device_type'], 1, data['id'], component))
 		else:
 			#add to new device 	
 			pass	

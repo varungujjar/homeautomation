@@ -11,7 +11,7 @@ BAUDRATE = 9600
 ser = serial.Serial(SERIALPORT, BAUDRATE)
 xbee = XBee(ser)
 
-_PROTOCOL = 'xbee'
+COMPONENT = 'xbee'
 
 ENUM_TYPE = {
     'pr':['profile'],
@@ -25,8 +25,8 @@ ENUM_TYPE = {
     }
 
 
-def dispatch_data(type,prop,actions,address,protocol):
-    db_sync_device(type,prop,actions,address,protocol)
+def dispatch_data(type,prop,actions,address):
+    db_sync_device(type,prop,actions,address,COMPONENT)
 
 
 
@@ -47,7 +47,7 @@ def xbee_device_handler(data):
             else:
                 prop["unknown"]=value
             actions = {}   
-        dispatch_data(type,prop,actions,data['address'],_PROTOCOL)    
+        dispatch_data(type,prop,actions,data['address'])    
     
     
 
