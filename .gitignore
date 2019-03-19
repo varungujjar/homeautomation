@@ -1,5 +1,4 @@
 .git/
-.cache/
 .local/
 .nano/
 .cache/
@@ -9,3 +8,4 @@
 .gitconfig
 .profile
 .DS_Store
+*.pyc
