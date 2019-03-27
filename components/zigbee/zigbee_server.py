@@ -14,7 +14,7 @@ xbee = XBee(ser)
 COMPONENT = 'xbee'
 
 ENUM_TYPE = {
-    'pr':['profile'],
+    'pr':['class'],
     't':['temperature','C'],
     'h':['humidity','%'],
     'p':['pressure','hPa'],
@@ -29,24 +29,26 @@ def dispatch_data(type,prop,actions,address):
     db_sync_device(type,prop,actions,address,COMPONENT)
 
 
-
 def xbee_device_handler(data):
     payload = data['payload']
-    if 'pr' in payload:#pr is the header of my devices
+    class_identifier = 'pr'
+    if class_identifier in payload:#pr is the header of my devices
         prop = {}
-        type = payload['pr']
+        type = payload[class_identifier]
         for key, value in payload.iteritems():
-            if key in ENUM_TYPE:
-                prop[ENUM_TYPE[key][0]] = {}
-                prop[ENUM_TYPE[key][0]]['value'] = value
-                try:
-                    if ENUM_TYPE[key][1]:
-                        prop[ENUM_TYPE[key][0]]['unit'] = ENUM_TYPE[key][1]
-                except IndexError:
-                        pass
-            else:
-                prop["unknown"]=value
+            if key is not class_identifier:
+                if key in ENUM_TYPE:
+                    prop[ENUM_TYPE[key][0]] = {}
+                    prop[ENUM_TYPE[key][0]]['value'] = value
+                    try:
+                        if ENUM_TYPE[key][1]:
+                            prop[ENUM_TYPE[key][0]]['unit'] = ENUM_TYPE[key][1]
+                    except IndexError:
+                            pass
+                else:
+                    prop["unknown"]=value
             actions = {}   
+
         dispatch_data(type,prop,actions,data['address'])    
     
     
