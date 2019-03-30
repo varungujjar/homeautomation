@@ -54,25 +54,27 @@ def horizon_handler():
 	time_now = datetime.now(UTC)	
 	sun_horizon_position = sun_horizon(astral['sunrise'], astral['sunset'])
 	data = {}
-	data['city'] = config_data['city']			
-	data['state'] = config_data['state']			
-	data['latitude'] = config_data['latitude']			
-	data['longitude'] = config_data['longitude']			
-	data['sunrise'] = str(astral['sunrise'])
-	data['sunset'] = str(astral['sunset'])
-	data['timezone'] = str(astral['timezone'])
-	data['above_horizon'] = str(sun_horizon_position).lower()
+	data['location'] = {}
+	data['astral'] = {}
+	data['location']['city'] = config_data['city']			
+	data['location']['state'] = config_data['state']			
+	data['location']['latitude'] = config_data['latitude']			
+	data['location']['longitude'] = config_data['longitude']	
+	data['location']['timezone'] = str(astral['timezone'])
+	data['astral']['sunrise'] = str(astral['sunrise'])
+	data['astral']['sunset'] = str(astral['sunset'])
+	data['astral']['above_horizon'] = str(sun_horizon_position).lower()
 	if(sun_horizon_position):
-		data['next_astral'] = "sunset"
-		data['next_astral_time'] = str(get_age(astral['sunset']))
+		data['astral']['next'] = "sunset"
+		data['astral']['next_time'] = str(get_age(astral['sunset']))
 	else:
-		data['next_astral'] = "sunrise"	
+		data['astral']['next_astral'] = "sunrise"	
 		if(time_now > astral['sunset']):
 			tommorrow = astral['sunrise'] + timedelta(days=1)
-			data['next_astral_time'] =  str(get_age(tommorrow))
+			data['astral']['next_time'] =  str(get_age(tommorrow))
 		else:
-			data['next_astral_time'] =  str(get_age(astral['sunrise']))
-	actions = {}		
+			data['astral']['next_time'] =  str(get_age(astral['sunrise']))
+	actions = {}
 	dispatch_data('system',data,actions,'')	
 
 
