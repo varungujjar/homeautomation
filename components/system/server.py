@@ -31,7 +31,8 @@ def horizon_handler():
 	data['disk']['value'] = str(psutil.disk_usage('/').percent)
 	data['disk']['unit'] = '%'
 	actions = {}
-	dispatch_data('system',data,actions,'')	
+	dataJson = json.dumps(data)
+	dispatch_data('system',dataJson,actions,'')	
 
 sched = BlockingScheduler()
 sched.add_job(horizon_handler, 'interval', seconds=UPDATE_EVERY)

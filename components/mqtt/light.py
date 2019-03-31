@@ -1,41 +1,32 @@
-import os, sys, json, ast
+import os, sys
+import json ,ast
 sys.path.insert(0, '../../')
 from helpers.db import *
-from publish import *
+#sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 COMPONENT = 'mqtt'
-CLASS_HEADER = 'class'
-TYPE = 'switch'
-STATE_ON = 1
-STATE_OFF = 0
+CLASS = 'switch'
 DEVICE_PROPERTIES = {'ip','mac','host','ssid','rssi','uptime','vcc','version','voltage','current','apparent','factor','energy','relay'}
 DEVICE_ACTIONS = {'relay','publish','subscribe'}
+#{class:switch,actions{state:{type:int,on:1,off:0,topic:state},brightness{type:int,range:0-100,topic:brightness}}
+
+
+#on_off
+#brightness
+#color_temp
+#hs
+#rgb
+#white
+
+
 
 class switch(object):
-    def __init__(self):
-        pass
+    def __init__(self, topic=None, payload=None):
+        self.topic = topic
+        self.payload = payload
 
     def dispatch_data(self,type,prop,actions,address):
-        db_sync_device(type,prop,actions,address,COMPONENT)
-
-
-    def publish(self,topic,value):
-        mqttPublish(topic, value)
-
-
-    def stateToggle(self,deviceId,relayId):
-        getDevice = db_get_device(None,None,deviceId)
-        if getDevice['type'] == TYPE:
-            deviceActions = json.loads(getDevice['actions'])
-            deviceProperties = json.loads(getDevice['properties'])
-            deviceRelayState = int(deviceProperties['relay'][str(relayId)])
-            cleanTopic = (deviceActions['subscribe']).strip('/')
-            relayTopic = cleanTopic+'/relay/'+str(relayId)+deviceActions['relay']['topic']
-            print(relayTopic)
-            stateValues = {0:STATE_ON,1:STATE_OFF}
-            self.publish(relayTopic,stateValues[deviceRelayState])
-        else:
-            print('Toggle Not Supported on This Device')   
+        db_sync_device(type,prop,actions,address,COMPONENT)    
 
     
     def getDeviceProperties(self,payload):
@@ -60,13 +51,13 @@ class switch(object):
 
     def deviceHandler(self,topic,payload):
         devicePayload = json.loads(payload)
-        deviceClass = devicePayload[CLASS_HEADER]
+        deviceClass = devicePayload['class']
         deviceAddress = devicePayload['ip']
         deviceProperties = {}
         deviceActions = {}
-        if TYPE in deviceClass:
-            deviceProperties = json.dumps(self.getDeviceProperties(devicePayload))
-            deviceActions = json.dumps(self.getDeviceActions(devicePayload))
+        if CLASS in deviceClass:
+            deviceProperties = ast.literal_eval(json.dumps(self.getDeviceProperties(devicePayload)))
+            deviceActions = ast.literal_eval(json.dumps(self.getDeviceActions(devicePayload)))
         else:
             pass
         self.dispatch_data(deviceClass,deviceProperties,deviceActions,deviceAddress)

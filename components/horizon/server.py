@@ -75,7 +75,8 @@ def horizon_handler():
 		else:
 			data['astral']['next_time'] =  str(get_age(astral['sunrise']))
 	actions = {}
-	dispatch_data('system',data,actions,'')	
+	dataJson = json.dumps(data)
+	dispatch_data('system',dataJson,actions,'')	
 
 
 sched = BlockingScheduler()

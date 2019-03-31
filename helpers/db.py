@@ -30,17 +30,22 @@ def db_sync_device(type,prop,actions,address,component):
 	print db_get_device(component,address)
 
 
-def db_get_device(component,address,id=None):
+def db_get_device(component=None,address=None,id=None):
+	db = sqlite3.connect(db_path)
+	db.row_factory = lambda c, r: dict([(col[0], r[idx]) for idx, col in enumerate(c.description)])
+	cur = db.cursor()
 	if id is None:
-		db = sqlite3.connect(db_path)
-		db.row_factory = lambda c, r: dict([(col[0], r[idx]) for idx, col in enumerate(c.description)])
-		cur = db.cursor()
 		cur.execute('SELECT * FROM "devices" WHERE component=? AND address=?',(component,address))
 		device = cur.fetchone()
-		db.commit()
-		if device is None:
-			return {}
+	else:
+		cur.execute('SELECT * FROM "devices" WHERE id=?',(id,))
+		device = cur.fetchone()
+	db.commit()
+	if device is None:
+		return {}			
 	return device
+
+
 
 
 def update_config(data,type):
