@@ -23,7 +23,7 @@ class switch(object):
         mqttPublish(topic, value)
 
 
-    def stateToggle(self,deviceId,relayId):
+    def stateToggleChange(self,deviceId,relayId,state=None):
         getDevice = db_get_device(None,None,deviceId)
         if getDevice['type'] == TYPE:
             deviceActions = json.loads(getDevice['actions'])
@@ -31,9 +31,12 @@ class switch(object):
             deviceRelayState = int(deviceProperties['relay'][str(relayId)])
             cleanTopic = (deviceActions['subscribe']).strip('/')
             relayTopic = cleanTopic+'/relay/'+str(relayId)+deviceActions['relay']['topic']
-            print(relayTopic)
             stateValues = {0:STATE_ON,1:STATE_OFF}
-            self.publish(relayTopic,stateValues[deviceRelayState])
+            if state is not None:
+                stateValue = state
+            else:
+                stateValue = stateValues[deviceRelayState]  
+            self.publish(relayTopic,stateValue)
         else:
             print('Toggle Not Supported on This Device')   
 
