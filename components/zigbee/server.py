@@ -1,9 +1,7 @@
-import serial, time, datetime, sys
-import json
-import binascii
+import serial, os, sys, json
 from xbee import XBee
-sys.path.insert(0, '../../')
-from helpers.db import *
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.dont_write_bytecode = True
 
 SERIALPORT = "/dev/ttyUSB0" 
 BAUDRATE = 9600
@@ -12,69 +10,53 @@ ser = serial.Serial(SERIALPORT, BAUDRATE)
 xbee = XBee(ser)
 
 COMPONENT = 'xbee'
-
-ENUM_TYPE = {
-    'pr':['class'],
-    't':['temperature','C'],
-    'h':['humidity','%'],
-    'p':['pressure','hPa'],
-    'o':['gas','ppm'],
-    'a':['altitude','m'],
-    'l':['light','lux'],
-    'v':['voltage','mAh']
-    }
+SUPPORTED_HEADERS = {'pr'}
+SUPPORTED_DEVICES = {'sensor','door','plant'}
 
 
-def dispatch_data(type,prop,actions,address):
-    db_sync_device(type,prop,actions,address,COMPONENT)
-
-
-def xbee_device_handler(data):
-    payload = data['payload']
-    class_identifier = 'pr'
-    if class_identifier in payload:#pr is the header of my devices
-        prop = {}
-        type = payload[class_identifier]
-        for key, value in payload.iteritems():
-            if key is not class_identifier:
-                if key in ENUM_TYPE:
-                    prop[ENUM_TYPE[key][0]] = {}
-                    prop[ENUM_TYPE[key][0]]['value'] = value
-                    try:
-                        if ENUM_TYPE[key][1]:
-                            prop[ENUM_TYPE[key][0]]['unit'] = ENUM_TYPE[key][1]
-                    except IndexError:
-                            pass
-                else:
-                    prop["unknown"]=value
-            actions = {}   
-
-        dispatch_data(type,prop,actions,data['address'])    
-    
-    
-
-def xbee_enumerate(response):
-    json_data = response
-    data = {}
-    #print b(json_data['source_addr_long']).hex() For Python 3.4 above
-    data['address'] = binascii.hexlify(json_data['source_addr_long'])
-    data['source_address'] = binascii.hexlify(json_data['source_addr'])
-    #split rfdata and recompile as json data
-    payload = json_data['rf_data']
+def getJsonFormatted(payload):
     list_decode = payload.split(",")
     list_enum = []
     for eachItem in list_decode:
         list_enum.append(eachItem.split(":"))
     list_enum_dict = {k[0]:k[1] for k in list_enum}
-    data['payload'] = list_enum_dict
-    xbee_device_handler(data)
+    return list_enum_dict
 
+
+def getJsonData(payload):
+    jsonItem = {}
+    for key, value in payload.iteritems():
+        if key != 'rf_data':
+            jsonItem[key] = value
+    jsonItem['payload'] = {}
+    jsonItem['payload'] = getJsonFormatted(payload['rf_data'])
+    return jsonItem
+
+
+def xbeeHandler(payload):
+    xbeeData = getJsonData(payload)
+    xbeePayload = xbeeData['payload']
+    for key, value in xbeePayload.iteritems():
+        if key in SUPPORTED_HEADERS:
+            if value in SUPPORTED_DEVICES:
+                try:
+                    importDevice = __import__(value)
+                    importDeviceClass = getattr(importDevice, value)
+                    deviceClass = importDeviceClass()    
+                    k = deviceClass.deviceHandler(xbeeData)
+                except ImportError:
+                    #que_notification(platform,'error','Could not find platform enumerator')
+                    pass
+            else:
+                print('Device Not Supported')       
+        else:
+            pass    
 
 
 while True:
     try:
         response = xbee.wait_read_frame()
-        xbee_enumerate(response)
+        xbeeHandler(response)
     except KeyboardInterrupt:
         break
 
