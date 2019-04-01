@@ -9,9 +9,9 @@ BAUDRATE = 9600
 ser = serial.Serial(SERIALPORT, BAUDRATE)
 xbee = XBee(ser)
 
-COMPONENT = 'xbee'
-SUPPORTED_HEADERS = {'pr'}
-SUPPORTED_DEVICES = {'sensor','door','plant'}
+COMPONENT = "xbee"
+SUPPORTED_HEADERS = {"pr"}
+SUPPORTED_DEVICES = {"sensor","door","plant"}
 
 
 def getJsonFormatted(payload):
@@ -26,16 +26,16 @@ def getJsonFormatted(payload):
 def getJsonData(payload):
     jsonItem = {}
     for key, value in payload.iteritems():
-        if key != 'rf_data':
+        if key != "rf_data":
             jsonItem[key] = value
-    jsonItem['payload'] = {}
-    jsonItem['payload'] = getJsonFormatted(payload['rf_data'])
+    jsonItem["payload"] = {}
+    jsonItem["payload"] = getJsonFormatted(payload["rf_data"])
     return jsonItem
 
 
 def xbeeHandler(payload):
     xbeeData = getJsonData(payload)
-    xbeePayload = xbeeData['payload']
+    xbeePayload = xbeeData["payload"]
     for key, value in xbeePayload.iteritems():
         if key in SUPPORTED_HEADERS:
             if value in SUPPORTED_DEVICES:
@@ -45,10 +45,10 @@ def xbeeHandler(payload):
                     deviceClass = importDeviceClass()    
                     k = deviceClass.deviceHandler(xbeeData)
                 except ImportError:
-                    #que_notification(platform,'error','Could not find platform enumerator')
+                    print("[XBEE] Error Importing Device")
                     pass
             else:
-                print('Device Not Supported')       
+                print("[XBEE] Server Device Not Supported")      
         else:
             pass    
 

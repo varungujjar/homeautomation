@@ -1,12 +1,18 @@
-res = 0
-
-def all_events(response):
-    res = response
-    print res
+import os, sys, json
+sys.path.insert(0, '../')
+from helpers.db import *
 
 
-while True:
-    try:
-        print res
-    except KeyboardInterrupt:
-        break    
+def triggerEvent():
+    pass
+    #rulesEngine()
+
+
+def rulesEngine():
+    getRules = getAutomationRules()
+    print(getRules)
+    value = "switch"
+    importDevice = __import__(value)
+    importDeviceClass = getattr(importDevice, value)
+    deviceClass = importDeviceClass()    
+    deviceClass.stateToggleChange(9, 0, 1)

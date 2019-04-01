@@ -5,32 +5,60 @@ global db_path
 db_path = '/home/pi/db/db'
 
 
-def get_config():
-	db = sqlite3.connect(db_path)
-	db.row_factory = lambda c, r: dict([(col[0], r[idx]) for idx, col in enumerate(c.description)])
-	cur = db.cursor()
-	cur.execute('SELECT * FROM config')
-	config = cur.fetchone()
-	db.commit()
+def dbGetConfig():
+	try:
+		db = sqlite3.connect(db_path)
+		db.row_factory = lambda c, r: dict([(col[0], r[idx]) for idx, col in enumerate(c.description)])
+		cur = db.cursor()
+		cur.execute("SELECT * FROM config")
+		config = cur.fetchone()
+		db.commit()
+	except Exception as err:
+		print('[DB] Config Error: %s' % (str(err)))
+	finally:
+		db.close()
 	return config
 
 
-def db_sync_device(type,prop,actions,address,component):
-	device = db_get_device(component,address)
-	if not device:
+def dbInsertHistory(id,name,type,component,status,value):
+	try:
 		db = sqlite3.connect(db_path)
 		cur = db.cursor()
-		cur.execute("INSERT INTO devices(address, type, component, properties, actions, modified, created) VALUES(?,?,?,?,?,datetime(CURRENT_TIMESTAMP, 'localtime'),datetime(CURRENT_TIMESTAMP, 'localtime'))", (str(address), str(type), str(component),str(prop), str(actions)))
+		cur.execute("INSERT INTO notifications(id, name, type, component, status, value, read, created) VALUES(?,?,?,?,?,?,?,datetime(CURRENT_TIMESTAMP, 'localtime'))", (int(id), str(name),str(type),str(component),str(status),str(value),1))
 		db.commit()
+	except Exception as err:
+		print('[DB] Notification Error: %s' % (str(err)))
+	finally:
+		db.close()	
+
+
+def dbSyncDevice(type,prop,actions,address,component):
+	getDevice = dbGetDevice(component,address)
+	if not getDevice:
+		try:
+			db = sqlite3.connect(db_path)
+			cur = db.cursor()
+			cur.execute("INSERT INTO devices(address, type, component, properties, actions, modified, created) VALUES(?,?,?,?,?,datetime(CURRENT_TIMESTAMP, 'localtime'),datetime(CURRENT_TIMESTAMP, 'localtime'))", (str(address), str(type), str(component),str(prop), str(actions)))
+			db.commit()
+		except Exception as err:
+			print('[DB] Device Insert Sync Error: %s' % (str(err)))
+		finally:
+			db.close()	
 	else:
-		db = sqlite3.connect(db_path)
-		cur = db.cursor()
-		cur.execute("UPDATE devices SET address=?, type=?, component=?, properties=?, actions=?, modified=datetime(CURRENT_TIMESTAMP, 'localtime') WHERE id = ?",(str(address), str(type), str(component),str(prop), str(actions), device['id']))
-		db.commit()
-	print db_get_device(component,address)
+		try:
+			db = sqlite3.connect(db_path)
+			cur = db.cursor()
+			cur.execute("UPDATE devices SET type=?, properties=?, actions=?, modified=datetime(CURRENT_TIMESTAMP, 'localtime') WHERE address=? AND component=?",(str(type), str(prop), str(actions), str(address), str(component)))
+			db.commit()
+		except Exception as err:
+			print('[DB] Device Update Sync Error: %s' % (str(err)))
+		finally:
+			db.close()
+	thisDevice = dbGetDevice(component,address)
+	return thisDevice
 
 
-def db_get_device(component=None,address=None,id=None):
+def dbGetDevice(component=None,address=None,id=None):
 	db = sqlite3.connect(db_path)
 	db.row_factory = lambda c, r: dict([(col[0], r[idx]) for idx, col in enumerate(c.description)])
 	cur = db.cursor()
@@ -46,37 +74,39 @@ def db_get_device(component=None,address=None,id=None):
 	return device
 
 
-
-
-def update_config(data,type):
-	db = sqlite3.connect(db_path)
-	if(type=='sun'):
+def dbGetAllDevices():
+	try:
+		db = sqlite3.connect(db_path)
+		db.row_factory = lambda c, r: dict([(col[0], r[idx]) for idx, col in enumerate(c.description)])
 		cur = db.cursor()
-		cur.execute('UPDATE config SET sun = ?, last_modified=CURRENT_TIMESTAMP',(str(json.dumps(data)),))
-	if(type=='forecast'):
-		format_data = str(data)		
+		cur.execute("SELECT * FROM devices")
+		devices = cur.fetchall()
+		db.commit()
+	except Exception as err:
+		print('[DB] Get All Devices Error: %s' % (str(err)))
+	finally:
+		db.close()
+	if devices is None:
+		return {}	
+	return devices
+
+
+def getAutomationRules():
+	try:
+		db = sqlite3.connect(db_path)
+		db.row_factory = lambda c, r: dict([(col[0], r[idx]) for idx, col in enumerate(c.description)])
 		cur = db.cursor()
-		cur.execute('UPDATE config SET forecast = ?, last_modified=CURRENT_TIMESTAMP',(format_data,))	
-	db.commit()	
-
-
-def que_notification(component,type,message):
-	db = sqlite3.connect(db_path)
-	cur = db.cursor()
-	cur.execute('INSERT INTO notifications(component, type, message, unread, last_modified) VALUES(?,?,?,?,CURRENT_TIMESTAMP)', (str(component), str(type), str(message),1))
-	db.commit()
-	
-
-def db_tb_automation():
-	db = sqlite3.connect(db_path)
-	db.row_factory = lambda c, r: dict([(col[0], r[idx]) for idx, col in enumerate(c.description)])
-	cur = db.cursor()
-	cur.execute('SELECT * FROM automation WHERE active = 1')
-	automation = cur.fetchall()
-	db.commit()
+		cur.execute('SELECT * FROM automation WHERE active = 1')
+		automation = cur.fetchall()
+		db.commit()
+	except Exception as err:
+		print('[DB] Get Rules Error: %s' % (str(err)))
+	finally:
+		db.close()
 	if automation is None:
 		return {}
 	return automation
+
 
 def db_tb_automation_triggered(id):
 	db = sqlite3.connect(db_path)
@@ -84,59 +114,4 @@ def db_tb_automation_triggered(id):
 	cur.execute('UPDATE automation SET last_triggered = CURRENT_TIMESTAMP WHERE id = ?',(id,))
 	db.commit()
 	return True	
-
-
-def db_get_all_devices():
-	db = sqlite3.connect(db_path)
-	db.row_factory = lambda c, r: dict([(col[0], r[idx]) for idx, col in enumerate(c.description)])
-	cur = db.cursor()
-	cur.execute('SELECT * FROM devices')
-	devices = cur.fetchall()
-	db.commit()
-	if devices is None:
-		return {}
-	return devices
-	
-
-
-def db_get_devices(component):
-	db = sqlite3.connect(db_path)
-	cur = db.cursor()
-	cur.execute('SELECT * FROM devices WHERE device_component=?', (component,))
-	devices = cur.fetchall()
-	db.commit()
-	return devices
-
-
-
-
-
-def db_update_device(component,data):	
-	if(data['id']):
-		device = db_get_device(data['id'])
-		if len(device) > 0:
-			db = sqlite3.connect(db_path)
-			cur = db.cursor()
-			cur.execute('UPDATE devices SET data=?, hardware_id=?, state=?, device_type=?, access=?, last_modified = CURRENT_TIMESTAMP WHERE id = ? AND device_component=?',(str(json.dumps(data['data'])), data['hardware_id'], data['state'], data['device_type'], 1, data['id'], component))
-		else:
-			#add to new device 	
-			pass	
-	db.commit()
-
-
-def db_unchecked_devices():
-	db = sqlite3.connect(db_path)
-	db.row_factory = lambda c, r: dict([(col[0], r[idx]) for idx, col in enumerate(c.description)])
-	cur = db.cursor()
-	cur.execute('SELECT * FROM devices WHERE access=1')
-	db.commit()
-	return cur.fetchall()
-
-
-def db_check_device(id):
-	db = sqlite3.connect(db_path)
-
-	cur = db.cursor()
-	cur.execute('UPDATE devices SET access=0 WHERE id=? ',(id,))
-	db.commit()
 
