@@ -91,12 +91,12 @@ def dbGetAllDevices():
 	return devices
 
 
-def getAutomationRules():
+def dbGetAutomationRules():
 	try:
 		db = sqlite3.connect(db_path)
 		db.row_factory = lambda c, r: dict([(col[0], r[idx]) for idx, col in enumerate(c.description)])
 		cur = db.cursor()
-		cur.execute('SELECT * FROM automation WHERE active = 1')
+		cur.execute('SELECT * FROM automation WHERE published = 1')
 		automation = cur.fetchall()
 		db.commit()
 	except Exception as err:
@@ -106,6 +106,19 @@ def getAutomationRules():
 	if automation is None:
 		return {}
 	return automation
+
+
+def setAutomationTriggerStatus(id,status):
+	try:
+		db = sqlite3.connect(db_path)
+		cur = db.cursor()
+		cur.execute("UPDATE automation SET trigger=?, modified=datetime(CURRENT_TIMESTAMP, 'localtime') WHERE id=?",(int(status), int(id)))
+		db.commit()
+	except Exception as err:
+		print('[DB] Rule Set Active Error: %s' % (str(err)))
+	finally:
+		db.close()
+	return True
 
 
 def db_tb_automation_triggered(id):

@@ -1,8 +1,8 @@
 import os, sys, json, ast
 sys.path.insert(0, '../../')
 from helpers.db import *
-from system.events import *
 from publish import *
+from system.events import *
 sys.dont_write_bytecode = True
 
 
@@ -18,8 +18,22 @@ class switch(object):
     def __init__(self):
         self.topic = 0
 
+
     def publish(self,topic,value):
         mqttPublish(topic, value)
+
+
+    def triggerAction(self,actions,deviceData):
+        deviceId = deviceData["id"]
+        triggered = False
+        if "relay" in actions:
+            relays = actions["relay"]
+            for relayId, state in relays.items():
+                self.stateToggleChange(int(deviceId),int(relayId),int(state))
+                triggered = True
+        else:
+            print("The Device does not support this action")    
+        return triggered
 
 
     def stateToggleChange(self,deviceId,relayId,state=None):
@@ -88,6 +102,7 @@ class switch(object):
         state = self.checkStateChanged(deviceAddress,deviceProperties)
         dbSync = dbSyncDevice(deviceClass,deviceProperties,deviceActions,deviceAddress,COMPONENT)
         if dbSync and state:
+            eventsHandler()
             relayState = json.dumps(json.loads(dbSync["properties"])["relay"])
             dbInsertHistory(dbSync["id"],dbSync["name"],dbSync["type"],dbSync["component"],"changed",relayState)
-            triggerEvent()
+            

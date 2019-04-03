@@ -1,6 +1,7 @@
 import os, sys, json, ast, binascii
 sys.path.insert(0, "../../")
 from helpers.db import *
+from system.events import *
 
 COMPONENT = "xbee"
 CLASS_HEADER = "pr"
@@ -19,7 +20,7 @@ class sensor(object):
             if key != CLASS_HEADER:
                 if key in DEVICE_ENUM:
                     devicePropertiesData[DEVICE_ENUM[key][0]] = {}
-                    devicePropertiesData[DEVICE_ENUM[key][0]]["value"] = value
+                    devicePropertiesData[DEVICE_ENUM[key][0]]["value"] = float(value)
                     try:
                         if DEVICE_ENUM[key][1]:
                             devicePropertiesData[DEVICE_ENUM[key][0]]["unit"] = DEVICE_ENUM[key][1]
@@ -42,5 +43,7 @@ class sensor(object):
         else:
             pass
         dbSyncDevice(deviceClass,deviceProperties,deviceActions,deviceAddress,COMPONENT)
+        eventsHandler()
+        
 
             

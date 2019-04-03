@@ -1,16 +1,12 @@
-import os, sys
+import os, sys, json, pytz
 sys.path.insert(0, '../../')
 #sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from astral import *
-import json
-import pytz
 from apscheduler.schedulers.blocking import BlockingScheduler
 from time import strftime, strptime
 from datetime import datetime, timedelta, tzinfo
 from helpers.db import *
 from helpers.dt import *
-# from system.events import *
-
 
 DATE_STR_FORMAT = "%Y-%m-%d"
 UTC = DEFAULT_TIME_ZONE = pytz.utc  # type: dt.tzinfo
@@ -19,7 +15,7 @@ ZERO = timedelta(0)
 
 COMPONENT = "horizon"
 TYPE = "system"
-UPDATE_EVERY = 1 #seconds
+UPDATE_EVERY = 1
 
 
 def sun_horizon(sunrise,sunset): #if 1 above horizon if 0 below horzion
@@ -75,11 +71,9 @@ def horizonHandler():
 			data["astral"]["next_time"] =  str(get_age(astral["sunrise"]))
 	deviceActions = {}
 	deviceProperties = json.dumps(data)
-	print(deviceProperties)
 	dbSyncDevice(TYPE,deviceProperties,deviceActions,"",COMPONENT)
-	triggerEvent()
 
 
 sched = BlockingScheduler()
-sched.add_job(horizonHandler, "interval", seconds=UPDATE_EVERY)
+sched.add_job(horizonHandler, "interval", minutes=UPDATE_EVERY)
 sched.start()
