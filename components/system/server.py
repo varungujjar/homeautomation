@@ -1,9 +1,7 @@
 import os, sys
 sys.path.insert(0, '../../')
-import json,pytz,psutil
+import json,psutil
 from apscheduler.schedulers.blocking import BlockingScheduler
-from time import strftime, strptime
-from datetime import datetime, timedelta, tzinfo
 from helpers.db import *
 from helpers.dt import *
 
@@ -30,6 +28,7 @@ def deviceHandler():
 	deviceActions = {}
 	deviceProperties = json.dumps(data)
 	dbSyncDevice(TYPE,deviceProperties,deviceActions,"",COMPONENT)
+	print(deviceProperties)
 
 sched = BlockingScheduler()
 sched.add_job(deviceHandler, "interval", seconds=UPDATE_EVERY)

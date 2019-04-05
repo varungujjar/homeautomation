@@ -15,6 +15,7 @@ SUPPORTED_DEVICES = {"sensor","door","plant"}
 
 
 def getJsonFormatted(payload):
+    payload = str(payload.decode())
     list_decode = payload.split(",")
     list_enum = []
     for eachItem in list_decode:
@@ -25,7 +26,7 @@ def getJsonFormatted(payload):
 
 def getJsonData(payload):
     jsonItem = {}
-    for key, value in payload.iteritems():
+    for key, value in payload.items():
         if key != "rf_data":
             jsonItem[key] = value
     jsonItem["payload"] = {}
@@ -36,7 +37,8 @@ def getJsonData(payload):
 def xbeeHandler(payload):
     xbeeData = getJsonData(payload)
     xbeePayload = xbeeData["payload"]
-    for key, value in xbeePayload.iteritems():
+    
+    for key, value in xbeePayload.items():
         if key in SUPPORTED_HEADERS:
             if value in SUPPORTED_DEVICES:
                 try:

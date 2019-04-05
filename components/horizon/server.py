@@ -72,6 +72,7 @@ def horizonHandler():
 	deviceActions = {}
 	deviceProperties = json.dumps(data)
 	dbSyncDevice(TYPE,deviceProperties,deviceActions,"",COMPONENT)
+	print(deviceProperties)
 
 
 sched = BlockingScheduler()

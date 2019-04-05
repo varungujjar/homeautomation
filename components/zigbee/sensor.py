@@ -16,7 +16,7 @@ class sensor(object):
 
     def getDeviceProperties(self,payload):
         devicePropertiesData = {}
-        for key, value in payload.iteritems():
+        for key, value in payload.items():
             if key != CLASS_HEADER:
                 if key in DEVICE_ENUM:
                     devicePropertiesData[DEVICE_ENUM[key][0]] = {}
@@ -34,14 +34,15 @@ class sensor(object):
     def deviceHandler(self,payload):
         devicePayload = payload
         deviceClass = devicePayload["payload"][CLASS_HEADER]
-        deviceAddress = binascii.hexlify(devicePayload["source_addr_long"])
-        deviceSourceAddress = binascii.hexlify(devicePayload["source_addr"])
+        deviceAddress = str(binascii.hexlify(devicePayload["source_addr_long"]).decode())
+        deviceSourceAddress = str(binascii.hexlify(devicePayload["source_addr"]).decode())
         deviceProperties = {}
         deviceActions = {}
         if TYPE in deviceClass:
             deviceProperties = json.dumps(self.getDeviceProperties(devicePayload["payload"]))
         else:
             pass
+        print(deviceProperties)    
         dbSyncDevice(deviceClass,deviceProperties,deviceActions,deviceAddress,COMPONENT)
         eventsHandler()
         

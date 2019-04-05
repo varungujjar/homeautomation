@@ -11,8 +11,8 @@ CLASS_HEADER = "class"
 TYPE = "switch"
 STATE_ON = 1
 STATE_OFF = 0
-DEVICE_PROPERTIES = {"ip","mac","host","ssid","rssi","uptime","vcc","version","voltage","current","apparent","factor","energy","relay"}
-DEVICE_ACTIONS = {"relay","publish","subscribe"}
+DEVICE_PROPERTIES = {"ip","mac","host","ssid","rssi","uptime","vcc","version","voltage","current","apparent","factor","energy","relay","publish","subscribe"}
+DEVICE_ACTIONS = {"relay"}
 
 class switch(object):
     def __init__(self):
@@ -42,7 +42,7 @@ class switch(object):
             deviceActions = json.loads(getDevice["actions"])
             deviceProperties = json.loads(getDevice["properties"])
             deviceRelayState = int(deviceProperties["relay"][str(relayId)])
-            cleanTopic = (deviceActions["subscribe"]).strip("/")
+            cleanTopic = (deviceProperties["subscribe"]).strip("/")
             relayTopic = cleanTopic+"/relay/"+str(relayId)+deviceActions["relay"]["topic"]
             stateValues = {0:STATE_ON,1:STATE_OFF}
             if state is not None:
@@ -56,7 +56,7 @@ class switch(object):
     
     def getDeviceProperties(self,payload):
         devicePropertiesData = {}
-        for key, value in payload.iteritems():
+        for key, value in payload.items():
                 if key in DEVICE_PROPERTIES:
                     devicePropertiesData[key] = value
                 else:
@@ -68,7 +68,7 @@ class switch(object):
         getDevice = dbGetDevice(COMPONENT,deviceAddress)
         devicePropertiesLoad = json.loads(getDevice["properties"])
         state = False
-        for key, value in devicePropertiesLoad["relay"].iteritems():
+        for key, value in devicePropertiesLoad["relay"].items():
             StateJson = json.loads(deviceProperties)
             newState = StateJson["relay"][key]
             currentState = value
@@ -79,7 +79,7 @@ class switch(object):
 
     def getDeviceActions(self,payload):
         deviceActionsData = {}
-        for key, value in payload["actions"].iteritems():
+        for key, value in payload["actions"].items():
                 if key in DEVICE_ACTIONS:
                     deviceActionsData[key] = value
                 else:
@@ -88,7 +88,7 @@ class switch(object):
 
 
     def deviceHandler(self,topic,payload):
-        devicePayload = json.loads(payload)
+        devicePayload = json.loads(str(payload.decode()))
         deviceClass = devicePayload[CLASS_HEADER]
         deviceAddress = devicePayload["ip"]
         deviceProperties = {}

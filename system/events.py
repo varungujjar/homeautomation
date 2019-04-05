@@ -1,8 +1,7 @@
 import os, sys, json
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from datetime import datetime, timedelta, tzinfo
-import imp
-import importlib, glob
+import imp,importlib, glob
 sys.path.insert(0, '../')
 from helpers.db import *
 
@@ -22,12 +21,14 @@ def validateIf(ruleData):
     ifDataJson = json.loads(ruleData["if"])
     checkifActive = ruleData["trigger"]
     ruleID = ruleData["id"]
-
-    if 'id' in ifDataJson:
-        getDevice = dbGetDevice(None,None,ifDataJson["id"])
+    status = False
+    conditionStatus = False
+    ifProperties = ifDataJson["properties"]
+    ifType = ifDataJson["condition"]
+    
+    if "device" in ifDataJson:
+        getDevice = dbGetDevice(None,None,ifDataJson["device"])
         getDeviceProperties = json.loads(getDevice["properties"])
-        ifProperties = ifDataJson["properties"]
-        ifType = ifDataJson["type"]
 
         if getDevice:
             for key, value in ifProperties.items():
@@ -39,7 +40,6 @@ def validateIf(ruleData):
                     getDeviceProperty = getDeviceProperties[key]
                     getIfProperty = ifProperties[key]
                     
-                conditionStatus = False
                 if ifType == "=":
                     if getDeviceProperty == getIfProperty:
                         conditionStatus = True
@@ -52,19 +52,37 @@ def validateIf(ruleData):
                     if getDeviceProperty < getIfProperty:
                         conditionStatus = True
 
-                status = False    
-                if conditionStatus and checkifActive == 1:
-                    setAutomationTriggerStatus(ruleID,0)
-                    status = True
-                elif not conditionStatus and checkifActive == 0:
-                    pass 
-                    setAutomationTriggerStatus(ruleID,1)    
-                else:
-                    pass
         else:
-            print("Device Not Found Rule Cannot Be Triggered")    
+            print("Device Not Found Rule Cannot Be Triggered")  
+
+    elif "datetime" in ifDataJson:
+        dateTimeType = ifDataJson["datetime"]
+        
+        if dateTimeType == "time":
+            getIfHours = ifProperties["time"][0]
+            getIfMinutes = ifProperties["time"][1]
+            now = datetime.datetime.now()
+            #reference now.year, now.month, now.day, now.hour, now.minute, now.second
+            if now.day in ifProperties["day"]:
+                if getIfHours == now.hour and getIfMinutes == now.minute:
+                    conditionStatus = True
+
+        if dateTimeType == "date":
+            pass
+
     else:
-        print("ID Not Found Error")
+        print("No Valid Handlers found for rule")
+
+    if conditionStatus and checkifActive == 1:
+        setAutomationTriggerStatus(ruleID,0)
+        status = True
+    elif not conditionStatus and checkifActive == 0:
+        pass 
+        setAutomationTriggerStatus(ruleID,1)    
+    else:
+        pass
+
+    print(str(ruleID)+str(status))
     return status    
 
 
@@ -77,8 +95,8 @@ def doThen(ruleData):
     checkifActive = ruleData["trigger"]
     ruleID = ruleData["id"]
 
-    if 'id' in thenDataJson:
-        getDevice = dbGetDevice(None,None,thenDataJson["id"])
+    if "device" in thenDataJson:
+        getDevice = dbGetDevice(None,None,thenDataJson["device"])
         getDeviceProperties = json.loads(getDevice["properties"])
         getDeviceActions = json.loads(getDevice["actions"])
         thenActions = thenDataJson["actions"]

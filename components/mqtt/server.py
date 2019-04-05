@@ -15,7 +15,7 @@ def on_connect(client, userdata, flags, rc):
 
 def on_message(client, userdata, msg):
     #print(msg.payload)
-    mqttHandler(str(msg.topic), str(msg.payload))
+    mqttHandler(msg.topic, msg.payload)
 
 def json_validator(data):
     try:
@@ -26,8 +26,8 @@ def json_validator(data):
         return False    
 
 def mqttHandler(topic, payload):
-    mqttPayload = json.loads(payload)
-    for key, value in mqttPayload.iteritems():
+    mqttPayload = json.loads(str(payload.decode()))
+    for key, value in mqttPayload.items():
         if key in SUPPORTED_HEADERS:
             if value in SUPPORTED_DEVICES:
                 try:
