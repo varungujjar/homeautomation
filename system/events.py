@@ -1,8 +1,6 @@
 import os, sys, json
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from datetime import datetime, timedelta, tzinfo
 import imp,importlib, glob
-sys.path.insert(0, '../')
 from helpers.db import *
 
 
@@ -105,17 +103,22 @@ def doThen(ruleData):
             getDeviceModule = str(getDevice["type"])
             getDeviceClass = str(getDevice["type"])
             getDeviceComponent = str(getDevice["component"])
+            #print(sys.path)
 
             try:
-                buildComponentPath = "components."+getDeviceComponent+"."+getDeviceModule                
+                buildComponentPath = "components."+getDeviceComponent+"."+getDeviceModule
+                addSystemPath = "../components/"+getDeviceComponent
+                # sys.path.insert(0, addSystemPath)
+                sys.path.append(addSystemPath)   
                 importModule = __import__(buildComponentPath, fromlist=getDeviceModule)
                 importDeviceClass = getattr(importModule, getDeviceClass)
                 deviceClass = importDeviceClass()
                 status = deviceClass.triggerAction(thenActions,getDevice)
                 if status:
                     print("Rule Triggered")
-                
-            except ImportError:
-                print("[RULE] Error Importing Device")
-        dbInsertHistory(ruleID,"Rule","rule","system","triggered",0)            
+            except ImportError as error:
+                print(error)
+            except Exception as exception:
+                print(exception)
 
+        dbInsertHistory(ruleID,"Rule","rule","system","triggered",0)            

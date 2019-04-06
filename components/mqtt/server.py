@@ -1,7 +1,6 @@
 import paho.mqtt.client as mqtt
 import os, sys, json
-sys.dont_write_bytecode = True
-
+#nice
 COMPONENT = "mqtt" 
 SUPPORTED_HEADERS = {"class"}
 SUPPORTED_DEVICES = {"switch","light"}
@@ -30,15 +29,16 @@ def mqttHandler(topic, payload):
     for key, value in mqttPayload.items():
         if key in SUPPORTED_HEADERS:
             if value in SUPPORTED_DEVICES:
+                importDevice = __import__(value)
+                importDeviceClass = getattr(importDevice, value)
+                deviceClass = importDeviceClass()    
+                deviceClass.deviceHandler(topic,payload)    
                 try:
-                    importDevice = __import__(value)
-                    importDeviceClass = getattr(importDevice, value)
-                    deviceClass = importDeviceClass()    
-                    deviceClass.deviceHandler(topic,payload)
-                except ImportError:
-                    print("[MQTT] Error Importing Device")
-                    #que_notification(platform,'error','Could not find platform enumerator')
-                    pass
+                   pass
+                except ImportError as error:
+                    print(error)
+                except Exception as exception:
+                    print(exception)
             else:
                 print("[MQTT] Server Device Not Supported")       
         else:

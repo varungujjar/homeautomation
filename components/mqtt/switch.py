@@ -1,10 +1,9 @@
 import os, sys, json, ast
 sys.path.insert(0, '../../')
+sys.path.insert(0, './')
 from helpers.db import *
 from publish import *
 from system.events import *
-sys.dont_write_bytecode = True
-
 
 COMPONENT = "mqtt"
 CLASS_HEADER = "class"
@@ -38,20 +37,21 @@ class switch(object):
 
     def stateToggleChange(self,deviceId,relayId,state=None):
         getDevice = dbGetDevice(None,None,deviceId)
-        if getDevice["type"] == TYPE:
-            deviceActions = json.loads(getDevice["actions"])
-            deviceProperties = json.loads(getDevice["properties"])
-            deviceRelayState = int(deviceProperties["relay"][str(relayId)])
-            cleanTopic = (deviceProperties["subscribe"]).strip("/")
-            relayTopic = cleanTopic+"/relay/"+str(relayId)+deviceActions["relay"]["topic"]
-            stateValues = {0:STATE_ON,1:STATE_OFF}
-            if state is not None:
-                stateValue = state
+        if getDevice:      
+            if getDevice["type"] == TYPE:        
+                deviceActions = json.loads(getDevice["actions"])
+                deviceProperties = json.loads(getDevice["properties"])
+                deviceRelayState = int(deviceProperties["relay"][str(relayId)])
+                cleanTopic = (deviceProperties["subscribe"]).strip("/")
+                relayTopic = cleanTopic+"/relay/"+str(relayId)+deviceActions["relay"]["topic"]
+                stateValues = {0:STATE_ON,1:STATE_OFF}
+                if state is not None:
+                    stateValue = state
+                else:
+                    stateValue = stateValues[deviceRelayState]  
+                self.publish(relayTopic,stateValue)
             else:
-                stateValue = stateValues[deviceRelayState]  
-            self.publish(relayTopic,stateValue)
-        else:
-            print("Toggle Not Supported on This Device")   
+                print("Toggle Not Supported on This Device")   
 
     
     def getDeviceProperties(self,payload):
@@ -66,14 +66,16 @@ class switch(object):
 
     def checkStateChanged(self,deviceAddress,deviceProperties):
         getDevice = dbGetDevice(COMPONENT,deviceAddress)
-        devicePropertiesLoad = json.loads(getDevice["properties"])
         state = False
-        for key, value in devicePropertiesLoad["relay"].items():
-            StateJson = json.loads(deviceProperties)
-            newState = StateJson["relay"][key]
-            currentState = value
-            if newState != currentState:
-                state = True
+        if getDevice:
+            devicePropertiesLoad = json.loads(getDevice["properties"])
+            #print(devicePropertiesLoad)
+            for key, value in devicePropertiesLoad["relay"].items():
+                StateJson = json.loads(deviceProperties)
+                newState = StateJson["relay"][key]
+                currentState = value
+                if newState != currentState:
+                    state = True
         return state
 
 
@@ -90,7 +92,7 @@ class switch(object):
     def deviceHandler(self,topic,payload):
         devicePayload = json.loads(str(payload.decode()))
         deviceClass = devicePayload[CLASS_HEADER]
-        deviceAddress = devicePayload["ip"]
+        deviceAddress = devicePayload["mac"]
         deviceProperties = {}
         deviceActions = {}
         if TYPE in deviceClass:
@@ -98,7 +100,7 @@ class switch(object):
             deviceActions = json.dumps(self.getDeviceActions(devicePayload))
         else:
             pass
-        state = False    
+        state = False   
         state = self.checkStateChanged(deviceAddress,deviceProperties)
         dbSync = dbSyncDevice(deviceClass,deviceProperties,deviceActions,deviceAddress,COMPONENT)
         if dbSync and state:
