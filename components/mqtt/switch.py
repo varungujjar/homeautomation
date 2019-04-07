@@ -2,8 +2,11 @@ import os, sys, json, ast
 sys.path.insert(0, '../../')
 sys.path.insert(0, './')
 from helpers.db import *
-from publish import *
+from server import *
 from system.events import *
+
+from flask_socketio import SocketIO
+socketio = SocketIO(message_queue='redis://')
 
 COMPONENT = "mqtt"
 CLASS_HEADER = "class"
@@ -107,4 +110,7 @@ class switch(object):
             eventsHandler()
             relayState = json.dumps(json.loads(dbSync["properties"])["relay"])
             dbInsertHistory(dbSync["id"],dbSync["name"],dbSync["type"],dbSync["component"],"changed",relayState)
+            socketio.emit("message",deviceProperties)
+
+
             

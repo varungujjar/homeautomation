@@ -1,10 +1,18 @@
 import os, sys, json
+sys.path.insert(0, '../')
+
 from datetime import datetime, timedelta, tzinfo
-import imp,importlib, glob
+from apscheduler.schedulers.blocking import BlockingScheduler
 from helpers.db import *
 
+# from flask_socketio import SocketIO
+# socketio = SocketIO(message_queue='redis://')
+
+
+TIMER = 1
 
 def eventsHandler():
+    # socketio.emit("message","Running event handler")
     print("Start Check For Rules")
     getRules = dbGetAutomationRules()
     for ruleData in getRules:
@@ -121,4 +129,10 @@ def doThen(ruleData):
             except Exception as exception:
                 print(exception)
 
-        dbInsertHistory(ruleID,"Rule","rule","system","triggered",0)            
+        dbInsertHistory(ruleID,"Rule","rule","system","triggered",0)
+
+
+if __name__ == '__main__':
+    sched = BlockingScheduler()
+    sched.add_job(eventsHandler, "interval", seconds=TIMER)
+    sched.start()

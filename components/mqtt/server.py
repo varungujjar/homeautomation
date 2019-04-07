@@ -1,6 +1,6 @@
 import paho.mqtt.client as mqtt
 import os, sys, json
-#nice
+
 COMPONENT = "mqtt" 
 SUPPORTED_HEADERS = {"class"}
 SUPPORTED_DEVICES = {"switch","light"}
@@ -8,13 +8,20 @@ SUPPORTED_DEVICES = {"switch","light"}
 client = mqtt.Client()
 client.connect("localhost", 1883, 60)
 
+
 def on_connect(client, userdata, flags, rc):
     print("MQTT Connected with result code "+str(rc))
     client.subscribe("#")
 
+
 def on_message(client, userdata, msg):
     #print(msg.payload)
     mqttHandler(msg.topic, msg.payload)
+
+
+def on_publish(client,userdata,result):             #create function for callback
+    print("Data published")
+
 
 def json_validator(data):
     try:
@@ -23,6 +30,7 @@ def json_validator(data):
     except ValueError as error:
         print("invalid json: %s" % error)
         return False    
+
 
 def mqttHandler(topic, payload):
     mqttPayload = json.loads(str(payload.decode()))
@@ -47,5 +55,14 @@ def mqttHandler(topic, payload):
 
 client.on_connect = on_connect
 client.on_message = on_message
-client.loop_forever()
+
+
+def mqttPublish(topic, value):
+    client = mqtt.Client()
+    client.connect("localhost", 1883, 60)
+    client.publish(topic,value,qos=1, retain=False) 
+
+
+if __name__ == "__main__":
+    client.loop_forever()
 
