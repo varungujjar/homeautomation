@@ -1,27 +1,34 @@
 import os, sys, json
+import asyncio
+import time
+import logging
 sys.path.insert(0, '../')
-
+import socketio
 from datetime import datetime, timedelta, tzinfo
-from apscheduler.schedulers.blocking import BlockingScheduler
 from helpers.db import *
 
-# from flask_socketio import SocketIO
-# socketio = SocketIO(message_queue='redis://')
+external_sio = socketio.RedisManager('redis://', write_only=True)
+logger = logging.getLogger(__name__)
 
-
-TIMER = 1
-
-def eventsHandler():
-    # socketio.emit("message","Running event handler")
+def eventsHandler(id=None):
+    if id:
+        getDevice = dbGetDevice(None,None,id)
+        #socketio.emit("message",getDevice["properties"])
     print("Start Check For Rules")
     getRules = dbGetAutomationRules()
     for ruleData in getRules:
         validateIfCondition = validateIf(ruleData)
-        #validateAnd = validateAnd(ruleData)
-        if validateIfCondition:
+        validateAndCondition = validateAnd(ruleData)
+        if validateIfCondition and validateAndCondition:
             doThenCondition = doThen(ruleData)
-    print("Rule Check Cycle Completed")
 
+    external_sio.emit('message', 'Hey there')
+    now = datetime.datetime.now()
+    print("Completed at %s",str(now))
+
+async def emit_test():
+    external_sio.emit('message', 'Hey there')
+    return True      
 
 def validateIf(ruleData):
     ifDataJson = json.loads(ruleData["if"])
@@ -69,8 +76,8 @@ def validateIf(ruleData):
             getIfMinutes = ifProperties["time"][1]
             now = datetime.datetime.now()
             #reference now.year, now.month, now.day, now.hour, now.minute, now.second
-            if now.day in ifProperties["day"]:
-                if getIfHours == now.hour and getIfMinutes == now.minute:
+            if now.weekday() in ifProperties["day"]:
+                if getIfHours == now.hour and getIfMinutes == now.minute and now.second == 0:
                     conditionStatus = True
 
         if dateTimeType == "date":
@@ -93,7 +100,7 @@ def validateIf(ruleData):
 
 
 def validateAnd(ruleData):
-    pass
+    return True
 
 
 def doThen(ruleData):
@@ -132,7 +139,4 @@ def doThen(ruleData):
         dbInsertHistory(ruleID,"Rule","rule","system","triggered",0)
 
 
-if __name__ == '__main__':
-    sched = BlockingScheduler()
-    sched.add_job(eventsHandler, "interval", seconds=TIMER)
-    sched.start()
+

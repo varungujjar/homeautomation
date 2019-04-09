@@ -5,9 +5,6 @@ from helpers.db import *
 from server import *
 from system.events import *
 
-from flask_socketio import SocketIO
-socketio = SocketIO(message_queue='redis://')
-
 COMPONENT = "mqtt"
 CLASS_HEADER = "class"
 TYPE = "switch"
@@ -106,11 +103,11 @@ class switch(object):
         state = False   
         state = self.checkStateChanged(deviceAddress,deviceProperties)
         dbSync = dbSyncDevice(deviceClass,deviceProperties,deviceActions,deviceAddress,COMPONENT)
+        eventsHandler(dbSync["id"])
         if dbSync and state:
-            eventsHandler()
             relayState = json.dumps(json.loads(dbSync["properties"])["relay"])
             dbInsertHistory(dbSync["id"],dbSync["name"],dbSync["type"],dbSync["component"],"changed",relayState)
-            socketio.emit("message",deviceProperties)
+            
 
 
             

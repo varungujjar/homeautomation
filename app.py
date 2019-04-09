@@ -1,33 +1,32 @@
-import json
-from flask import Flask, render_template, request
-from flask_socketio import SocketIO
-import threading
-import eventlet  
+import asyncio
+from aiohttp import web
+import socketio
 
-eventlet.monkey_patch()  
+mgr = socketio.AsyncRedisManager('redis://')
+sio = socketio.AsyncServer(client_manager=mgr,async_mode='aiohttp')
+app = web.Application()
+sio.attach(app)
 
-
-
-async_mode = None
-app = Flask(__name__)
-app.config['SECRET_KEY'] = 'secret!'
-socketio = SocketIO(app, message_queue='redis://')
+async def index(request):
+    with open('test.html') as f:
+        return web.Response(text=f.read(), content_type='text/html')
 
 
-@socketio.on('my_event')
-def test_message(message):
-    print(message)
+@sio.on('connect')
+async def connect(sid, environ):
+    await sio.emit('message', str({'data': 'Connected2'}))
 
-@socketio.on('connect')
-def test_connect():
-    socketio.emit('message', str({'data': 'Connected2'}))
-    #yes
+@sio.on('disconnect')
+def disconnect(sid):
+    print('disconnect ', sid)
 
 
-@app.route('/')
-def index():
-    return render_template('index.html', async_mode=socketio.async_mode)
+@sio.on('message')
+async def on_message(sid, data):
+    print(data)
 
-    
+app.router.add_static('/static', 'static')
+app.router.add_get('/', index)
+
 if __name__ == '__main__':
-    socketio.run(app, host='0.0.0.0', port=8000, debug='true')
+    web.run_app(app,host='0.0.0.0', port=8000)

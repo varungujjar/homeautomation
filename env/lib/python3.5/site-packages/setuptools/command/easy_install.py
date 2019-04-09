@@ -40,12 +40,16 @@ import subprocess
 import shlex
 import io
 
+
+from sysconfig import get_config_vars, get_path
+
+from setuptools import SetuptoolsDeprecationWarning
+
 from setuptools.extern import six
 from setuptools.extern.six.moves import configparser, map
 
 from setuptools import Command
 from setuptools.sandbox import run_setup
-from setuptools.py31compat import get_path, get_config_vars
 from setuptools.py27compat import rmtree_safe
 from setuptools.command import setopt
 from setuptools.archive_util import unpack_archive
@@ -53,13 +57,16 @@ from setuptools.package_index import (
     PackageIndex, parse_requirement_arg, URL_SCHEME,
 )
 from setuptools.command import bdist_egg, egg_info
+from setuptools.wheel import Wheel
 from pkg_resources import (
     yield_lines, normalize_path, resource_string, ensure_directory,
     get_distribution, find_distributions, Environment, Requirement,
     Distribution, PathMetadata, EggMetadata, WorkingSet, DistributionNotFound,
     VersionConflict, DEVELOP_DIST,
 )
-import pkg_resources
+import pkg_resources.py31compat
+
+__metaclass__ = type
 
 # Turn on PEP440Warnings
 warnings.filterwarnings("default", category=pkg_resources.PEP440Warning)
@@ -92,7 +99,7 @@ def samefile(p1, p2):
 
 if six.PY2:
 
-    def _to_ascii(s):
+    def _to_bytes(s):
         return s
 
     def isascii(s):
@@ -103,8 +110,8 @@ if six.PY2:
             return False
 else:
 
-    def _to_ascii(s):
-        return s.encode('ascii')
+    def _to_bytes(s):
+        return s.encode('utf8')
 
     def isascii(s):
         try:
@@ -148,15 +155,13 @@ class easy_install(Command):
         ('local-snapshots-ok', 'l',
          "allow building eggs from local checkouts"),
         ('version', None, "print version information and exit"),
-        ('install-layout=', None, "installation layout to choose (known values: deb)"),
-        ('force-installation-into-system-dir', '0', "force installation into /usr"),
         ('no-find-links', None,
          "Don't load find-links defined in packages being installed")
     ]
     boolean_options = [
         'zip-ok', 'multi-version', 'exclude-scripts', 'upgrade', 'always-copy',
         'editable',
-        'no-deps', 'local-snapshots-ok', 'version', 'force-installation-into-system-dir'
+        'no-deps', 'local-snapshots-ok', 'version'
     ]
 
     if site.ENABLE_USER_SITE:
@@ -204,11 +209,6 @@ class easy_install(Command):
         self.site_dirs = None
         self.installed_projects = {}
         self.sitepy_installed = False
-        # enable custom installation, known values: deb
-        self.install_layout = None
-        self.force_installation_into_system_dir = None
-        self.multiarch = None
-
         # Always read easy_install options, even if we are subclassed, or have
         # an independent instance created.  This ensures that defaults will
         # always come from the standard configuration file(s)' "easy_install"
@@ -277,15 +277,6 @@ class easy_install(Command):
         self.expand_basedirs()
         self.expand_dirs()
 
-        if self.install_layout:
-            if not self.install_layout.lower() in ['deb']:
-                raise DistutilsOptionError("unknown value for --install-layout")
-            self.install_layout = self.install_layout.lower()
-
-            import sysconfig
-            if sys.version_info[:2] >= (3, 3):
-                self.multiarch = sysconfig.get_config_var('MULTIARCH')
-
         self._expand(
             'install_dir', 'script_dir', 'build_directory',
             'site_dirs',
@@ -312,15 +303,6 @@ class easy_install(Command):
         if self.user and self.install_purelib:
             self.install_dir = self.install_purelib
             self.script_dir = self.install_scripts
-
-        if self.prefix == '/usr' and not self.force_installation_into_system_dir:
-            raise DistutilsOptionError("""installation into /usr
-
-Trying to install into the system managed parts of the file system. Please
-consider to install to another location, or use the option
---force-installation-into-system-dir to overwrite this warning.
-""")
-
         # default --record from the install command
         self.set_undefined_options('install', ('record', 'record'))
         # Should this be moved to the if statement below? It's not used
@@ -343,7 +325,7 @@ consider to install to another location, or use the option
                     self.all_site_dirs.append(normalize_path(d))
         if not self.editable:
             self.check_site_dir()
-        self.index_url = self.index_url or "https://pypi.python.org/simple"
+        self.index_url = self.index_url or "https://pypi.org/simple/"
         self.shadow_path = self.all_site_dirs[:]
         for path_item in self.install_dir, normalize_path(self.script_dir):
             if path_item not in self.shadow_path:
@@ -435,7 +417,7 @@ consider to install to another location, or use the option
             for spec in self.args:
                 self.easy_install(spec, not self.no_deps)
             if self.record:
-                outputs = list(sorted(self.outputs))
+                outputs = self.outputs
                 if self.root:  # strip any package prefix
                     root_len = len(self.root)
                     for counter in range(len(outputs)):
@@ -499,8 +481,7 @@ consider to install to another location, or use the option
         else:
             self.pth_file = None
 
-        PYTHONPATH = os.environ.get('PYTHONPATH', '').split(os.pathsep)
-        if instdir not in map(normalize_path, filter(None, PYTHONPATH)):
+        if instdir not in map(normalize_path, _pythonpath()):
             # only PYTHONPATH dirs need a site.py, so pretend it's there
             self.sitepy_installed = True
         elif self.multi_version and not os.path.exists(pth_file):
@@ -570,8 +551,7 @@ consider to install to another location, or use the option
             if ok_exists:
                 os.unlink(ok_file)
             dirname = os.path.dirname(ok_file)
-            if not os.path.exists(dirname):
-                os.makedirs(dirname)
+            pkg_resources.py31compat.makedirs(dirname, exist_ok=True)
             f = open(pth_file, 'w')
         except (OSError, IOError):
             self.cant_write_to_target()
@@ -655,7 +635,7 @@ consider to install to another location, or use the option
 
     @contextlib.contextmanager
     def _tmpdir(self):
-        tmpdir = tempfile.mkdtemp(prefix=six.u("easy_install-"))
+        tmpdir = tempfile.mkdtemp(prefix=u"easy_install-")
         try:
             # cast to str as workaround for #709 and #710 and #712
             yield str(tmpdir)
@@ -828,7 +808,7 @@ consider to install to another location, or use the option
         if is_script:
             body = self._load_template(dev_path) % locals()
             script_text = ScriptWriter.get_header(script_text) + body
-        self.write_script(script_name, _to_ascii(script_text), 'b')
+        self.write_script(script_name, _to_bytes(script_text), 'b')
 
     @staticmethod
     def _load_template(dev_path):
@@ -854,14 +834,16 @@ consider to install to another location, or use the option
         target = os.path.join(self.script_dir, script_name)
         self.add_output(target)
 
+        if self.dry_run:
+            return
+
         mask = current_umask()
-        if not self.dry_run:
-            ensure_directory(target)
-            if os.path.exists(target):
-                os.unlink(target)
-            with open(target, "w" + mode) as f:
-                f.write(contents)
-            chmod(target, 0o777 - mask)
+        ensure_directory(target)
+        if os.path.exists(target):
+            os.unlink(target)
+        with open(target, "w" + mode) as f:
+            f.write(contents)
+        chmod(target, 0o777 - mask)
 
     def install_eggs(self, spec, dist_filename, tmpdir):
         # .egg dirs or files are already built, so just return them
@@ -869,6 +851,8 @@ consider to install to another location, or use the option
             return [self.install_egg(dist_filename, tmpdir)]
         elif dist_filename.lower().endswith('.exe'):
             return [self.install_exe(dist_filename, tmpdir)]
+        elif dist_filename.lower().endswith('.whl'):
+            return [self.install_wheel(dist_filename, tmpdir)]
 
         # Anything else, try to extract and build
         setup_base = tmpdir
@@ -1065,6 +1049,35 @@ consider to install to another location, or use the option
                     f.write('\n'.join(locals()[name]) + '\n')
                     f.close()
 
+    def install_wheel(self, wheel_path, tmpdir):
+        wheel = Wheel(wheel_path)
+        assert wheel.is_compatible()
+        destination = os.path.join(self.install_dir, wheel.egg_name())
+        destination = os.path.abspath(destination)
+        if not self.dry_run:
+            ensure_directory(destination)
+        if os.path.isdir(destination) and not os.path.islink(destination):
+            dir_util.remove_tree(destination, dry_run=self.dry_run)
+        elif os.path.exists(destination):
+            self.execute(
+                os.unlink,
+                (destination,),
+                "Removing " + destination,
+            )
+        try:
+            self.execute(
+                wheel.install_as_egg,
+                (destination,),
+                ("Installing %s to %s") % (
+                    os.path.basename(wheel_path),
+                    os.path.dirname(destination)
+                ),
+            )
+        finally:
+            update_dist_caches(destination, fix_zipimporter_caches=False)
+        self.add_output(destination)
+        return self.egg_distribution(destination)
+
     __mv_warning = textwrap.dedent("""
         Because this distribution was installed --multi-version, before you can
         import modules from this package in an application, you will need to
@@ -1243,7 +1256,6 @@ consider to install to another location, or use the option
 
     def byte_compile(self, to_compile):
         if sys.dont_write_bytecode:
-            self.warn('byte-compiling is disabled, skipping.')
             return
 
         from distutils.util import byte_compile
@@ -1338,27 +1350,10 @@ consider to install to another location, or use the option
                 self.debug_print("os.makedirs('%s', 0o700)" % path)
                 os.makedirs(path, 0o700)
 
-    if sys.version[:3] in ('2.3', '2.4', '2.5') or 'real_prefix' in sys.__dict__:
-        sitedir_name = 'site-packages'
-    else:
-        sitedir_name = 'dist-packages'
-
     INSTALL_SCHEMES = dict(
         posix=dict(
             install_dir='$base/lib/python$py_version_short/site-packages',
             script_dir='$base/bin',
-        ),
-        unix_local = dict(
-            install_dir = '$base/local/lib/python$py_version_short/%s' % sitedir_name,
-            script_dir  = '$base/local/bin',
-        ),
-        posix_local = dict(
-            install_dir = '$base/local/lib/python$py_version_short/%s' % sitedir_name,
-            script_dir  = '$base/local/bin',
-        ),
-        deb_system = dict(
-            install_dir = '$base/lib/python3/%s' % sitedir_name,
-            script_dir  = '$base/bin',
         ),
     )
 
@@ -1370,18 +1365,11 @@ consider to install to another location, or use the option
     def _expand(self, *attrs):
         config_vars = self.get_finalized_command('install').config_vars
 
-        if self.prefix or self.install_layout:
-            if self.install_layout and self.install_layout in ['deb']:
-                    scheme_name = "deb_system"
-                    self.prefix = '/usr'
-            elif self.prefix or 'real_prefix' in sys.__dict__:
-                scheme_name = os.name
-            else:
-                scheme_name = "posix_local"
+        if self.prefix:
             # Set default install_dir/scripts from --prefix
             config_vars = config_vars.copy()
             config_vars['base'] = self.prefix
-            scheme = self.INSTALL_SCHEMES.get(scheme_name,self.DEFAULT_SCHEME)
+            scheme = self.INSTALL_SCHEMES.get(os.name, self.DEFAULT_SCHEME)
             for attr, val in scheme.items():
                 if getattr(self, attr, None) is None:
                     setattr(self, attr, val)
@@ -1397,10 +1385,21 @@ consider to install to another location, or use the option
                 setattr(self, attr, val)
 
 
+def _pythonpath():
+    items = os.environ.get('PYTHONPATH', '').split(os.pathsep)
+    return filter(None, items)
+
+
 def get_site_dirs():
-    # return a list of 'site' dirs
-    sitedirs = [_f for _f in os.environ.get('PYTHONPATH',
-                                            '').split(os.pathsep) if _f]
+    """
+    Return a list of 'site' dirs
+    """
+
+    sitedirs = []
+
+    # start with PYTHONPATH
+    sitedirs.extend(_pythonpath())
+
     prefixes = [sys.prefix]
     if sys.exec_prefix != sys.prefix:
         prefixes.append(sys.exec_prefix)
@@ -1412,15 +1411,9 @@ def get_site_dirs():
                 sitedirs.extend([
                     os.path.join(
                         prefix,
-                        "local/lib",
-                        "python" + sys.version[:3],
-                        "dist-packages",
-                    ),
-                    os.path.join(
-                        prefix,
                         "lib",
                         "python" + sys.version[:3],
-                        "dist-packages",
+                        "site-packages",
                     ),
                     os.path.join(prefix, "lib", "site-python"),
                 ])
@@ -1730,7 +1723,7 @@ def _first_line_re():
 
 
 def auto_chmod(func, arg, exc):
-    if func is os.remove and os.name == 'nt':
+    if func in [os.unlink, os.remove] and os.name == 'nt':
         chmod(arg, stat.S_IWRITE)
         return func(arg)
     et, ev, _ = sys.exc_info()
@@ -1863,7 +1856,7 @@ def _update_zipimporter_cache(normalized_path, cache, updater=None):
         #    get/del patterns instead. For more detailed information see the
         #    following links:
         #      https://github.com/pypa/setuptools/issues/202#issuecomment-202913420
-        #      https://bitbucket.org/pypy/pypy/src/dd07756a34a41f674c0cacfbc8ae1d4cc9ea2ae4/pypy/module/zipimport/interp_zipimport.py#cl-99
+        #      http://bit.ly/2h9itJX
         old_entry = cache[p]
         del cache[p]
         new_entry = updater and updater(p, old_entry)
@@ -2062,13 +2055,13 @@ class WindowsCommandSpec(CommandSpec):
     split_args = dict(posix=False)
 
 
-class ScriptWriter(object):
+class ScriptWriter:
     """
     Encapsulates behavior around writing entry point scripts for console and
     gui apps.
     """
 
-    template = textwrap.dedent("""
+    template = textwrap.dedent(r"""
         # EASY-INSTALL-ENTRY-SCRIPT: %(spec)r,%(group)r,%(name)r
         __requires__ = %(spec)r
         import re
@@ -2087,7 +2080,7 @@ class ScriptWriter(object):
     @classmethod
     def get_script_args(cls, dist, executable=None, wininst=False):
         # for backward compatibility
-        warnings.warn("Use get_args", DeprecationWarning)
+        warnings.warn("Use get_args", EasyInstallDeprecationWarning)
         writer = (WindowsScriptWriter if wininst else ScriptWriter).best()
         header = cls.get_script_header("", executable, wininst)
         return writer.get_args(dist, header)
@@ -2095,12 +2088,10 @@ class ScriptWriter(object):
     @classmethod
     def get_script_header(cls, script_text, executable=None, wininst=False):
         # for backward compatibility
-        warnings.warn("Use get_header", DeprecationWarning)
+        warnings.warn("Use get_header", EasyInstallDeprecationWarning, stacklevel=2)
         if wininst:
             executable = "python.exe"
-        cmd = cls.command_spec_class.best().from_param(executable)
-        cmd.install_options(script_text)
-        return cmd.as_header()
+        return cls.get_header(script_text, executable)
 
     @classmethod
     def get_args(cls, dist, header=None):
@@ -2132,7 +2123,7 @@ class ScriptWriter(object):
     @classmethod
     def get_writer(cls, force_windows):
         # for backward compatibility
-        warnings.warn("Use best", DeprecationWarning)
+        warnings.warn("Use best", EasyInstallDeprecationWarning)
         return WindowsScriptWriter.best() if force_windows else cls.best()
 
     @classmethod
@@ -2164,7 +2155,7 @@ class WindowsScriptWriter(ScriptWriter):
     @classmethod
     def get_writer(cls):
         # for backward compatibility
-        warnings.warn("Use best", DeprecationWarning)
+        warnings.warn("Use best", EasyInstallDeprecationWarning)
         return cls.best()
 
     @classmethod
@@ -2345,3 +2336,7 @@ def _patch_usage():
         yield
     finally:
         distutils.core.gen_usage = saved
+
+class EasyInstallDeprecationWarning(SetuptoolsDeprecationWarning):
+    """Class for warning about deprecations in EasyInstall in SetupTools. Not ignored by default, unlike DeprecationWarning."""
+    
