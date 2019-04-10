@@ -90,7 +90,7 @@ class switch(object):
 
 
     def deviceHandler(self,topic,payload):
-        devicePayload = json.loads(str(payload.decode()))
+        devicePayload = json.loads(str(payload))
         deviceClass = devicePayload[CLASS_HEADER]
         deviceAddress = devicePayload["mac"]
         deviceProperties = {}
