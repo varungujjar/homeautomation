@@ -87,8 +87,6 @@ if __name__ == '__main__':
         asyncio.get_event_loop().run_until_complete(mqttHandler())
         loop.run_forever()
     except KeyboardInterrupt:
-        pass
-    finally:
-        print("Closing Loop")
         loop.close()
+        
     

@@ -5,30 +5,34 @@ import logging
 sys.path.insert(0, '../')
 import socketio
 from datetime import datetime, timedelta, tzinfo
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from helpers.db import *
+
+TIMER = 1
+logging.basicConfig(level=logging.INFO,format='%(asctime)s %(levelname)s %(message)s')
 
 external_sio = socketio.RedisManager('redis://', write_only=True)
 logger = logging.getLogger(__name__)
 
-def eventsHandler(id=None):
+
+
+async def eventsHandler(id=None):
     if id:
         getDevice = dbGetDevice(None,None,id)
         #socketio.emit("message",getDevice["properties"])
-    print("Start Check For Rules")
+
+    logger.info("[EVENTS] Rule Check Started")
     getRules = dbGetAutomationRules()
     for ruleData in getRules:
         validateIfCondition = validateIf(ruleData)
         validateAndCondition = validateAnd(ruleData)
         if validateIfCondition and validateAndCondition:
-            doThenCondition = doThen(ruleData)
+            loop.create_task(doThen(ruleData))
 
     external_sio.emit('message', 'Hey there')
     now = datetime.datetime.now()
-    print("Completed at %s",str(now))
-
-async def emit_test():
-    external_sio.emit('message', 'Hey there')
-    return True      
+    logger.info("[EVENTS] Rule Check Completed")
+ 
 
 def validateIf(ruleData):
     ifDataJson = json.loads(ruleData["if"])
@@ -38,7 +42,7 @@ def validateIf(ruleData):
     conditionStatus = False
     ifProperties = ifDataJson["properties"]
     ifType = ifDataJson["condition"]
-    
+
     if "device" in ifDataJson:
         getDevice = dbGetDevice(None,None,ifDataJson["device"])
         getDeviceProperties = json.loads(getDevice["properties"])
@@ -66,7 +70,7 @@ def validateIf(ruleData):
                         conditionStatus = True
 
         else:
-            print("Device Not Found Rule Cannot Be Triggered")  
+            logger.warning("[EVENTS] Device with %s Not Found" % str(ifDataJson["device"])) 
 
     elif "datetime" in ifDataJson:
         dateTimeType = ifDataJson["datetime"]
@@ -85,6 +89,7 @@ def validateIf(ruleData):
 
     else:
         print("No Valid Handlers found for rule")
+        logger.warning("[EVENTS] No Valid Handlers Found for Rule")
 
     if conditionStatus and checkifActive == 1:
         setAutomationTriggerStatus(ruleID,0)
@@ -94,8 +99,7 @@ def validateIf(ruleData):
         setAutomationTriggerStatus(ruleID,1)    
     else:
         pass
-
-    print(str(ruleID)+str(status))
+    logger.info("[EVENTS] Rule ID %d %s" % (ruleID, str(status)))
     return status    
 
 
@@ -103,7 +107,7 @@ def validateAnd(ruleData):
     return True
 
 
-def doThen(ruleData):
+async def doThen(ruleData):
     thenDataJson = json.loads(ruleData["then"])
     checkifActive = ruleData["trigger"]
     ruleID = ruleData["id"]
@@ -124,19 +128,30 @@ def doThen(ruleData):
                 buildComponentPath = "components."+getDeviceComponent+"."+getDeviceModule
                 addSystemPath = "../components/"+getDeviceComponent
                 # sys.path.insert(0, addSystemPath)
-                sys.path.append(addSystemPath)   
+                sys.path.append(addSystemPath)
+                logger.info("[EVENTS] Triggering Rule Action")   
                 importModule = __import__(buildComponentPath, fromlist=getDeviceModule)
                 importDeviceClass = getattr(importModule, getDeviceClass)
                 deviceClass = importDeviceClass()
                 status = deviceClass.triggerAction(thenActions,getDevice)
                 if status:
-                    print("Rule Triggered")
+                    logger.info("[EVENTS] Rule Triggered") 
             except ImportError as error:
-                print(error)
+                logger.error("[EVENTS] %s" % str(error)) 
             except Exception as exception:
-                print(exception)
+                logger.error("[EVENTS] %s" % str(error))
 
         dbInsertHistory(ruleID,"Rule","rule","system","triggered",0)
 
+loop = asyncio.get_event_loop()
 
+if __name__ == '__main__':
+    sched = AsyncIOScheduler()
+    sched.add_job(eventsHandler, "interval", seconds=TIMER)
+    sched.start()
+    try:
+        asyncio.get_event_loop().run_forever()
+    except (KeyboardInterrupt, SystemExit):
+        loop.close()
 
+    
