@@ -1,6 +1,8 @@
-import os, sys, json, pytz
-sys.path.insert(0, '../../')
-#sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+import os, sys
+sys.path.append('../../')
+import json
+import pytz
+import logging
 from astral import *
 from apscheduler.schedulers.blocking import BlockingScheduler
 from time import strftime, strptime
@@ -8,8 +10,12 @@ from datetime import datetime, timedelta, tzinfo
 from helpers.db import *
 from helpers.dt import *
 
+logger = logging.getLogger(__name__)
+logger.propagate = True
+logging.basicConfig(level=logging.WARNING,format='%(asctime)s %(levelname)s %(message)s')
+
 DATE_STR_FORMAT = "%Y-%m-%d"
-UTC = DEFAULT_TIME_ZONE = pytz.utc  # type: dt.tzinfo
+UTC = DEFAULT_TIME_ZONE = pytz.utc
 
 ZERO = timedelta(0)
 
@@ -72,7 +78,7 @@ def horizonHandler():
 	deviceActions = {}
 	deviceProperties = json.dumps(data)
 	dbSyncDevice(TYPE,deviceProperties,deviceActions,"",COMPONENT)
-	print(deviceProperties)
+	logger.info("[HORIZON] %s" % str(deviceProperties))
 
 
 sched = BlockingScheduler()

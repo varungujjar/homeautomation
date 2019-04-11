@@ -1,7 +1,12 @@
-import serial, os, sys, json
+import os, sys
+import serial
+import json
+import logging
 from xbee import XBee
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.dont_write_bytecode = True
+
+logger = logging.getLogger(__name__)
+logger.propagate = True
+logging.basicConfig(level=logging.WARNING,format='%(asctime)s %(levelname)s %(message)s')
 
 SERIALPORT = "/dev/ttyUSB0" 
 BAUDRATE = 9600
@@ -37,7 +42,7 @@ def getJsonData(payload):
 def xbeeHandler(payload):
     xbeeData = getJsonData(payload)
     xbeePayload = xbeeData["payload"]
-    
+    logger.info("[ZIGBEE] %s" % str(payload))
     for key, value in xbeePayload.items():
         if key in SUPPORTED_HEADERS:
             if value in SUPPORTED_DEVICES:
@@ -46,11 +51,11 @@ def xbeeHandler(payload):
                     importDeviceClass = getattr(importDevice, value)
                     deviceClass = importDeviceClass()    
                     k = deviceClass.deviceHandler(xbeeData)
-                except ImportError:
-                    print("[XBEE] Error Importing Device")
+                except ImportError as error:
+                    logger.error("[ZIGBEE] %s" % str(error))
                     pass
             else:
-                print("[XBEE] Server Device Not Supported")      
+                logger.warning("[ZIGBEE] Device Not Supported")    
         else:
             pass    
 

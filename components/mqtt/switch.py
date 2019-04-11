@@ -1,10 +1,16 @@
-import os, sys, json, ast
-sys.path.insert(0, '../../')
-sys.path.insert(0, './')
+import os, sys
+sys.path.append('./')
+sys.path.append('../../')
+import json
+import asyncio
+import logging
 from helpers.db import *
 from server import *
 from system.events import *
-import asyncio
+
+logger = logging.getLogger(__name__)
+logger.propagate = True
+logging.basicConfig(level=logging.WARNING,format='%(asctime)s %(levelname)s %(message)s')
 
 COMPONENT = "mqtt"
 CLASS_HEADER = "class"

@@ -1,11 +1,19 @@
-import os, sys, json, ast, binascii
-sys.path.insert(0, "../../")
+import os, sys
+sys.path.append('../../')
+import json
+import ast 
+import binascii
+import logging
 from helpers.db import *
 from system.events import *
 
+logger = logging.getLogger(__name__)
+logger.propagate = True
+logging.basicConfig(level=logging.WARNING,format='%(asctime)s %(levelname)s %(message)s')
+
 COMPONENT = "xbee"
-CLASS_HEADER = "pr"
 TYPE = "sensor"
+CLASS_HEADER = "pr"
 DEVICE_ENUM = {"t":["temperature","C"],"h":["humidity","%"],"p":["pressure","hPa"],"o":["gas","ppm"],"a":["altitude","m"],"l":["light","lux"],"v":["voltage","mAh"]}
 #DEVICE_PROPERTIES = {"temperature","humidity","pressure","gas","altitude","light","voltage"}
 
@@ -42,7 +50,7 @@ class sensor(object):
             deviceProperties = json.dumps(self.getDeviceProperties(devicePayload["payload"]))
         else:
             pass
-        print(deviceProperties)    
+        logger.info("[ZIGBEE] %s" % str(deviceProperties))
         dbSyncDevice(deviceClass,deviceProperties,deviceActions,deviceAddress,COMPONENT)
         eventsHandler()
         

@@ -1,17 +1,17 @@
 import os, sys
 sys.path.insert(0, '../../')
 import json,psutil
+import logging
 from apscheduler.schedulers.blocking import BlockingScheduler
 from helpers.db import *
 from helpers.dt import *
 
-DATE_STR_FORMAT = "%Y-%m-%d"
-UTC = DEFAULT_TIME_ZONE = pytz.utc  # type: dt.tzinfo
+logger = logging.getLogger(__name__)
+logger.propagate = True
+logging.basicConfig(level=logging.WARNING,format='%(asctime)s %(levelname)s %(message)s')
 
-ZERO = timedelta(0)
-
-TYPE = "system"
 COMPONENT = "system"
+TYPE = "system"
 UPDATE_EVERY = 5 #seconds
 
 def deviceHandler():
@@ -28,7 +28,7 @@ def deviceHandler():
 	deviceActions = {}
 	deviceProperties = json.dumps(data)
 	dbSyncDevice(TYPE,deviceProperties,deviceActions,"",COMPONENT)
-	print(deviceProperties)
+	logger.info("[SYSTEM] %s" % str(deviceProperties))
 
 sched = BlockingScheduler()
 sched.add_job(deviceHandler, "interval", seconds=UPDATE_EVERY)

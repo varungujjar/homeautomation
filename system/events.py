@@ -1,19 +1,21 @@
-import os, sys, json
+import os, sys
+sys.path.append('../')
+import json
 import asyncio
 import time
 import logging
-sys.path.insert(0, '../')
 import socketio
 from datetime import datetime, timedelta, tzinfo
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from helpers.db import *
 
 TIMER = 1
-logging.basicConfig(level=logging.INFO,format='%(asctime)s %(levelname)s %(message)s')
+
+logger = logging.getLogger(__name__)
+logger.propagate = True
+logging.basicConfig(level=logging.WARNING,format='%(asctime)s %(levelname)s %(message)s')
 
 external_sio = socketio.RedisManager('redis://', write_only=True)
-logger = logging.getLogger(__name__)
-
 
 
 async def eventsHandler(id=None):
@@ -27,7 +29,8 @@ async def eventsHandler(id=None):
         validateIfCondition = validateIf(ruleData)
         validateAndCondition = validateAnd(ruleData)
         if validateIfCondition and validateAndCondition:
-            loop.create_task(doThen(ruleData))
+            task1 = loop.create_task(doThen(ruleData))
+            await task1
 
     external_sio.emit('message', 'Hey there')
     now = datetime.datetime.now()
