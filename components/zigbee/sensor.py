@@ -8,8 +8,6 @@ from helpers.db import *
 from system.events import *
 
 logger = logging.getLogger(__name__)
-logger.propagate = True
-logging.basicConfig(level=logging.WARNING,format='%(asctime)s %(levelname)s %(message)s')
 
 COMPONENT = "xbee"
 TYPE = "sensor"
