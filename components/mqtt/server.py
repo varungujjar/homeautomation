@@ -1,67 +1,92 @@
-import os, sys
-import json
+import os, sys, json
+from ast import literal_eval
 import logging
-import paho.mqtt.client as mqtt
-
-logger = logging.getLogger(__name__)
-logger.propagate = True
-logging.basicConfig(level=logging.WARNING,format='%(asctime)s %(levelname)s %(message)s')
+import asyncio
 
 COMPONENT = "mqtt" 
 SUPPORTED_HEADERS = {"class"}
 SUPPORTED_DEVICES = {"switch","light"}
 
-client = mqtt.Client()
-client.connect("localhost", 1883, 60)
-client.enable_logger(logger)
+from hbmqtt.client import MQTTClient, ClientException, ConnectException
+from hbmqtt.mqtt.constants import QOS_1
+
+logger = logging.getLogger(__name__)
+logger.propagate = True
+logging.basicConfig(level=logging.WARNING,format='%(asctime)s %(levelname)s %(message)s')
+# logging.basicConfig(level=logging.DEBUG,format='%(asctime)s %(levelname)s %(message)s',filename='/tmp/myapp.log',filemode='w')
 
 
-def on_connect(client, userdata, flags, rc):
-    logger.info("[MQTT] Connected with result code %s" % str(rc))
-    client.subscribe("#")
-    logger.info("[MQTT] Subscribed to #")
+config = {
+    'keep_alive': 60,
+    'ping_delay': 1,
+    'default_qos': 1,
+    'default_retain': False,
+    'auto_reconnect': True,
+    'reconnect_max_interval': 5,
+    'reconnect_retries': 2
+}
 
-
-def on_message(client, userdata, msg):
-    #print(msg.payload)
-    mqttHandler(msg.topic, msg.payload)
-
-
-def on_publish(client,userdata,result):             #create function for callback
-    logger.info("[MQTT] Message Published")
-
-
-def mqttHandler(topic, payload):
-    logger.info("[MQTT] %s => %s" % (topic, str(payload)))
-    payload = str(payload.decode())
-    mqttPayload = json.loads(payload)
-    if isinstance(mqttPayload,dict):
-        for key, value in mqttPayload.items():
-            if key in SUPPORTED_HEADERS:
-                if value in SUPPORTED_DEVICES:
-                    importDevice = __import__(value)
-                    importDeviceClass = getattr(importDevice, value)
-                    deviceClass = importDeviceClass()    
-                    deviceClass.deviceHandler(topic,payload)    
-                    try:
-                        pass
-                    except ImportError as error:
-                        logger.error("[MQTT] %s" % str(error))
-                    except Exception as exception:
-                        logger.error("[MQTT] %s" % str(exception))
-                else:
-                    logger.warning("[MQTT] Device Not Supported")      
-            else:
-                pass
+C = MQTTClient(config=config)
 
 
 def mqttPublish(topic, value):
-    client.publish(topic,value,qos=1, retain=False) 
+    loop = asyncio.get_event_loop()
+    loop.create_task(publish(topic, value))
+    print("------------Publishing-----------")
 
-client.on_connect = on_connect
-client.on_message = on_message    
 
-if __name__ == "__main__":
-    client.loop_forever()
+@asyncio.coroutine
+def mqttHandler():
+    yield from C.connect('mqtt://user:password@0.0.0.0:1883')
+    yield from C.subscribe([('#', QOS_1)])
+    logger.info("[MQTT] Subscribed to #")
+    try:
+        while True:
+            message = yield from C.deliver_message()
+            packet = message.publish_packet
+            topic = packet.variable_header.topic_name
+            payload = str(packet.payload.data.decode())
+            mqttPayload = json.loads(payload)
+            if isinstance(mqttPayload,dict):
+                for key, value in mqttPayload.items():
+                    if key in SUPPORTED_HEADERS:
+                        logger.info(mqttPayload)
+                        if value in SUPPORTED_DEVICES:
+                            importDevice = __import__(value)
+                            importDeviceClass = getattr(importDevice, value)
+                            deviceClass = importDeviceClass()    
+                            deviceClass.deviceHandler(topic,payload)    
+                            try:
+                                pass
+                            except ImportError as error:
+                                logger.error("[MQTT] %s" % str(error))
+                            except Exception as exception:
+                                logger.error("[MQTT] %s" % str(exception))
+                        else:
+                            logger.warning("[MQTT] Device Not Supported")       
+                    else:
+                        pass
+        #yield from C.disconnect()            
+        # yield from C.unsubscribe(['#'])
+        # logger.info("UnSubscribed")
+        # yield from C.disconnect()
+    except ClientException as ce:
+        logger.error("[MQTT] Client exception: %s" % ce)
+
+
+@asyncio.coroutine
+def publish(topic, value):
+    yield from C.connect('mqtt://user:password@0.0.0.0:1883')
+    yield from C.publish(topic, bytes(str(value),"UTF-8"), qos=0x01)
+    logger.info("[MQTT] Message Published")
+    yield from C.disconnect()
+
+
+if __name__ == '__main__':
+    try:
+        asyncio.get_event_loop().run_until_complete(mqttHandler())
+        loop.run_forever()
+    except KeyboardInterrupt:
+        loop.close()
+        
     
-

@@ -9,8 +9,6 @@ from server import *
 from system.events import *
 
 logger = logging.getLogger(__name__)
-logger.propagate = True
-logging.basicConfig(level=logging.WARNING,format='%(asctime)s %(levelname)s %(message)s')
 
 COMPONENT = "mqtt"
 CLASS_HEADER = "class"
@@ -110,10 +108,14 @@ class switch(object):
         state = False   
         state = self.checkStateChanged(deviceAddress,deviceProperties)
         dbSync = dbSyncDevice(deviceClass,deviceProperties,deviceActions,deviceAddress,COMPONENT)
-        loop.create_task(eventsHandler(dbSync["id"]))
+        #loop.create_task(eventsHandler(dbSync["id"]))
         if dbSync and state:
             relayState = json.dumps(json.loads(dbSync["properties"])["relay"])
             dbInsertHistory(dbSync["id"],dbSync["name"],dbSync["type"],dbSync["component"],"changed",relayState)
+            loop.create_task(eventsHandler(dbSync["id"]))
+            # loop = asyncio.get_event_loop()
+            # loop.run_until_complete(eventsHandler())
+            
             
 
 

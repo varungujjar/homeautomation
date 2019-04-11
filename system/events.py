@@ -13,7 +13,7 @@ TIMER = 1
 
 logger = logging.getLogger(__name__)
 logger.propagate = True
-logging.basicConfig(level=logging.WARNING,format='%(asctime)s %(levelname)s %(message)s')
+logging.basicConfig(level=logging.ERROR,format='%(asctime)s %(levelname)s %(message)s')
 
 external_sio = socketio.RedisManager('redis://', write_only=True)
 
@@ -23,7 +23,7 @@ async def eventsHandler(id=None):
         getDevice = dbGetDevice(None,None,id)
         #socketio.emit("message",getDevice["properties"])
 
-    logger.info("[EVENTS] Rule Check Started")
+    logger.debug("[EVENTS] Rule Check Started")
     getRules = dbGetAutomationRules()
     for ruleData in getRules:
         validateIfCondition = validateIf(ruleData)
@@ -34,7 +34,7 @@ async def eventsHandler(id=None):
 
     external_sio.emit('message', 'Hey there')
     now = datetime.datetime.now()
-    logger.info("[EVENTS] Rule Check Completed")
+    logger.debug("[EVENTS] Rule Check Completed")
  
 
 def validateIf(ruleData):
@@ -91,7 +91,6 @@ def validateIf(ruleData):
             pass
 
     else:
-        print("No Valid Handlers found for rule")
         logger.warning("[EVENTS] No Valid Handlers Found for Rule")
 
     if conditionStatus and checkifActive == 1:
@@ -102,7 +101,7 @@ def validateIf(ruleData):
         setAutomationTriggerStatus(ruleID,1)    
     else:
         pass
-    logger.info("[EVENTS] Rule ID %d %s" % (ruleID, str(status)))
+    logger.debug("[EVENTS] Rule ID %d %s" % (ruleID, str(status)))
     return status    
 
 
@@ -131,8 +130,7 @@ async def doThen(ruleData):
                 buildComponentPath = "components."+getDeviceComponent+"."+getDeviceModule
                 addSystemPath = "../components/"+getDeviceComponent
                 # sys.path.insert(0, addSystemPath)
-                sys.path.append(addSystemPath)
-                logger.info("[EVENTS] Triggering Rule Action")   
+                sys.path.append(addSystemPath) 
                 importModule = __import__(buildComponentPath, fromlist=getDeviceModule)
                 importDeviceClass = getattr(importModule, getDeviceClass)
                 deviceClass = importDeviceClass()
@@ -142,7 +140,7 @@ async def doThen(ruleData):
             except ImportError as error:
                 logger.error("[EVENTS] %s" % str(error)) 
             except Exception as exception:
-                logger.error("[EVENTS] %s" % str(error))
+                logger.error("[EVENTS] %s" % str(exception))
 
         dbInsertHistory(ruleID,"Rule","rule","system","triggered",0)
 
