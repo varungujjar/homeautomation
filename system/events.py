@@ -12,16 +12,21 @@ from helpers.db import *
 TIMER = 1
 
 logger = logging.getLogger(__name__)
-logger.propagate = True
-logging.basicConfig(level=logging.ERROR,format='%(asctime)s %(levelname)s %(message)s')
-
 external_sio = socketio.RedisManager('redis://', write_only=True)
+loop2 = asyncio.get_event_loop()
 
 
-async def eventsHandler(id=None):
+async def eventsHandlerCheck():
+    while True:
+        eventsHandler()
+        logger.info("[EVENTS] OK")
+        await asyncio.sleep(TIMER)
+
+
+def eventsHandler(id=None):
     if id:
         getDevice = dbGetDevice(None,None,id)
-        #socketio.emit("message",getDevice["properties"])
+        external_sio.emit('message', str(getDevice["properties"]))
 
     logger.debug("[EVENTS] Rule Check Started")
     getRules = dbGetAutomationRules()
@@ -29,12 +34,11 @@ async def eventsHandler(id=None):
         validateIfCondition = validateIf(ruleData)
         validateAndCondition = validateAnd(ruleData)
         if validateIfCondition and validateAndCondition:
-            task1 = loop.create_task(doThen(ruleData))
-            await task1
+            doThen(ruleData)
 
-    external_sio.emit('message', 'Hey there')
     now = datetime.datetime.now()
     logger.debug("[EVENTS] Rule Check Completed")
+    
  
 
 def validateIf(ruleData):
@@ -109,7 +113,7 @@ def validateAnd(ruleData):
     return True
 
 
-async def doThen(ruleData):
+def doThen(ruleData):
     thenDataJson = json.loads(ruleData["then"])
     checkifActive = ruleData["trigger"]
     ruleID = ruleData["id"]
@@ -144,15 +148,14 @@ async def doThen(ruleData):
 
         dbInsertHistory(ruleID,"Rule","rule","system","triggered",0)
 
-loop = asyncio.get_event_loop()
 
-if __name__ == '__main__':
-    sched = AsyncIOScheduler()
-    sched.add_job(eventsHandler, "interval", seconds=TIMER)
-    sched.start()
-    try:
-        asyncio.get_event_loop().run_forever()
-    except (KeyboardInterrupt, SystemExit):
-        loop.close()
+# if __name__ == '__main__':
+#     sched = AsyncIOScheduler()
+#     sched.add_job(eventsHandler, "interval", seconds=TIMER)
+#     sched.start()
+#     try:
+#         asyncio.get_event_loop().run_forever()
+#     except (KeyboardInterrupt, SystemExit):
+#         loop.close()
 
     

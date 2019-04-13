@@ -1,7 +1,9 @@
 import os, sys
+sys.path.append('./')
 sys.path.append('../../')
 import json
-import ast 
+import ast
+import asyncio
 import binascii
 import logging
 from helpers.db import *
@@ -37,7 +39,7 @@ class sensor(object):
         return devicePropertiesData           
 
 
-    def deviceHandler(self,payload):
+    async def deviceHandler(self,payload):
         devicePayload = payload
         deviceClass = devicePayload["payload"][CLASS_HEADER]
         deviceAddress = str(binascii.hexlify(devicePayload["source_addr_long"]).decode())

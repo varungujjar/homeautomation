@@ -94,12 +94,13 @@ class switch(object):
         return deviceActionsData
 
 
-    def deviceHandler(self,topic,payload):
+    async def deviceHandler(self,topic,payload):
         devicePayload = json.loads(str(payload))
         deviceClass = devicePayload[CLASS_HEADER]
         deviceAddress = devicePayload["mac"]
         deviceProperties = {}
         deviceActions = {}
+        
         if TYPE in deviceClass:
             deviceProperties = json.dumps(self.getDeviceProperties(devicePayload))
             deviceActions = json.dumps(self.getDeviceActions(devicePayload))
@@ -112,9 +113,10 @@ class switch(object):
         if dbSync and state:
             relayState = json.dumps(json.loads(dbSync["properties"])["relay"])
             dbInsertHistory(dbSync["id"],dbSync["name"],dbSync["type"],dbSync["component"],"changed",relayState)
-            loop.create_task(eventsHandler(dbSync["id"]))
             # loop = asyncio.get_event_loop()
-            # loop.run_until_complete(eventsHandler())
+            # loop.run_until_complete(eventsHandler(dbSync["id"]))
+            eventsHandler(dbSync["id"])
+            # eventsHandler(dbSync["id"])
             
             
 

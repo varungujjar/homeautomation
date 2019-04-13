@@ -2,22 +2,23 @@ import os, sys
 import serial
 import json
 import logging
+import asyncio
 from xbee import XBee
 
 logger = logging.getLogger(__name__)
-logger.propagate = True
-logging.basicConfig(level=logging.WARNING,format='%(asctime)s %(levelname)s %(message)s')
 
 SERIALPORT = "/dev/ttyUSB0" 
 BAUDRATE = 9600
 
+
 ser = serial.Serial(SERIALPORT, BAUDRATE)
 xbee = XBee(ser)
+
+loop = asyncio.get_event_loop()
 
 COMPONENT = "xbee"
 SUPPORTED_HEADERS = {"pr"}
 SUPPORTED_DEVICES = {"sensor","door","plant"}
-
 
 def getJsonFormatted(payload):
     payload = str(payload.decode())
@@ -38,8 +39,10 @@ def getJsonData(payload):
     jsonItem["payload"] = getJsonFormatted(payload["rf_data"])
     return jsonItem
 
+def xbeeCallback(data):
+    loop.create_task(xbeeHandler(data))
 
-def xbeeHandler(payload):
+async def xbeeHandler(payload):
     xbeeData = getJsonData(payload)
     xbeePayload = xbeeData["payload"]
     logger.info("[ZIGBEE] %s" % str(payload))
@@ -49,22 +52,23 @@ def xbeeHandler(payload):
                 try:
                     importDevice = __import__(value)
                     importDeviceClass = getattr(importDevice, value)
-                    deviceClass = importDeviceClass()    
-                    k = deviceClass.deviceHandler(xbeeData)
+                    deviceClass = importDeviceClass()
+                    loop = asyncio.get_event_loop()    
+                    loop.create_task(deviceClass.deviceHandler(xbeeData))
                 except ImportError as error:
                     logger.error("[ZIGBEE] %s" % str(error))
                     pass
             else:
                 logger.warning("[ZIGBEE] Device Not Supported")    
         else:
-            pass    
+            pass
 
 
-while True:
-    try:
-        response = xbee.wait_read_frame()
-        xbeeHandler(response)
-    except KeyboardInterrupt:
-        break
+async def xbeePoll():
+    while True:
+        xbee = XBee(ser, callback=xbeeCallback)
+        await xbee
 
-ser.close()
+#ser.close()
+ 
+
