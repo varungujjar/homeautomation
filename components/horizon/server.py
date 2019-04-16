@@ -45,7 +45,7 @@ def local_astral_event(config_data):
 	return data
 
 
-async def serverHandler():
+async def horizonHandler():
 	while True:
 		config_db = dbGetConfig()
 		config_data = json.loads(config_db["config"])

@@ -3,9 +3,8 @@ import json
 import asyncio
 import logging
 from helpers.db import *
-from publish import *
 from system.events import *
-
+from publish import *
 logger = logging.getLogger(__name__)
 
 COMPONENT = "mqtt"
@@ -32,8 +31,8 @@ class switch(object):
     def publish(self,topic,value):
         loop = asyncio.get_event_loop()
         loop.create_task(publish(topic, value))
-
-
+        
+        
     def triggerAction(self,actions,deviceData):
         deviceId = deviceData["id"]
         triggered = False

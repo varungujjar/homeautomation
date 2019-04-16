@@ -12,7 +12,7 @@ COMPONENT = "system"
 TYPE = "system"
 UPDATE_EVERY = 30 #seconds
 
-async def serverHandler():
+async def systemHandler():
 	while True:
 		data ={}
 		data["cpu"] = {}

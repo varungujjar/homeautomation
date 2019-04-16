@@ -1,5 +1,4 @@
 import os, sys, json
-from ast import literal_eval
 import logging
 import asyncio
 
@@ -26,7 +25,7 @@ C = MQTTClient(config=config)
 
 
 @asyncio.coroutine
-def serverHandler():
+def mqttHandler():
     yield from C.connect('mqtt://user:password@0.0.0.0:1883')
     yield from C.subscribe([('#', QOS_1)])
     logger.info("[MQTT] Subscribed to #")
@@ -78,5 +77,4 @@ def publish(topic, value):
         logger.error("[MQTT] Connection exception: %s" % ce)       
 
 
-        
     

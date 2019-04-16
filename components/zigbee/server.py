@@ -1,25 +1,25 @@
 import os, sys
-import serial
 import json
 import logging
 import asyncio
 from xbee import XBee
-import threading
-
+from serial import Serial, SerialException
 
 logger = logging.getLogger(__name__)
 
 SERIALPORT = "/dev/ttyUSB0" 
 BAUDRATE = 9600
 
-ser = serial.Serial(SERIALPORT, BAUDRATE)
-xbee = XBee(ser)
-
-
+try:
+    ser = Serial(SERIALPORT, BAUDRATE)
+except SerialException as exc:
+    logger.exception("Unable to open serial port for Zigbee: %s", exc)
 
 COMPONENT = "xbee"
 SUPPORTED_HEADERS = {"pr"}
 SUPPORTED_DEVICES = {"sensor","door","plant"}
+
+loop = asyncio.get_event_loop() 
 
 def getJsonFormatted(payload):
     payload = str(payload.decode())
@@ -52,7 +52,6 @@ def xbeeHandler(payload):
                     importDevice = __import__(value)
                     importDeviceClass = getattr(importDevice, value)
                     deviceClass = importDeviceClass()
-                    loop = asyncio.get_event_loop() 
                     loop.create_task(deviceClass.deviceHandler(xbeeData))
                 except ImportError as error:
                     logger.error("[ZIGBEE] %s" % str(error))
@@ -64,40 +63,16 @@ def xbeeHandler(payload):
     return True    
 
 
+xbee = XBee(ser, callback=xbeeHandler)
 
-# async def xbeeserverHandler():
-#     while True:
-#         try:
-#             response =  xbee.wait_read_frame()
-#             xbeeHandler(response)
-#             print(response)
-#         except KeyboardInterrupt:
-#             ser.close()
-    
-while True:
+
+def closeSerialConnection():
+    xbee.halt()
+    ser.close()
+
+async def zigbeeHandler():
     try:
-        response =  xbee.wait_read_frame()
-        xbeeHandler(response)
-        print(response)
-    except KeyboardInterrupt:
-        ser.close()
-
-
-# async def xbeeserverHandler():
-#     xbee = XBee(ser, callback=xbeeHandler)
-#     try:
-#         pass
-#     except KeyboardInterrupt:
-#         print("======= meooww")
-#         xbee.halt()
-#         ser.close()
-#         # await asyncio.sleep(0.1)
-#     return True
-
-         
-
-
-
-
- 
+        xbee
+    except:
+        pass    
 

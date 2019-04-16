@@ -12,7 +12,9 @@ import signal
 import functools
 import threading
 from system.events import *
-from components.zigbee.server2 import *
+from components.zigbee.server import closeSerialConnection
+# from components.mqtt.server2 import *
+# sys.path.append("./components/mqtt/")
 
 COMPONENTS_DIR = "components"
 
@@ -94,11 +96,15 @@ class RunServer:
                 buildComponentPath = COMPONENTS_DIR+"."+component+".server"
                 sys.path.append(path+"/"+component)
                 importModule = __import__(buildComponentPath, fromlist="*")
-                app.loop.create_task(importModule.serverHandler())
+                functionCall = getattr(importModule, "%sHandler" % component)()
+                app.loop.create_task(functionCall)
+        # app.loop.create_task(mqttHandler())        
         app.loop.create_task(eventsHandlerTimer())
         
 
     async def stopHandler(self):
+        logger.info("Closing Serial Connection")
+        closeSerialConnection()
         logger.info("Please Wait.Shutting Down")
         logger.info("Cancelling All Tasks...")
         pending = asyncio.Task.all_tasks()
@@ -122,18 +128,14 @@ class RunServer:
         app.router.add_get('/', self.index)
         return app
 
-    def start_loop(self,loop2):
-        loop2.create_task(xbeeserverHandler())
-        # loop2.run_forever()
 
     def runApp(self):
         loop = self.loop 
         app = loop.run_until_complete(self.createApp())
         app.on_startup.append(self.startBackgroundProcesses)
-
-        loop2 = asyncio.new_event_loop()    
-        t = Thread(target=self.start_loop, args=(loop2,))
-        t.start()
+        # future = concurrent.futures.Future()
+        # t = Thread(target=self.start_loop, args=(loop,))
+        # t.start()
         # app.on_shutdown.append(self.shutdown)
         # app.on_cleanup.append(self.cleanupBackgroundProcesses)
         for sig in (signal.SIGTERM, signal.SIGINT):
