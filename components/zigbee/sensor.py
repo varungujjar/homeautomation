@@ -51,6 +51,7 @@ class sensor(object):
         else:
             pass
         logger.info("[ZIGBEE] %s" % str(deviceProperties))
+        print(deviceProperties)
         dbSyncDevice(deviceClass,deviceProperties,deviceActions,deviceAddress,COMPONENT)
         eventsHandler()
         

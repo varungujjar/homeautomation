@@ -45,7 +45,7 @@ def local_astral_event(config_data):
 	return data
 
 
-async def horizonHandler():
+async def serverHandler():
 	while True:
 		config_db = dbGetConfig()
 		config_data = json.loads(config_db["config"])
@@ -77,5 +77,5 @@ async def horizonHandler():
 		deviceProperties = json.dumps(data)
 		dbSyncDevice(TYPE,deviceProperties,deviceActions,"",COMPONENT)
 		logger.info("[HORIZON] %s" % str(deviceProperties))
-		await asyncio.sleep(5)
+		await asyncio.sleep(60)
 

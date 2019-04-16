@@ -13,10 +13,9 @@ TIMER = 1
 
 logger = logging.getLogger(__name__)
 external_sio = socketio.RedisManager('redis://', write_only=True)
-loop2 = asyncio.get_event_loop()
 
 
-async def eventsHandlerCheck():
+async def eventsHandlerTimer():
     while True:
         eventsHandler()
         logger.info("[EVENTS] OK")
@@ -34,8 +33,9 @@ def eventsHandler(id=None):
         validateIfCondition = validateIf(ruleData)
         validateAndCondition = validateAnd(ruleData)
         if validateIfCondition and validateAndCondition:
-            doThen(ruleData)
-
+            loop = asyncio.get_event_loop()
+            loop.create_task(doThen(ruleData))
+            
     now = datetime.datetime.now()
     logger.debug("[EVENTS] Rule Check Completed")
     
@@ -113,7 +113,7 @@ def validateAnd(ruleData):
     return True
 
 
-def doThen(ruleData):
+async def doThen(ruleData):
     thenDataJson = json.loads(ruleData["then"])
     checkifActive = ruleData["trigger"]
     ruleID = ruleData["id"]

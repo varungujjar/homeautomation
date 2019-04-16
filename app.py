@@ -1,22 +1,20 @@
 import asyncio
-from collections import deque
 from concurrent.futures import ThreadPoolExecutor
 from random import choice
+from functools import partial
+from threading import Thread
+
 from aiohttp import web, ClientSession, ClientError
 import requests
 import logging
-# import system.colorlog
 import socketio
-
-from components.horizon.server import *
-from components.system.server import *
-from components.mqtt.server import *
-from components.zigbee.server import *
+import signal
+import functools
+import threading
 from system.events import *
+from components.zigbee.server2 import *
 
-sys.path.append('/home/pi/components/mqtt/')
-sys.path.append('/home/pi/components/zigbee/')
-
+COMPONENTS_DIR = "components"
 
 logger = logging.getLogger(__name__)
 logger.propagate = True
@@ -45,7 +43,7 @@ def get_request(url):
         return
  
  
-class ScraperServer:
+class RunServer:
  
     def __init__(self, host, port):
  
@@ -66,47 +64,85 @@ class ScraperServer:
             t = self.loop.run_in_executor(self.pool, get_request, url)
             t.add_done_callback(self.scrape_callback)
         return web.json_response({'Status': 'Dispatched'})
- 
-    def scrape_callback(self, return_value):
-        return_value = return_value.result()
-        if return_value:
-            self.data_to_save.append(return_value)
- 
-    async def start_background_tasks(self, app):
-        logger.info("Starting Background Tasks")
-        app['horizon_sever'] = app.loop.create_task(horizonHandler())
-        app['device_server'] = app.loop.create_task(deviceHandler())
-        app['events_server'] = app.loop.create_task(eventsHandlerCheck())
-        app['mqtt_server'] = app.loop.create_task(mqttHandler())
-        app['xbee_server'] = app.loop.create_task(xbeePoll())
- 
+    
 
-    async def cleanup_background_tasks(self, app):
-        app['horizon_sever'].cancel()
-        app['device_server'].cancel()
-        app['events_server'].cancel()
-        app['mqtt_server'].cancel()
-        await app['horizon_sever']
-        await app['device_server']
-        await app['events_server']
-        await app['mqtt_server']
- 
 
-    async def create_app(self):
+    def getList(self, path):
+        folderList = [d for d in os.listdir(path) if os.path.isdir(os.path.join(path, d))]
+        dirList = []
+        ignorelist = {"__pycache__"}
+        for folderItem in folderList:
+            if folderItem not in ignorelist:
+                dirList.append(folderItem)
+        return dirList
+
+    def runTaskList(self, path):
+        componentsList = getList(path)
+        for component in componentsList:
+            fileList = os.listdir(path+"/"+component)
+            if "server.py" in fileList:
+                print(component)
+
+
+    async def startBackgroundProcesses(self, app):
+        logger.info("Starting Background Processes")
+        path = "./"+COMPONENTS_DIR
+        componentsList = self.getList(path)
+        for component in componentsList:
+            fileList = os.listdir(path+"/"+component)
+            if "server.py" in fileList:
+                buildComponentPath = COMPONENTS_DIR+"."+component+".server"
+                sys.path.append(path+"/"+component)
+                importModule = __import__(buildComponentPath, fromlist="*")
+                app.loop.create_task(importModule.serverHandler())
+        app.loop.create_task(eventsHandlerTimer())
+        
+
+    async def stopHandler(self):
+        logger.info("Please Wait.Shutting Down")
+        logger.info("Cancelling All Tasks...")
+        pending = asyncio.Task.all_tasks()
+        for task in pending:
+            task.cancel()
+        self.loop.remove_signal_handler(signal.SIGINT)
+        self.loop.remove_signal_handler(signal.SIGTERM)
+        self.loop.add_signal_handler(signal.SIGTERM, self.shutdownHandler)
+        os.kill(os.getpid(), signal.SIGTERM)
+
+
+    def shutdownHandler(self):
+        logger.info("Server Down.Goodbye")
+        self.loop.remove_signal_handler(signal.SIGTERM)
+        raise web.GracefulExit()
+
+
+    async def createApp(self):
         app = web.Application()
-        sio.attach(app)
+        sio.attach(app)   
         app.router.add_get('/', self.index)
         return app
 
+    def start_loop(self,loop2):
+        loop2.create_task(xbeeserverHandler())
+        # loop2.run_forever()
 
-    def run_app(self):
-        loop = self.loop
-        app = loop.run_until_complete(self.create_app())
-        app.on_startup.append(self.start_background_tasks)
-        # app.on_cleanup.append(self.cleanup_background_tasks)
-        web.run_app(app, host=self.host, port=self.port)
+    def runApp(self):
+        loop = self.loop 
+        app = loop.run_until_complete(self.createApp())
+        app.on_startup.append(self.startBackgroundProcesses)
+
+        loop2 = asyncio.new_event_loop()    
+        t = Thread(target=self.start_loop, args=(loop2,))
+        t.start()
+        # app.on_shutdown.append(self.shutdown)
+        # app.on_cleanup.append(self.cleanupBackgroundProcesses)
+        for sig in (signal.SIGTERM, signal.SIGINT):
+            loop.add_signal_handler(sig, lambda: asyncio.ensure_future(self.stopHandler()))
+        web.run_app(app, host=self.host, port=self.port, handle_signals=False) 
  
- 
+        
+           
+
 if __name__ == '__main__':
-    s = ScraperServer(host='0.0.0.0', port=8000)
-    s.run_app()
+    s = RunServer(host='0.0.0.0', port=8000)
+    s.runApp()

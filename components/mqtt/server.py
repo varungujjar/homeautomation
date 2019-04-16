@@ -25,14 +25,8 @@ config = {
 C = MQTTClient(config=config)
 
 
-def mqttPublish(topic, value):
-    loop = asyncio.get_event_loop()
-    loop.create_task(publish(topic, value))
-    print("------------Publishing-----------")
-
-
 @asyncio.coroutine
-def mqttHandler():
+def serverHandler():
     yield from C.connect('mqtt://user:password@0.0.0.0:1883')
     yield from C.subscribe([('#', QOS_1)])
     logger.info("[MQTT] Subscribed to #")
@@ -65,7 +59,6 @@ def mqttHandler():
                     else:
                         pass
         # yield from C.unsubscribe(['#'])
-        # logger.info("UnSubscribed")
         # yield from C.disconnect()
     except ClientException as ce:
         logger.error("[MQTT ] Client exception: %s" % ce)
@@ -75,6 +68,7 @@ def mqttHandler():
 
 @asyncio.coroutine
 def publish(topic, value):
+    print("------------Publishing-----------")
     try:
         yield from C.connect('mqtt://user:password@0.0.0.0:1883')
         yield from C.publish(topic, bytes(str(value),"UTF-8"), qos=0x01)
@@ -83,15 +77,6 @@ def publish(topic, value):
     except ConnectException as ce:
         logger.error("[MQTT] Connection exception: %s" % ce)       
 
-# async def doSome():
-#     asyncio.get_event_loop().run_until_complete(mqttHandler())
-#     loop.run_forever()
 
-# if __name__ == '__main__':
-#     try:
-#         asyncio.get_event_loop().run_until_complete(mqttHandler())
-#         loop.run_forever()
-#     except KeyboardInterrupt:
-#         loop.close()
         
     

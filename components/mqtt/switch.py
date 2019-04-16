@@ -1,11 +1,9 @@
 import os, sys
-sys.path.append('./')
-sys.path.append('../../')
 import json
 import asyncio
 import logging
 from helpers.db import *
-from server import *
+from publish import *
 from system.events import *
 
 logger = logging.getLogger(__name__)
@@ -18,13 +16,22 @@ STATE_OFF = 0
 DEVICE_PROPERTIES = {"ip","mac","host","ssid","rssi","uptime","vcc","version","voltage","current","apparent","factor","energy","relay","publish","subscribe"}
 DEVICE_ACTIONS = {"relay"}
 
+#{class:switch,actions{state:{type:int,on:1,off:0,topic:state},brightness{type:int,range:0-100,topic:brightness}}
+#on_off
+#brightness
+#color_temp
+#hs
+#rgb
+#white
+
 class switch(object):
     def __init__(self):
         self.topic = 0
 
 
     def publish(self,topic,value):
-        mqttPublish(topic, value)
+        loop = asyncio.get_event_loop()
+        loop.create_task(publish(topic, value))
 
 
     def triggerAction(self,actions,deviceData):

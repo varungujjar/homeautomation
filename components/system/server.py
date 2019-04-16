@@ -10,9 +10,9 @@ logger = logging.getLogger(__name__)
 
 COMPONENT = "system"
 TYPE = "system"
-UPDATE_EVERY = 5 #seconds
+UPDATE_EVERY = 30 #seconds
 
-async def deviceHandler():
+async def serverHandler():
 	while True:
 		data ={}
 		data["cpu"] = {}

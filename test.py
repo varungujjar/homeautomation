@@ -1,29 +1,44 @@
-
-
-from xbee import XBee
+import os, sys
+sys.path.append('../')
+import json
+import asyncio
 import time
-import serial
+import logging
+from datetime import datetime, timedelta, tzinfo
 
-PORT = '/dev/ttyUSB0'
-BAUD_RATE = 9600
 
-# Open serial port
-ser = serial.Serial(PORT, BAUD_RATE)
+path = './components'
+# if len(sys.argv) == 2:
+#     path = sys.argv[1]
+ 
 
-def message_received(data):
-    print(data)
+def listdirs2(folder):
+    return [
+        d for d in (os.path.join(folder, d1) for d1 in os.listdir(folder))
+        if os.path.isdir(d)
+    ]
 
-# Create API object, which spawns a new thread
-xbee = XBee(ser, callback=message_received)
 
-# Do other stuff in the main thread
-while True:
-    try:
-        time.sleep(.1)
-    except KeyboardInterrupt:
-        break
+def getList(path):
+    folderList = [d for d in os.listdir(path) if os.path.isdir(os.path.join(path, d))]
+    dirList = []
+    ignorelist = {"__pycache__"}
+    for folderItem in folderList:
+        if folderItem not in ignorelist:
+            dirList.append(folderItem)
+    return dirList
 
-# halt() must be called before closing the serial
-# port in order to ensure proper thread shutdown
-xbee.halt()
-ser.close()
+def runTaskList(path):
+    componentsList = getList(path)
+    for component in componentsList:
+        fileList = os.listdir(path+"/"+component)
+        if "server.py" in fileList:
+            print(component)
+
+print(runTaskList(path))
+
+
+
+# files = os.listdir(path)
+# for name in files:
+#     print(name)
