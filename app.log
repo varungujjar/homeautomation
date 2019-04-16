@@ -1,0 +1,10 @@
+2019-04-16 23:55:38,227 - __main__ - DEBUG - A quirky message only developers care about
+2019-04-16 23:55:38,229 - __main__ - INFO - Curious users might want to know this
+2019-04-16 23:55:38,230 - __main__ - WARNING - Something is wrong and any user should be informed
+2019-04-16 23:55:38,231 - __main__ - ERROR - Serious stuff, this is red for a reason
+2019-04-16 23:55:38,233 - __main__ - CRITICAL - OH NO everything is on fire
+2019-04-16 23:55:38,242 - __main__ - INFO - Starting Background Processes
+2019-04-16 23:57:04,461 - __main__ - INFO - Closing Serial Connection
+2019-04-16 23:57:04,468 - __main__ - INFO - Please Wait.Shutting Down
+2019-04-16 23:57:04,470 - __main__ - INFO - Cancelling All Tasks...
+2019-04-16 23:57:04,479 - __main__ - INFO - Server Down.Goodbye

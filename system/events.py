@@ -3,7 +3,7 @@ sys.path.append('../')
 import json
 import asyncio
 import time
-import logging
+from helpers.logger import formatLogger
 import socketio
 from datetime import datetime, timedelta, tzinfo
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
@@ -11,14 +11,16 @@ from helpers.db import *
 
 TIMER = 1
 
-logger = logging.getLogger(__name__)
+
+logger = formatLogger(__name__)
+
 external_sio = socketio.RedisManager('redis://', write_only=True)
 
 
 async def eventsHandlerTimer():
     while True:
         eventsHandler()
-        logger.info("[EVENTS] OK")
+        logger.info("OK")
         await asyncio.sleep(TIMER)
 
 
@@ -27,7 +29,7 @@ def eventsHandler(id=None):
         getDevice = dbGetDevice(None,None,id)
         external_sio.emit('message', str(getDevice["properties"]))
 
-    logger.debug("[EVENTS] Rule Check Started")
+    logger.debug("Rule Check Started")
     getRules = dbGetAutomationRules()
     for ruleData in getRules:
         validateIfCondition = validateIf(ruleData)
@@ -37,7 +39,7 @@ def eventsHandler(id=None):
             loop.create_task(doThen(ruleData))
             
     now = datetime.datetime.now()
-    logger.debug("[EVENTS] Rule Check Completed")
+    logger.debug("Rule Check Completed")
     
  
 
@@ -77,7 +79,7 @@ def validateIf(ruleData):
                         conditionStatus = True
 
         else:
-            logger.warning("[EVENTS] Device with %s Not Found" % str(ifDataJson["device"])) 
+            logger.warning("Device with %s Not Found" % str(ifDataJson["device"])) 
 
     elif "datetime" in ifDataJson:
         dateTimeType = ifDataJson["datetime"]
@@ -95,7 +97,7 @@ def validateIf(ruleData):
             pass
 
     else:
-        logger.warning("[EVENTS] No Valid Handlers Found for Rule")
+        logger.warning("No Valid Handlers Found for Rule")
 
     if conditionStatus and checkifActive == 1:
         setAutomationTriggerStatus(ruleID,0)
@@ -105,7 +107,7 @@ def validateIf(ruleData):
         setAutomationTriggerStatus(ruleID,1)    
     else:
         pass
-    logger.debug("[EVENTS] Rule ID %d %s" % (ruleID, str(status)))
+    logger.debug("Rule ID %d %s" % (ruleID, str(status)))
     return status    
 
 
@@ -140,11 +142,11 @@ async def doThen(ruleData):
                 deviceClass = importDeviceClass()
                 status = deviceClass.triggerAction(thenActions,getDevice)
                 if status:
-                    logger.info("[EVENTS] Rule Triggered") 
+                    logger.info("Rule Triggered") 
             except ImportError as error:
-                logger.error("[EVENTS] %s" % str(error)) 
+                logger.error("%s" % str(error)) 
             except Exception as exception:
-                logger.error("[EVENTS] %s" % str(exception))
+                logger.error("%s" % str(exception))
 
         dbInsertHistory(ruleID,"Rule","rule","system","triggered",0)
 

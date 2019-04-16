@@ -1,5 +1,5 @@
 import os, sys, json
-import logging
+from helpers.logger import formatLogger
 import asyncio
 
 COMPONENT = "mqtt" 
@@ -9,7 +9,7 @@ SUPPORTED_DEVICES = {"switch","light"}
 from hbmqtt.client import MQTTClient, ClientException, ConnectException
 from hbmqtt.mqtt.constants import QOS_1
 
-logger = logging.getLogger(__name__)
+logger = formatLogger(__name__)
 
 config = {
     'keep_alive': 30,
@@ -28,7 +28,7 @@ C = MQTTClient(config=config)
 def mqttHandler():
     yield from C.connect('mqtt://user:password@0.0.0.0:1883')
     yield from C.subscribe([('#', QOS_1)])
-    logger.info("[MQTT] Subscribed to #")
+    logger.info("Subscribed to #")
     try:
         while True:
             message = yield from C.deliver_message()
@@ -36,7 +36,7 @@ def mqttHandler():
             topic = packet.variable_header.topic_name
             payload = str(packet.payload.data.decode())
             mqttPayload = json.loads(payload)
-            logger.info("[MQTT] %s" % str(mqttPayload))
+            logger.info("%s" % str(mqttPayload))
             if isinstance(mqttPayload,dict):
                 for key, value in mqttPayload.items():
                     if key in SUPPORTED_HEADERS:
@@ -50,19 +50,19 @@ def mqttHandler():
                             try:
                                 pass
                             except ImportError as error:
-                                logger.error("[MQTT] %s" % str(error))
+                                logger.error("%s" % str(error))
                             except Exception as exception:
-                                logger.error("[MQTT] %s" % str(exception))
+                                logger.error(" %s" % str(exception))
                         else:
-                            logger.warning("[MQTT] Device Not Supported")       
+                            logger.warning("Device Not Supported")       
                     else:
                         pass
         # yield from C.unsubscribe(['#'])
         # yield from C.disconnect()
     except ClientException as ce:
-        logger.error("[MQTT ] Client exception: %s" % ce)
+        logger.error("Client exception: %s" % ce)
     except ConnectException as ce:
-        logger.error("[MQTT] Connection exception: %s" % ce)    
+        logger.error("Connection exception: %s" % ce)    
 
 
 @asyncio.coroutine
@@ -71,10 +71,10 @@ def publish(topic, value):
     try:
         yield from C.connect('mqtt://user:password@0.0.0.0:1883')
         yield from C.publish(topic, bytes(str(value),"UTF-8"), qos=0x01)
-        logger.info("[MQTT] Message Published")
+        logger.info("Message Published")
         yield from C.disconnect()
     except ConnectException as ce:
-        logger.error("[MQTT] Connection exception: %s" % ce)       
+        logger.error("Connection exception: %s" % ce)       
 
 
     

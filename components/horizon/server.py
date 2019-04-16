@@ -3,14 +3,14 @@ sys.path.append('../../')
 import json
 import asyncio
 import pytz
-import logging
+from helpers.logger import formatLogger
 from astral import *
 from time import strftime, strptime
 from datetime import datetime, timedelta, tzinfo
 from helpers.db import *
 from helpers.dt import *
 
-logger = logging.getLogger(__name__)
+logger = formatLogger(__name__)
 
 DATE_STR_FORMAT = "%Y-%m-%d"
 UTC = DEFAULT_TIME_ZONE = pytz.utc
@@ -76,6 +76,6 @@ async def horizonHandler():
 		deviceActions = {}
 		deviceProperties = json.dumps(data)
 		dbSyncDevice(TYPE,deviceProperties,deviceActions,"",COMPONENT)
-		logger.info("[HORIZON] %s" % str(deviceProperties))
+		logger.info("%s" % str(deviceProperties))
 		await asyncio.sleep(60)
 

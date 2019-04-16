@@ -1,11 +1,11 @@
 import os, sys
 import json
-import logging
+from helpers.logger import formatLogger
 import asyncio
 from xbee import XBee
 from serial import Serial, SerialException
 
-logger = logging.getLogger(__name__)
+logger = formatLogger(__name__)
 
 SERIALPORT = "/dev/ttyUSB0" 
 BAUDRATE = 9600
@@ -44,7 +44,7 @@ def getJsonData(payload):
 def xbeeHandler(payload):
     xbeeData = getJsonData(payload)
     xbeePayload = xbeeData["payload"]
-    logger.info("[ZIGBEE] %s" % str(payload))
+    logger.info("%s" % str(payload))
     for key, value in xbeePayload.items():
         if key in SUPPORTED_HEADERS:
             if value in SUPPORTED_DEVICES:
@@ -54,10 +54,10 @@ def xbeeHandler(payload):
                     deviceClass = importDeviceClass()
                     loop.create_task(deviceClass.deviceHandler(xbeeData))
                 except ImportError as error:
-                    logger.error("[ZIGBEE] %s" % str(error))
+                    logger.error("%s" % str(error))
                     pass
             else:
-                logger.warning("[ZIGBEE] Device Not Supported")    
+                logger.warning("Device Not Supported")    
         else:
             pass       
     return True    

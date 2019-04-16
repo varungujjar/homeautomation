@@ -1,11 +1,12 @@
 import os, sys
 import json
 import asyncio
-import logging
+from helpers.logger import formatLogger
 from helpers.db import *
 from system.events import *
 from publish import *
-logger = logging.getLogger(__name__)
+
+logger = formatLogger(__name__)
 
 COMPONENT = "mqtt"
 CLASS_HEADER = "class"
@@ -42,7 +43,7 @@ class switch(object):
                 self.stateToggleChange(int(deviceId),int(relayId),int(state))
                 triggered = True
         else:
-            print("The Device does not support this action")    
+            logger.error("The Device does not support this action")    
         return triggered
 
 
@@ -62,7 +63,7 @@ class switch(object):
                     stateValue = stateValues[deviceRelayState]  
                 self.publish(relayTopic,stateValue)
             else:
-                print("Toggle Not Supported on This Device")   
+                logger.error("Toggle Not Supported on This Device")   
 
     
     def getDeviceProperties(self,payload):

@@ -1,11 +1,11 @@
 import os, sys
-import logging
+from helpers.logger import formatLogger
 import asyncio
 
 from hbmqtt.client import MQTTClient, ClientException, ConnectException
 from hbmqtt.mqtt.constants import QOS_1
 
-logger = logging.getLogger(__name__)
+logger = formatLogger(__name__)
 
 config = {
     'keep_alive': 30,
@@ -21,14 +21,14 @@ C = MQTTClient(config=config)
 
 @asyncio.coroutine
 def publish(topic, value):
-    print("------------Publishing-----------")
+    logger.info("Publishing Message")
     try:
         yield from C.connect('mqtt://user:password@0.0.0.0:1883')
         yield from C.publish(topic, bytes(str(value),"UTF-8"), qos=0x01)
-        logger.info("[MQTT] Message Published")
+        logger.info("Message Published")
         yield from C.disconnect()
     except ConnectException as ce:
-        logger.error("[MQTT] Connection exception: %s" % ce)       
+        logger.error("Connection exception: %s" % ce)       
 
 
     

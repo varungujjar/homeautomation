@@ -3,10 +3,9 @@ from concurrent.futures import ThreadPoolExecutor
 from random import choice
 from functools import partial
 from threading import Thread
-
 from aiohttp import web, ClientSession, ClientError
 import requests
-import logging
+from helpers.logger import formatLogger
 import socketio
 import signal
 import functools
@@ -16,13 +15,13 @@ from components.zigbee.server import closeSerialConnection
 # from components.mqtt.server2 import *
 # sys.path.append("./components/mqtt/")
 
+
 COMPONENTS_DIR = "components"
 
-logger = logging.getLogger(__name__)
-logger.propagate = True
-logging.basicConfig(level=logging.INFO,format='%(asctime)s %(levelname)s %(message)s')
+# logging.basicConfig(level=logging.INFO,format='[%(levelname)s] [%(name)s] => %(funcName)s : %(asctime)s : %(message)s',datefmt='%a %Y-%m-%d %H:%M:%S',)
 # logging.basicConfig(level=logging.DEBUG,format='%(asctime)s %(levelname)s %(message)s',filename='/tmp/myapp.log',filemode='w')
 
+logger = formatLogger(__name__)
 
 mgr = socketio.AsyncRedisManager('redis://')
 sio = socketio.AsyncServer(client_manager=mgr,async_mode='aiohttp')

@@ -5,11 +5,11 @@ import json
 import ast
 import asyncio
 import binascii
-import logging
+from helpers.logger import formatLogger
 from helpers.db import *
 from system.events import *
 
-logger = logging.getLogger(__name__)
+logger = formatLogger(__name__)
 
 COMPONENT = "xbee"
 TYPE = "sensor"
@@ -50,8 +50,7 @@ class sensor(object):
             deviceProperties = json.dumps(self.getDeviceProperties(devicePayload["payload"]))
         else:
             pass
-        logger.info("[ZIGBEE] %s" % str(deviceProperties))
-        print(deviceProperties)
+        logger.info("%s" % str(deviceProperties))
         dbSyncDevice(deviceClass,deviceProperties,deviceActions,deviceAddress,COMPONENT)
         eventsHandler()
         

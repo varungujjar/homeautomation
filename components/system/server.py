@@ -2,11 +2,11 @@ import os, sys
 sys.path.insert(0, '../../')
 import json,psutil
 import asyncio
-import logging
+from helpers.logger import formatLogger
 from helpers.db import *
 from helpers.dt import *
 
-logger = logging.getLogger(__name__)
+logger = formatLogger(__name__)
 
 COMPONENT = "system"
 TYPE = "system"
@@ -27,6 +27,6 @@ async def systemHandler():
 		deviceActions = {}
 		deviceProperties = json.dumps(data)
 		dbSyncDevice(TYPE,deviceProperties,deviceActions,"",COMPONENT)
-		logger.info("[SYSTEM] %s" % str(deviceProperties))
+		logger.info("%s" % str(deviceProperties))
 		await asyncio.sleep(UPDATE_EVERY)
 
