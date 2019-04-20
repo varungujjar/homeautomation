@@ -11,6 +11,7 @@ import signal
 import functools
 import threading
 from system.events import *
+from system.status import *
 from components.zigbee.server import closeSerialConnection
 # from components.mqtt.server2 import *
 # sys.path.append("./components/mqtt/")
@@ -99,6 +100,7 @@ class RunServer:
                 app.loop.create_task(functionCall)
         # app.loop.create_task(mqttHandler())        
         app.loop.create_task(eventsHandlerTimer())
+        app.loop.create_task(statusHandler())
         
 
     async def stopHandler(self):

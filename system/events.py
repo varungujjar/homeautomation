@@ -6,7 +6,6 @@ import time
 from helpers.logger import formatLogger
 import socketio
 from datetime import datetime, timedelta, tzinfo
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from helpers.db import *
 
 TIMER = 1

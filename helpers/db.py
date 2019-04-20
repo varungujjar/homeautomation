@@ -38,7 +38,7 @@ def dbSyncDevice(type,prop,actions,address,component):
 		try:
 			db = sqlite3.connect(db_path)
 			cur = db.cursor()
-			cur.execute("INSERT INTO devices(address, type, component, properties, actions, modified, created) VALUES(?,?,?,?,?,datetime(CURRENT_TIMESTAMP, 'localtime'),datetime(CURRENT_TIMESTAMP, 'localtime'))", (str(address), str(type), str(component),str(prop), str(actions)))
+			cur.execute("INSERT INTO devices(address, type, component, properties, actions, online, modified, created) VALUES(?,?,?,?,?,datetime(CURRENT_TIMESTAMP, 'localtime'),datetime(CURRENT_TIMESTAMP, 'localtime'))", (str(address), str(type), str(component),str(prop), str(actions), 1))
 			db.commit()
 		except Exception as err:
 			print('[DB] Device Insert Sync Error: %s' % (str(err)))
@@ -48,7 +48,7 @@ def dbSyncDevice(type,prop,actions,address,component):
 		try:
 			db = sqlite3.connect(db_path)
 			cur = db.cursor()
-			cur.execute("UPDATE devices SET type=?, properties=?, actions=?, modified=datetime(CURRENT_TIMESTAMP, 'localtime') WHERE address=? AND component=?",(str(type), str(prop), str(actions), str(address), str(component)))
+			cur.execute("UPDATE devices SET type=?, properties=?, actions=?, online=?, modified=datetime(CURRENT_TIMESTAMP, 'localtime') WHERE address=? AND component=?",(str(type), str(prop), str(actions), 1, str(address), str(component)))
 			db.commit()
 		except Exception as err:
 			print('[DB] Device Update Sync Error: %s' % (str(err)))

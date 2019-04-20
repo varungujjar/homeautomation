@@ -50,7 +50,7 @@ async def horizonHandler():
 		config_db = dbGetConfig()
 		config_data = json.loads(config_db["config"])
 		astral = local_astral_event(config_data)
-		time_now = datetime.now(UTC)	
+		time_now = datetime.now()
 		sun_horizon_position = sun_horizon(astral["sunrise"], astral["sunset"])
 		data = {}
 		data["location"] = {}
@@ -60,19 +60,19 @@ async def horizonHandler():
 		data["location"]["latitude"] = config_data["latitude"]			
 		data["location"]["longitude"] = config_data["longitude"]	
 		data["location"]["timezone"] = str(astral["timezone"])
-		data["astral"]["sunrise"] = str(astral["sunrise"])
-		data["astral"]["sunset"] = str(astral["sunset"])
+		data["astral"]["sunrise"] = str(utc_aware_to_datetime(astral["sunrise"]))
+		data["astral"]["sunset"] = str(utc_aware_to_datetime(astral["sunset"]))
 		data["astral"]["above_horizon"] = str(sun_horizon_position).lower()
 		if(sun_horizon_position):
 			data["astral"]["next"] = "sunset"
-			data["astral"]["next_time"] = str(get_age(astral["sunset"]))
+			data["astral"]["next_time"] = str(get_age(utc_aware_to_datetime(astral["sunset"])))
 		else:
 			data["astral"]["next_astral"] = "sunrise"	
-			if(time_now > astral["sunset"]):
+			if(time_now > utc_aware_to_datetime(astral["sunset"])):
 				tommorrow = astral["sunrise"] + timedelta(days=1)
 				data["astral"]["next_time"] =  str(get_age(tommorrow))
 			else:
-				data["astral"]["next_time"] =  str(get_age(astral["sunrise"]))
+				data["astral"]["next_time"] =  str(get_age(utc_aware_to_datetime(astral["sunrise"])))
 		deviceActions = {}
 		deviceProperties = json.dumps(data)
 		dbSyncDevice(TYPE,deviceProperties,deviceActions,"",COMPONENT)
