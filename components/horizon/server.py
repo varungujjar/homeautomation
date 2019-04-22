@@ -22,7 +22,8 @@ TYPE = "system"
 UPDATE_EVERY = 1
 
 def sun_horizon(sunrise,sunset): #if 1 above horizon if 0 below horzion
-	now_utc = datetime.now(UTC)
+	now_utc = datetime.now()
+	print(sunrise)
 	horizon = False 
 	if(now_utc > sunrise and now_utc < sunset):
 		horizon = True	
@@ -51,7 +52,7 @@ async def horizonHandler():
 		config_data = json.loads(config_db["config"])
 		astral = local_astral_event(config_data)
 		time_now = datetime.now()
-		sun_horizon_position = sun_horizon(astral["sunrise"], astral["sunset"])
+		sun_horizon_position = sun_horizon(utc_aware_to_datetime(astral["sunrise"]), utc_aware_to_datetime(astral["sunset"]))
 		data = {}
 		data["location"] = {}
 		data["astral"] = {}
@@ -69,7 +70,7 @@ async def horizonHandler():
 		else:
 			data["astral"]["next_astral"] = "sunrise"	
 			if(time_now > utc_aware_to_datetime(astral["sunset"])):
-				tommorrow = astral["sunrise"] + timedelta(days=1)
+				tommorrow = utc_aware_to_datetime(astral["sunrise"]) + timedelta(days=1)
 				data["astral"]["next_time"] =  str(get_age(tommorrow))
 			else:
 				data["astral"]["next_time"] =  str(get_age(utc_aware_to_datetime(astral["sunrise"])))
@@ -78,4 +79,5 @@ async def horizonHandler():
 		dbSyncDevice(TYPE,deviceProperties,deviceActions,"",COMPONENT)
 		logger.info("%s" % str(deviceProperties))
 		await asyncio.sleep(60)
+
 

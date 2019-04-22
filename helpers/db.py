@@ -1,6 +1,13 @@
+import os, sys
+sys.path.append('../')
 import sqlite3
-import time, datetime
 import json
+import time, datetime
+from helpers.logger import formatLogger
+from system.status import deviceCheckIncoming
+
+logger = formatLogger(__name__)
+
 global db_path
 db_path = '/home/pi/db/db'
 
@@ -14,7 +21,7 @@ def dbGetConfig():
 		config = cur.fetchone()
 		db.commit()
 	except Exception as err:
-		print('[DB] Config Error: %s' % (str(err)))
+		logger.eror('[DB] Config Error: %s' % (str(err)))
 	finally:
 		db.close()
 	return config
@@ -27,9 +34,21 @@ def dbInsertHistory(id,name,type,component,status,value):
 		cur.execute("INSERT INTO notifications(id, name, type, component, status, value, read, created) VALUES(?,?,?,?,?,?,?,datetime(CURRENT_TIMESTAMP, 'localtime'))", (int(id), str(name),str(type),str(component),str(status),str(value),1))
 		db.commit()
 	except Exception as err:
-		print('[DB] Notification Error: %s' % (str(err)))
+		logger.eror('[DB] Notification Error: %s' % (str(err)))
 	finally:
 		db.close()	
+
+
+def dbSetDeviceStatus(id,status):
+	try:
+		db = sqlite3.connect(db_path)
+		cur = db.cursor()
+		cur.execute("UPDATE devices SET online=?, modified=datetime(CURRENT_TIMESTAMP, 'localtime') WHERE id=?",(int(status),int(id)))
+		db.commit()
+	except Exception as err:
+		logger.eror('[DB] Device Update Status Error: %s' % (str(err)))
+	finally:
+		db.close()
 
 
 def dbSyncDevice(type,prop,actions,address,component):
@@ -41,17 +60,18 @@ def dbSyncDevice(type,prop,actions,address,component):
 			cur.execute("INSERT INTO devices(address, type, component, properties, actions, online, modified, created) VALUES(?,?,?,?,?,datetime(CURRENT_TIMESTAMP, 'localtime'),datetime(CURRENT_TIMESTAMP, 'localtime'))", (str(address), str(type), str(component),str(prop), str(actions), 1))
 			db.commit()
 		except Exception as err:
-			print('[DB] Device Insert Sync Error: %s' % (str(err)))
+			logger.eror('[DB] Device Insert Sync Error: %s' % (str(err)))
 		finally:
 			db.close()	
 	else:
+		deviceCheckIncoming(getDevice)
 		try:
 			db = sqlite3.connect(db_path)
 			cur = db.cursor()
-			cur.execute("UPDATE devices SET type=?, properties=?, actions=?, online=?, modified=datetime(CURRENT_TIMESTAMP, 'localtime') WHERE address=? AND component=?",(str(type), str(prop), str(actions), 1, str(address), str(component)))
+			cur.execute("UPDATE devices SET type=?, properties=?, actions=?, modified=datetime(CURRENT_TIMESTAMP, 'localtime') WHERE address=? AND component=?",(str(type), str(prop), str(actions), str(address), str(component)))
 			db.commit()
 		except Exception as err:
-			print('[DB] Device Update Sync Error: %s' % (str(err)))
+			logger.eror('[DB] Device Update Sync Error: %s' % (str(err)))
 		finally:
 			db.close()
 	thisDevice = dbGetDevice(component,address)
@@ -83,7 +103,7 @@ def dbGetAllDevices():
 		devices = cur.fetchall()
 		db.commit()
 	except Exception as err:
-		print('[DB] Get All Devices Error: %s' % (str(err)))
+		logger.eror('[DB] Get All Devices Error: %s' % (str(err)))
 	finally:
 		db.close()
 	if devices is None:
@@ -100,7 +120,7 @@ def dbGetAutomationRules():
 		automation = cur.fetchall()
 		db.commit()
 	except Exception as err:
-		print('[DB] Get Rules Error: %s' % (str(err)))
+		logger.eror('[DB] Get Rules Error: %s' % (str(err)))
 	finally:
 		db.close()
 	if automation is None:
@@ -115,7 +135,7 @@ def setAutomationTriggerStatus(id,status):
 		cur.execute("UPDATE automation SET trigger=?, modified=datetime(CURRENT_TIMESTAMP, 'localtime') WHERE id=?",(int(status), int(id)))
 		db.commit()
 	except Exception as err:
-		print('[DB] Rule Set Active Error: %s' % (str(err)))
+		logger.eror('[DB] Rule Set Active Error: %s' % (str(err)))
 	finally:
 		db.close()
 	return True
