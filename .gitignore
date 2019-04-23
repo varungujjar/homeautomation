@@ -2,6 +2,7 @@
 .local/
 .nano/
 .cache/
+.npm/
 .bash_history
 .bash_logout
 .bashrc
