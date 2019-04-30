@@ -12,6 +12,7 @@ import functools
 import threading
 from system.events import *
 from system.status import *
+from helpers.db import *
 from components.zigbee.server import closeSerialConnection
 # from components.mqtt.server2 import *
 # sys.path.append("./components/mqtt/")
@@ -123,12 +124,23 @@ class RunServer:
         raise web.GracefulExit()
 
 
+    async def getRooms(self,request):
+        rooms = dbGetDeviceRooms()
+        response_obj = str(rooms)
+        return web.Response(text=json.dumps(response_obj), status=200)
+
     async def createApp(self):
         app = web.Application()
         sio.attach(app)   
         app.router.add_get('/', self.index)
+        app.router.add_get('/api/rooms', self.getRooms)
         return app
 
+    @sio.on('connect')
+    async def connect(self, data):
+        await sio.emit('connect', str({'data': 'Connected to React Frontend'}))
+        logger.info(data)
+    
 
     def runApp(self):
         loop = self.loop 

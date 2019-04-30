@@ -1,9 +1,89 @@
-import React from 'react';
+import React, { Component } from "react";
+import { connect, device, notification } from "./api";
 import ReactDOM from 'react-dom';
+// import logo from "./logo.svg";
+// import "./App.css";
 
-const title = 'My Minimal React Webpack Babel Setup';
 
-ReactDOM.render(
-  <div>{title}</div>,
-  document.getElementById('app')
-);
+
+
+function LogConsole(props){
+    return (
+    <div className="someclass">{props.logdata}</div>
+    );
+}
+
+
+class App extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      connect:null,
+      device:null,
+      notification:null,
+      items:[],
+      rooms:null,
+      isLoaded:false
+    }
+    
+    device(data => {
+      this.setState({device: data});
+    });
+
+    notification(data => {
+      this.setState({notification: data});
+    });
+
+    connect(data => {
+      this.setState({connect:data});
+    });
+
+   
+  }
+  componentDidMount() {
+    console.log("doing this");
+    fetch('/api/rooms').then(
+    function(response) {
+      if (response.status !== 200) {
+        console.log('Problem in fetching');
+        return;
+      }
+      response.text().then(function(data) {
+        this.setState({
+          rooms:data
+        });
+        
+      });
+    })
+    console.log(this.state.rooms);   
+  }
+
+  
+  componentWillMount(){
+    console.log('Loading Page...');
+  }
+
+
+   render() {
+      return (
+        <div className="App">
+          <header className="App-header">
+            {/* <img src={logo} className="App-logo" alt="logo" /> */}
+            <h1 className="App-title">Welcome to React</h1>
+          </header>
+          <p className="App-intro">
+            To get started, edit <code>src/App.js</code> and save to reload.
+          </p>
+          <div id="connection">{this.state.connect}</div>
+          <div id="device">{this.state.device}</div>
+          <div id="notification">{this.state.notification}</div>
+
+          {/* <LogConsole logdata={this.state.ioData} /> */}
+        </div>
+      );
+    }
+}
+
+
+ReactDOM.render(<App />, document.getElementById('root'));

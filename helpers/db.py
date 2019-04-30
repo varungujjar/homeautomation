@@ -5,12 +5,14 @@ import json
 import time, datetime
 from helpers.logger import formatLogger
 from system.status import deviceCheckIncoming
-
+import socketio
 logger = formatLogger(__name__)
 
 global db_path
 db_path = '/home/pi/db/db'
 
+external_sio = socketio.RedisManager('redis://', write_only=True)
+       
 
 def dbGetConfig():
 	try:
@@ -36,7 +38,8 @@ def dbInsertHistory(id,name,type,component,status,value):
 	except Exception as err:
 		logger.eror('[DB] Notification Error: %s' % (str(err)))
 	finally:
-		db.close()	
+		db.close()
+	external_sio.emit('notification', str(name)+" "+str(status))		
 
 
 def dbSetDeviceStatus(id,status):
@@ -75,6 +78,7 @@ def dbSyncDevice(type,prop,actions,address,component):
 		finally:
 			db.close()
 	thisDevice = dbGetDevice(component,address)
+	external_sio.emit('device', str(thisDevice))
 	return thisDevice
 
 
@@ -109,6 +113,23 @@ def dbGetAllDevices():
 	if devices is None:
 		return {}	
 	return devices
+
+
+def dbGetDeviceRooms(id=None):
+	try:
+		db = sqlite3.connect(db_path)
+		db.row_factory = lambda c, r: dict([(col[0], r[idx]) for idx, col in enumerate(c.description)])
+		cur = db.cursor()
+		cur.execute("SELECT * FROM rooms")
+		rooms = cur.fetchall()
+		db.commit()
+	except Exception as err:
+		logger.eror('[DB] Get All Rooms Error: %s' % (str(err)))
+	finally:
+		db.close()
+	if rooms is None:
+		return {}	
+	return rooms
 
 
 def dbGetAutomationRules():

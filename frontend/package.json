@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "webpack-dev-server --config ./webpack.config.js --mode development --host raspberrypi.local",
+    "start": "webpack-dev-server --config ./webpack.config.js --mode development --host raspberrypi.local --watch",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -26,7 +26,9 @@
     "webpack-dev-server": "^3.3.1"
   },
   "dependencies": {
+    "http-proxy-middleware": "^0.19.1",
     "react": "^16.8.6",
-    "react-dom": "^16.8.6"
+    "react-dom": "^16.8.6",
+    "socket.io-client": "^2.2.0"
   }
 }

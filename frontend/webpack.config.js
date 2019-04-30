@@ -18,6 +18,20 @@ module.exports = {
       filename: 'bundle.js'
     },
     devServer: {
-      contentBase: './dist'
+      contentBase: './dist',
+      port: 8080,
+      historyApiFallback: true,
+      proxy: {
+        '/api': {
+          target: 'http://localhost:8000',
+          secure: false,
+          bypass: function(req, res, proxyOptions) {
+            if (req.headers.accept.indexOf('html') !== -1) {
+              console.log('Skipping proxy for browser request.');
+              return '/index.html';
+            }
+          }
+        }
+      }
     }
   };
