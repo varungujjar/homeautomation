@@ -51,8 +51,8 @@ class switch(object):
         getDevice = dbGetDevice(None,None,deviceId)
         if getDevice:      
             if getDevice["type"] == TYPE:        
-                deviceActions = json.loads(getDevice["actions"])
-                deviceProperties = json.loads(getDevice["properties"])
+                deviceActions = getDevice["actions"]
+                deviceProperties = getDevice["properties"]
                 deviceRelayState = int(deviceProperties["relay"][str(relayId)])
                 cleanTopic = (deviceProperties["subscribe"]).strip("/")
                 relayTopic = cleanTopic+"/relay/"+str(relayId)+deviceActions["relay"]["topic"]
@@ -80,7 +80,7 @@ class switch(object):
         getDevice = dbGetDevice(COMPONENT,deviceAddress)
         state = False
         if getDevice:
-            devicePropertiesLoad = json.loads(getDevice["properties"])
+            devicePropertiesLoad = getDevice["properties"]
             #print(devicePropertiesLoad)
             for key, value in devicePropertiesLoad["relay"].items():
                 StateJson = json.loads(deviceProperties)
@@ -118,7 +118,7 @@ class switch(object):
         dbSync = dbSyncDevice(deviceClass,deviceProperties,deviceActions,deviceAddress,COMPONENT)
         #loop.create_task(eventsHandler(dbSync["id"]))
         if dbSync and state:
-            relayState = json.dumps(json.loads(dbSync["properties"])["relay"])
+            relayState = dbSync["properties"]["relay"]
             dbInsertHistory(dbSync["id"],dbSync["name"],dbSync["type"],dbSync["component"],"changed",relayState)
             # loop = asyncio.get_event_loop()
             # loop.run_until_complete(eventsHandler(dbSync["id"]))

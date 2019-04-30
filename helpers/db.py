@@ -14,6 +14,17 @@ db_path = '/home/pi/db/db'
 external_sio = socketio.RedisManager('redis://', write_only=True)
        
 
+
+def formatDeviceEntries(device):
+	jsonItem = {}
+	for key, value in device.items():
+		if key in ["properties","actions"]:
+			jsonItem[key] = eval(value)
+		else:	
+			jsonItem[key] = value
+	return jsonItem
+
+
 def dbGetConfig():
 	try:
 		db = sqlite3.connect(db_path)
@@ -94,7 +105,9 @@ def dbGetDevice(component=None,address=None,id=None):
 		device = cur.fetchone()
 	db.commit()
 	if device is None:
-		return {}			
+		return {}
+	else:
+		device = formatDeviceEntries(device)			
 	return device
 
 
@@ -112,7 +125,33 @@ def dbGetAllDevices():
 		db.close()
 	if devices is None:
 		return {}	
-	return devices
+	else:
+		jsonDevices = []
+		for device in devices:
+			jsonDevices.append(formatDeviceEntries(device))
+	return jsonDevices
+
+
+
+def dbGetFeaturedSensors():
+	try:
+		db = sqlite3.connect(db_path)
+		db.row_factory = lambda c, r: dict([(col[0], r[idx]) for idx, col in enumerate(c.description)])
+		cur = db.cursor()
+		cur.execute("SELECT * FROM devices WHERE type=? AND featured=?", ("sensor", 1))
+		devices = cur.fetchall()
+		db.commit()
+	except Exception as err:
+		logger.eror('[DB] Featured Sensors Get Error: %s' % (str(err)))
+	finally:
+		db.close()
+	if devices is None:
+		return {}
+	else:
+		jsonDevices = []
+		for device in devices:
+			jsonDevices.append(formatDeviceEntries(device))
+	return jsonDevices
 
 
 def dbGetDeviceRooms(id=None):

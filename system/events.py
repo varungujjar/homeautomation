@@ -53,7 +53,7 @@ def validateIf(ruleData):
 
     if "device" in ifDataJson:
         getDevice = dbGetDevice(None,None,ifDataJson["device"])
-        getDeviceProperties = json.loads(getDevice["properties"])
+        getDeviceProperties = getDevice["properties"]
 
         if getDevice:
             for key, value in ifProperties.items():
@@ -121,8 +121,8 @@ async def doThen(ruleData):
 
     if "device" in thenDataJson:
         getDevice = dbGetDevice(None,None,thenDataJson["device"])
-        getDeviceProperties = json.loads(getDevice["properties"])
-        getDeviceActions = json.loads(getDevice["actions"])
+        getDeviceProperties = getDevice["properties"]
+        getDeviceActions = getDevice["actions"]
         thenActions = thenDataJson["actions"]
 
         if getDevice:

@@ -126,14 +126,32 @@ class RunServer:
 
     async def getRooms(self,request):
         rooms = dbGetDeviceRooms()
-        response_obj = str(rooms)
-        return web.Response(text=json.dumps(response_obj), status=200)
+        return web.json_response(rooms)
+
+    async def getDevices(self,request):
+        devices = dbGetAllDevices()
+        return web.json_response(devices)
+
+    async def getFeaturedSensors(self,request):
+        sensors = dbGetFeaturedSensors()
+        return web.json_response(sensors)
+
+    async def getHorizon(self,request):
+        horizon = dbGetDevice("horizon","")
+        return web.json_response(horizon)
 
     async def createApp(self):
         app = web.Application()
         sio.attach(app)   
         app.router.add_get('/', self.index)
         app.router.add_get('/api/rooms', self.getRooms)
+        app.router.add_get('/api/devices', self.getDevices)
+        app.router.add_get('/api/weather', self.getFeaturedSensors)
+        app.router.add_get('/api/horizon', self.getHorizon)
+        # app.router.add_get('/api/scenes', self.getDevices)
+        # app.router.add_get('/api/automations', self.getDevices)
+        # app.router.add_get('/api/components', self.getDevices)
+        # app.router.add_get('/api/history', self.getDevices)
         return app
 
     @sio.on('connect')

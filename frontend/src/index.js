@@ -17,55 +17,57 @@ function LogConsole(props){
 class App extends Component {
   constructor(props) {
     super(props);
+      this.state = {
+        connect:null,
+        device:null,
+        notification:null,
+        items:[],
+        isLoaded:false
+      }
+      
+      device(data => {
+        this.setState({device: data});
+      });
 
-    this.state = {
-      connect:null,
-      device:null,
-      notification:null,
-      items:[],
-      rooms:null,
-      isLoaded:false
-    }
-    
-    device(data => {
-      this.setState({device: data});
-    });
+      notification(data => {
+        this.setState({notification: data});
+      });
 
-    notification(data => {
-      this.setState({notification: data});
-    });
-
-    connect(data => {
-      this.setState({connect:data});
-    });
-
-   
+      connect(data => {
+        this.setState({connect:data});
+      });
   }
+
+
   componentDidMount() {
     console.log("doing this");
-    fetch('/api/rooms').then(
-    function(response) {
-      if (response.status !== 200) {
-        console.log('Problem in fetching');
-        return;
-      }
-      response.text().then(function(data) {
+    fetch("/api/rooms")
+      .then(response => response.json())
+      .then((result) => {
+        console.log(result);
         this.setState({
-          rooms:data
+          isLoaded:true,
+          items:result
         });
         
-      });
-    })
-    console.log(this.state.rooms);   
+      })
+      .catch((error) => {
+        // handle your errors here
+        console.error(error)
+      })
+      console.log(this.state.isLoaded);
+      console.log(this.state.items);
   }
 
   
+
   componentWillMount(){
     console.log('Loading Page...');
   }
 
 
    render() {
+    const {items } = this.state;
       return (
         <div className="App">
           <header className="App-header">
@@ -78,7 +80,13 @@ class App extends Component {
           <div id="connection">{this.state.connect}</div>
           <div id="device">{this.state.device}</div>
           <div id="notification">{this.state.notification}</div>
-
+          <ul>
+            {items.map(item => (
+              <li key={item.id}>
+                {item.name} {item.description}
+              </li>
+            ))}
+          </ul>
           {/* <LogConsole logdata={this.state.ioData} /> */}
         </div>
       );
