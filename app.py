@@ -132,7 +132,7 @@ class RunServer:
         devices = dbGetAllDevices()
         return web.json_response(devices)
 
-    async def getFeaturedSensors(self,request):
+    async def getWeather(self,request):
         sensors = dbGetFeaturedSensors()
         return web.json_response(sensors)
 
@@ -146,7 +146,7 @@ class RunServer:
         app.router.add_get('/', self.index)
         app.router.add_get('/api/rooms', self.getRooms)
         app.router.add_get('/api/devices', self.getDevices)
-        app.router.add_get('/api/weather', self.getFeaturedSensors)
+        app.router.add_get('/api/weather', self.getWeather)
         app.router.add_get('/api/horizon', self.getHorizon)
         # app.router.add_get('/api/scenes', self.getDevices)
         # app.router.add_get('/api/automations', self.getDevices)

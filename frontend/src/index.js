@@ -55,8 +55,6 @@ class App extends Component {
         // handle your errors here
         console.error(error)
       })
-      console.log(this.state.isLoaded);
-      console.log(this.state.items);
   }
 
   
@@ -67,7 +65,7 @@ class App extends Component {
 
 
    render() {
-    const {items } = this.state;
+    const {items} = this.state;
       return (
         <div className="App">
           <header className="App-header">
