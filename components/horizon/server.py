@@ -56,6 +56,7 @@ async def horizonHandler():
 		data = {}
 		data["location"] = {}
 		data["astral"] = {}
+		data["astral"]["next_time"] = {}
 		data["location"]["city"] = config_data["city"]			
 		data["location"]["state"] = config_data["state"]			
 		data["location"]["latitude"] = config_data["latitude"]			
@@ -66,14 +67,14 @@ async def horizonHandler():
 		data["astral"]["above_horizon"] = str(sun_horizon_position).lower()
 		if(sun_horizon_position):
 			data["astral"]["next"] = "sunset"
-			data["astral"]["next_time"] = str(get_age(utc_aware_to_datetime(astral["sunset"])))
+			data["astral"]["next_time"] = get_age(utc_aware_to_datetime(astral["sunset"]))
 		else:
 			data["astral"]["next_astral"] = "sunrise"	
 			if(time_now > utc_aware_to_datetime(astral["sunset"])):
 				tommorrow = utc_aware_to_datetime(astral["sunrise"]) + timedelta(days=1)
-				data["astral"]["next_time"] =  str(get_age(tommorrow))
+				data["astral"]["next_time"] =  get_age(tommorrow)
 			else:
-				data["astral"]["next_time"] =  str(get_age(utc_aware_to_datetime(astral["sunrise"])))
+				data["astral"]["next_time"] =  get_age(utc_aware_to_datetime(astral["sunrise"]))
 		deviceActions = {}
 		deviceProperties = json.dumps(data)
 		dbSyncDevice(TYPE,deviceProperties,deviceActions,"",COMPONENT)

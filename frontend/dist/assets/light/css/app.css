@@ -1,0 +1,149 @@
+body {
+    font-family: 'Source Sans Pro', sans-serif;
+    font-size: 14px;
+    color: #4A5669;
+    background: #F7F7F7;
+    padding: 20px;
+}
+
+.wrapper {
+    width: 80%;
+    margin: 10px auto 30px auto;
+}
+@media(max-width:1024px){
+    .wrapper {
+        width: 100%;
+    }
+}
+
+.col-xs-3{
+    width: 25%;
+    padding-right: 15px;
+    padding-left: 15px;
+}
+
+.header {
+    padding: 0px 0px;
+}
+
+.text-sm {
+    font-size: 12px;
+}
+
+.text-md {
+    font-size: 14px;
+}
+
+.text-lg {
+    font-size: 20px;
+    line-height: 25px;
+}
+.text-bold{
+    font-weight: 600;
+}
+.text-xl {
+    font-size: 25px;
+    line-height: 38px;
+}
+
+.text-xxl {
+    font-size: 60px;
+    line-height: 60px;
+    font-weight: 300;
+}
+
+p {
+    margin: 0px;
+    padding: 0px;
+}
+
+h1,
+h2,h3 {
+    margin: 0px;
+    padding: 0px;
+    font-weight: normal;
+}
+
+h1 {
+    font-weight: 400;
+    font-size: 25px;
+    position: relative;
+}
+
+h1:after{
+        background: #4949BE;
+        content: " ";
+        display: block;
+        height: 2px;
+        position: absolute;
+        width: 5%;
+        margin-top: 9px;
+}
+
+h2 {
+    font-weight: 600;
+    font-size: 20px;
+}
+
+h3 {
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    font-size: 14px;
+}
+
+.owl-carousel .item img{
+    width: auto;
+}
+.icon-left{
+    float: left;
+    margin-right: 20px;
+    width: auto!important;
+}
+
+.clearfix{
+    float: none;
+    clear: both;
+}
+
+.card-on{
+    box-shadow: 0 6px 20px 3px #D7F6E0!important;
+}
+
+.card {
+    padding: 25px;
+    border-radius: 10px;
+    background: #FFFFFF;
+    position: relative;
+}
+
+.text-secondary {
+    color: #8A929E;
+}
+
+.show-device-props{
+    position: absolute;
+    right: 20px;
+    top: 20px;
+}
+
+.text-status{
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 15px;
+    margin-top: 10px;
+}
+
+.on .text-status{
+    color: #51D679
+}
+.title-case{
+    text-transform:capitalize!important;
+}
+.card-shadow {
+    box-shadow: 0 6px 20px 5px rgba(154, 154, 154, 0.05);
+}
+
+.owl-item.active:first-child {
+    display: none;
+    }
