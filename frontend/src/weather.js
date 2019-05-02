@@ -1,14 +1,13 @@
 import React, { Component } from "react";
+import { featuredSensor } from "./api";
+
 
 export class Weather extends Component {
     constructor(props) {
         super(props);
         this.state = {
             items: [],
-            aboveHorizon: null,
-            astralTimeDigit: 0,
-            astralTimeDigitUnit: null,
-            astralNext: null
+            dataLoaded:false
         }
     }
 
@@ -18,32 +17,36 @@ export class Weather extends Component {
         fetch("/api/weather")
             .then(response => response.json())
             .then((result) => {
+                // console.log(result);
                 this.setState({
                     items: result,
-                    aboveHorizon: result.properties.astral.above_horizon,
-                    astralTimeDigit: result.properties.astral.next_time.number,
-                    astralTimeDigitUnit: result.properties.astral.next_time.unit,
-                    astralNext: result.properties.astral.next_astral
+                    dataLoaded:true
+
                 });
             })
             .catch((error) => {
                 console.error(error)
             })
+            featuredSensor(result =>{
+                // console.log(result);
+                this.setState({
+                    items: result,
+                    dataLoaded:true   
+                });
+            })    
     }
 
 
     render() {
         let data = this.state;
-        // if(Object.keys(data).length > 0){
-        //     console.log(data.properties.astral);
-        // }
+        if(data.dataLoaded==true){
         return (
-            <div className="card card-shadow mt-4">
+            <div className="card card-shadow mt-4" >
                         <div className="card-body">
                             <div className="mb-4">
                                 <div className="icon-left">
-                                    <span className="text-xxl">23.5</span>
-                                    <span className="text-lg">° C</span>
+                                    <span className="text-xxl">{data.items.properties.temperature.value}</span>
+                                    <span className="text-lg">° {data.items.properties.temperature.unit}</span>
                                 </div>
                                 <h2 className="">Outdoor Conditions</h2>
                                 <span className="text-md">Acceptable</span>
@@ -52,29 +55,34 @@ export class Weather extends Component {
                             <div className="row">
                                 <div className="col-xs-3 text-left">
                                     <img src="assets/light/images/humidity.svg" />
-                                    <div className="text-xl">40</div>
-                                    <div className="text-md">%</div>
+                                    <div className="text-xl">{data.items.properties.humidity.value}</div>
+                                    <div className="text-md">{data.items.properties.humidity.unit}</div>
                                 </div>
                                 <div className="col-xs-3 text-left">
                                     <img src="assets/light/images/light.svg" />
-                                    <div className="text-xl">40</div>
-                                    <div className="text-md">lux</div>
+                                    <div className="text-xl">{data.items.properties.light.value}</div>
+                                    <div className="text-md">{data.items.properties.light.unit}</div>
                                 </div>
                                 <div className="col-xs-3 text-left">
                                     <img src="assets/light/images/pressure.svg" />
-                                    <div className="text-xl">1001.5</div>
-                                    <div className="text-md">hPa</div>
+                                    <div className="text-xl">{data.items.properties.pressure.value}</div>
+                                    <div className="text-md">{data.items.properties.pressure.unit}</div>
                                 </div>
                                 <div className="col-xs-3 text-left">
                                     <img src="assets/light/images/airquality.svg" />
-                                    <div className="text-xl">650K</div>
-                                    <div className="text-md">ppm</div>
+                                    <div className="text-xl">{data.items.properties.gas.value}0K</div>
+                                    <div className="text-md">{data.items.properties.gas.unit}</div>
                                 </div>
                             </div>
                         </div>
                         <div className="card-footer">
+                        {data.items.properties.voltage.value} {data.items.properties.voltage.unit}
                         </div>
                     </div>
+        )
+        }
+        return (
+            <div>...</div>
         )
     }
 }
