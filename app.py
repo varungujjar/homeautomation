@@ -133,7 +133,7 @@ class RunServer:
         return web.json_response(devices)
 
     async def getWeather(self,request):
-        sensors = dbGetFeaturedSensors()
+        sensors = dbGetWeatherSensor()
         return web.json_response(sensors)
 
     async def getHorizon(self,request):
@@ -143,7 +143,7 @@ class RunServer:
     async def createApp(self):
         app = web.Application()
         sio.attach(app)   
-        app.router.add_get('/', self.index)
+        # app.router.add_get('/', self.index)
         app.router.add_get('/api/rooms', self.getRooms)
         app.router.add_get('/api/devices', self.getDevices)
         app.router.add_get('/api/weather', self.getWeather)

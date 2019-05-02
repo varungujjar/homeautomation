@@ -11,9 +11,10 @@ logger = formatLogger(__name__)
 global db_path
 db_path = '/home/pi/db/db'
 
-external_sio = socketio.RedisManager('redis://', write_only=True)
-       
 
+def sioConnect():
+	sio = socketio.RedisManager('redis://', write_only=True)
+	return sio
 
 def formatDeviceEntries(device):
 	jsonItem = {}
@@ -50,7 +51,7 @@ def dbInsertHistory(id,name,type,component,status,value):
 		logger.eror('[DB] Notification Error: %s' % (str(err)))
 	finally:
 		db.close()
-	external_sio.emit('notification', str(name)+" "+str(status))		
+	sioConnect().emit('notification', str(name)+" "+str(status))		
 
 
 def dbSetDeviceStatus(id,status):
@@ -89,7 +90,7 @@ def dbSyncDevice(type,prop,actions,address,component):
 		finally:
 			db.close()
 	thisDevice = dbGetDevice(component,address)
-	external_sio.emit('device', str(thisDevice))
+	sioConnect().emit('device', thisDevice)
 	return thisDevice
 
 
@@ -133,25 +134,23 @@ def dbGetAllDevices():
 
 
 
-def dbGetFeaturedSensors():
+def dbGetWeatherSensor():
 	try:
 		db = sqlite3.connect(db_path)
 		db.row_factory = lambda c, r: dict([(col[0], r[idx]) for idx, col in enumerate(c.description)])
 		cur = db.cursor()
-		cur.execute("SELECT * FROM devices WHERE type=? AND featured=?", ("sensor", 1))
-		devices = cur.fetchall()
+		cur.execute("SELECT * FROM devices WHERE type=? AND featured=? AND weather=?" , ("sensor", 1, 1))
+		device = cur.fetchone()
 		db.commit()
 	except Exception as err:
-		logger.eror('[DB] Featured Sensors Get Error: %s' % (str(err)))
+		logger.eror('[DB] Weather Sensor Get Error: %s' % (str(err)))
 	finally:
 		db.close()
-	if devices is None:
+	if device is None:
 		return {}
 	else:
-		jsonDevices = []
-		for device in devices:
-			jsonDevices.append(formatDeviceEntries(device))
-	return jsonDevices
+		device = formatDeviceEntries(device)			
+	return device
 
 
 def dbGetDeviceRooms(id=None):

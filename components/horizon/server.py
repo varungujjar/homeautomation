@@ -66,7 +66,7 @@ async def horizonHandler():
 		data["astral"]["sunset"] = str(utc_aware_to_datetime(astral["sunset"]))
 		data["astral"]["above_horizon"] = str(sun_horizon_position).lower()
 		if(sun_horizon_position):
-			data["astral"]["next"] = "sunset"
+			data["astral"]["next_astral"] = "sunset"
 			data["astral"]["next_time"] = get_age(utc_aware_to_datetime(astral["sunset"]))
 		else:
 			data["astral"]["next_astral"] = "sunrise"	
@@ -77,8 +77,9 @@ async def horizonHandler():
 				data["astral"]["next_time"] =  get_age(utc_aware_to_datetime(astral["sunrise"]))
 		deviceActions = {}
 		deviceProperties = json.dumps(data)
-		dbSyncDevice(TYPE,deviceProperties,deviceActions,"",COMPONENT)
+		thisHorizon = dbSyncDevice(TYPE,deviceProperties,deviceActions,"",COMPONENT)
 		logger.info("%s" % str(deviceProperties))
+		sioConnect().emit('horizon',thisHorizon)
 		await asyncio.sleep(60)
 
 
