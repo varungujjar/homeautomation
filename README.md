@@ -1,6 +1,10 @@
 
-![alt text](https://raw.githubusercontent.com/varungujjar/homeautomation/master/frontend/dist/assets/light/images/preview.png)
+![alt text](https://raw.githubusercontent.com/varungujjar/homeautomation/master/frontend/dist/assets/light/images/preview_title.png)
+<br><br>
+MQTT,Zigbee, Automation, Offline AI & more devices to be added soon all on credit sized computer raspberry pi built on top of python3 & reactjs frontend with focus on beautiful UI & simplicity without any dependency on an internet connection.
+<br><br>
 
+![alt text](https://raw.githubusercontent.com/varungujjar/homeautomation/master/frontend/dist/assets/light/images/preview.png)
 
 # Homeautomation
 MQTT / XBee Based Home Automation Built For Raspberry Pi
