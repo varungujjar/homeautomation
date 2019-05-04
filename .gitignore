@@ -3,11 +3,13 @@
 .nano/
 .cache/
 .npm/
+.config/
 .bash_history
 .bash_logout
 .bashrc
 .gitconfig
 .profile
 .DS_Store
+*.log
 *.pyc
 __pycache__
