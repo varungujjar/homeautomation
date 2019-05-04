@@ -1,3 +1,7 @@
+
+![alt text](https://raw.githubusercontent.com/varungujjar/homeautomation/master/frontend/dist/assets/light/images/preview.png)
+
+
 # Homeautomation
 MQTT / XBee Based Home Automation Built For Raspberry Pi
 
