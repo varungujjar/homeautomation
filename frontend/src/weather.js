@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { featuredSensor } from "./api";
+import { device } from "./api";
 
 
 export class Weather extends Component {
@@ -27,12 +27,13 @@ export class Weather extends Component {
             .catch((error) => {
                 console.error(error)
             })
-            featuredSensor(result =>{
-                // console.log(result);
-                this.setState({
-                    items: result,
-                    dataLoaded:true   
-                });
+            device(result =>{
+                if(result.weather==1){
+                    this.setState({
+                        items: result,
+                        dataLoaded:true   
+                    });
+                }
             })    
     }
 

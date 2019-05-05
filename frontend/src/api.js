@@ -8,20 +8,6 @@ export function device(returnData) {
   });
 }
 
-export function featuredSensor(returnData) {
-  socket.on("device", data => {
-    if (data.weather==1){
-      returnData(data);
-    }
-  });
-}
-
-export function horizon(returnData) {
-  socket.on("horizon", data => {
-    returnData(data);
-  });
-}
-
 export function notification(returnData) {
   socket.on("notification", data => {
     returnData(data);

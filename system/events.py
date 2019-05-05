@@ -139,7 +139,7 @@ async def doThen(ruleData):
                 importModule = __import__(buildComponentPath, fromlist=getDeviceModule)
                 importDeviceClass = getattr(importModule, getDeviceClass)
                 deviceClass = importDeviceClass()
-                status = deviceClass.triggerAction(thenActions,getDevice)
+                status = deviceClass.triggerAction(thenActions,getDevice["id"])
                 if status:
                     logger.info("Rule Triggered") 
             except ImportError as error:

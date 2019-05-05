@@ -16,6 +16,7 @@ def sioConnect():
 	sio = socketio.RedisManager('redis://', write_only=True)
 	return sio
 
+
 def formatDeviceEntries(device):
 	jsonItem = {}
 	for key, value in device.items():
@@ -90,7 +91,7 @@ def dbSyncDevice(type,prop,actions,address,component):
 		finally:
 			db.close()
 	thisDevice = dbGetDevice(component,address)
-	sioConnect().emit('device', thisDevice)
+	sioConnect().emit("device", thisDevice)
 	return thisDevice
 
 
@@ -99,7 +100,7 @@ def dbGetDevice(component=None,address=None,id=None):
 	db.row_factory = lambda c, r: dict([(col[0], r[idx]) for idx, col in enumerate(c.description)])
 	cur = db.cursor()
 	if id is None:
-		cur.execute('SELECT * FROM "devices" WHERE component=? AND address=?',(component,address))
+		cur.execute('SELECT devices.*, rooms.id as room_id, rooms.name as room_name FROM devices LEFT JOIN rooms on room_id = rooms.id WHERE component=? AND address=?',(component,address))
 		device = cur.fetchone()
 	else:
 		cur.execute('SELECT * FROM "devices" WHERE id=?',(id,))
@@ -112,12 +113,17 @@ def dbGetDevice(component=None,address=None,id=None):
 	return device
 
 
-def dbGetAllDevices():
+def dbGetAllDevices(type=0):
+	#type = 0 include system devices
+	#type = 1 exclude system devices and featured devices
 	try:
 		db = sqlite3.connect(db_path)
 		db.row_factory = lambda c, r: dict([(col[0], r[idx]) for idx, col in enumerate(c.description)])
 		cur = db.cursor()
-		cur.execute("SELECT * FROM devices")
+		if(type==0):
+			cur.execute("SELECT * FROM devices")
+		else:
+			cur.execute("SELECT devices.*, rooms.id as room_id, rooms.name as room_name FROM devices LEFT JOIN rooms on room_id = rooms.id WHERE type!=? AND featured=0",("system",))		
 		devices = cur.fetchall()
 		db.commit()
 	except Exception as err:

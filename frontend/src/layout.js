@@ -3,6 +3,7 @@ import OwlCarousel from 'react-owl-carousel2';
 import { Rooms } from "./rooms"
 import { Horizon } from "./horizon"
 import { Weather } from "./weather"
+import { Devices } from "./devices"
 
 
 export class Layout extends Component {
@@ -92,36 +93,8 @@ render() {
                     </div>
                     <div className="section mt-4">
                         <h3 className="mb-2">Devices</h3>
-                        <OwlCarousel options={options}>
-                            <div className="card card-shadow item on">
-                                <span className="show-device-props"><img src="assets/light/images/dots.svg" /></span>
-                                <img src="assets/light/images/lampon.svg" />
-                                <div className="text-status">On</div>
-                                <div className="text-bold mt-2">Side Lamp</div>
-                                <div className="text-secondary text-md">Bedroom</div>
-                            </div>
-                            <div className="card card-shadow item">
-                                <span className="show-device-props"><img src="assets/light/images/dots.svg" /></span>
-                                <img src="assets/light/images/lampoff.svg" />
-                                <div className="text-status">Off</div>
-                                <div className="text-bold mt-2">Side Lamp</div>
-                                <div className="text-secondary text-md">Bedroom</div>
-                            </div>
-                            <div className="card card-shadow item">
-                                <span className="show-device-props"><img src="assets/light/images/dots.svg" /></span>
-                                <img src="assets/light/images/lampoff.svg" />
-                                <div className="text-status">Off</div>
-                                <div className="text-bold mt-2">Side Lamp</div>
-                                <div className="text-secondary text-md">Bedroom</div>
-                            </div>
-                            <div className="card card-shadow item">
-                                <span className="show-device-props"><img src="assets/light/images/dots.svg" /></span>
-                                <img src="assets/light/images/lampoff.svg" />
-                                <div className="text-status">Off</div>
-                                <div className="text-bold mt-2">Side Lamp</div>
-                                <div className="text-secondary text-md">Bedroom</div>
-                            </div>
-                        </OwlCarousel>
+                        
+                             <Devices></Devices>
                     </div>
                 </div>
             </div>

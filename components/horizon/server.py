@@ -79,7 +79,6 @@ async def horizonHandler():
 		deviceProperties = json.dumps(data)
 		thisHorizon = dbSyncDevice(TYPE,deviceProperties,deviceActions,"",COMPONENT)
 		logger.info("%s" % str(deviceProperties))
-		sioConnect().emit('horizon',thisHorizon)
 		await asyncio.sleep(60)
 
 

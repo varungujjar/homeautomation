@@ -34,7 +34,7 @@ async def statusHandler():
 
 def statusCheck():
     importDbModule = __import__("helpers.db", fromlist="db")
-    devices = importDbModule.dbGetAllDevices()
+    devices = importDbModule.dbGetAllDevices(0)
     for device in devices:
         now = datetime.now()
         modified = datetime.strptime(str(device["modified"]), '%Y-%m-%d %H:%M:%S')

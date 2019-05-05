@@ -1,4 +1,4 @@
-import asyncio
+import asyncio, json
 from concurrent.futures import ThreadPoolExecutor
 from random import choice
 from functools import partial
@@ -129,8 +129,40 @@ class RunServer:
         return web.json_response(rooms)
 
     async def getDevices(self,request):
-        devices = dbGetAllDevices()
+        devices = dbGetAllDevices(1)
         return web.json_response(devices)
+
+
+    async def setDevice(self,request):
+        requestParams = await request.json()
+        print(requestParams)
+        deviceId = requestParams["device"]
+        deviceAction = requestParams["actions"]
+        
+        getDevice = dbGetDevice(None,None,deviceId)
+        getDeviceProperties = getDevice["properties"]
+        getDeviceActions = getDevice["actions"]
+        if getDevice:
+            getDeviceModule = str(getDevice["type"])
+            getDeviceClass = str(getDevice["type"])
+            getDeviceComponent = str(getDevice["component"])
+            try:
+                buildComponentPath = "components."+getDeviceComponent+"."+getDeviceModule
+                importModule = __import__(buildComponentPath, fromlist=getDeviceModule)
+                importDeviceClass = getattr(importModule, getDeviceClass)
+                deviceClass = importDeviceClass()
+                status = deviceClass.triggerAction(deviceAction,getDevice["id"])
+                if status:
+                    logger.info("Action Triggered") 
+                    response_obj = { 'status' : 'success' }
+                    return web.json_response(response_obj)
+            except ImportError as error:
+                logger.error("%s" % str(error)) 
+                return web.json_response(str(error))
+            except Exception as exception:
+                logger.error("%s" % str(exception))
+                return web.json_response(str(exception))
+
 
     async def getWeather(self,request):
         sensors = dbGetWeatherSensor()
@@ -148,6 +180,7 @@ class RunServer:
         app.router.add_get('/api/devices', self.getDevices)
         app.router.add_get('/api/weather', self.getWeather)
         app.router.add_get('/api/horizon', self.getHorizon)
+        app.router.add_post('/api/device', self.setDevice)
         # app.router.add_get('/api/scenes', self.getDevices)
         # app.router.add_get('/api/automations', self.getDevices)
         # app.router.add_get('/api/components', self.getDevices)
@@ -157,7 +190,7 @@ class RunServer:
     @sio.on('connect')
     async def connect(self, data):
         await sio.emit('connect', str({'data': 'Connected to React Frontend'}))
-        logger.info(data)
+        # logger.info(data)
     
 
     def runApp(self):

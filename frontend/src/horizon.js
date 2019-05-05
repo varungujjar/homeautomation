@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import {horizon} from "./api";
+import {device} from "./api";
 
 export class Horizon extends Component {
     constructor(props) {
@@ -31,14 +31,16 @@ export class Horizon extends Component {
             .catch((error) => {
                 console.error(error)
             })
-            horizon(result =>{
-                this.setState({
-                    aboveHorizon: result.properties.astral.above_horizon,
-                    astralTimeDigit: result.properties.astral.next_time.number,
-                    astralTimeDigitUnit: result.properties.astral.next_time.unit,
-                    astralNext: result.properties.astral.next_astral,
-                    dataLoaded:true
-                });
+            device(result =>{
+                if(result.component=="horizon"){
+                    this.setState({
+                        aboveHorizon: result.properties.astral.above_horizon,
+                        astralTimeDigit: result.properties.astral.next_time.number,
+                        astralTimeDigitUnit: result.properties.astral.next_time.unit,
+                        astralNext: result.properties.astral.next_astral,
+                        dataLoaded:true
+                    });
+                 }
             })
     }
 

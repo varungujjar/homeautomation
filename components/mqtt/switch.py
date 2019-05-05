@@ -34,8 +34,8 @@ class switch(object):
         loop.create_task(publish(topic, value))
         
         
-    def triggerAction(self,actions,deviceData):
-        deviceId = deviceData["id"]
+    def triggerAction(self,actions,deviceId):
+        print(deviceId)
         triggered = False
         if "relay" in actions:
             relays = actions["relay"]
