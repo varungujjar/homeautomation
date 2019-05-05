@@ -50,10 +50,10 @@ export class Switch extends Component {
     render(){
         const data = this.state.data;
         const relays = this.state.relays;
-        console.log("render now");
-        console.log(relays);
+        // console.log("render now");
+        // console.log(relays);
         return (
-            <div className="card card-shadow item">
+            <div className="card card-shadow item card-hover">
                 {
                   Object.keys(relays).map(index => 
                     ( 

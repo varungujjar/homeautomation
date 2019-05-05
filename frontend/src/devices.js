@@ -1,10 +1,12 @@
 import React, { Component } from "react";
+import OwlCarousel from 'react-owl-carousel2';
 import { device } from "./api"
 import { Switch } from "./switch"
 
 
 function Device(props){
         const device = props.device;
+        // console.log(props.device);
         if(device.type=="switch"){
             return (
                     <>
@@ -15,11 +17,11 @@ function Device(props){
             }
         if(device.type=="sensor2"){
             return (
-                    <div></div>
+                <></>
                 )
         }
         return (
-            <div></div>
+            <></>
         )
 }
 
@@ -35,6 +37,7 @@ export class Devices extends Component {
 
 
     componentDidMount() {
+        console.log("mounted")
         fetch("/api/devices")
             .then(response => response.json())
             .then((result) => {
@@ -46,27 +49,49 @@ export class Devices extends Component {
             .catch((error) => {
                 console.error(error)
             })
-        device(result =>{
+            device(result =>{
                 this.setState({
                     items:this.state.items.filter(item => item.id!=result.id).concat(result).sort((a, b) => a.id - b.id),
                     socketLoaded:true
                 });
-            }) 
+                this.forceUpdate()
+            })
     }
 
 
 
     render() {
+        const options = {
+            loop: false,
+            margin: 15,
+            nav: false,
+            responsive: {
+                0: {
+                    items: 2
+                },
+                600: {
+                    items: 3
+                },
+                1000: {
+                    items: 5
+                }
+            }
+        };
             const { items }  = this.state;
+            
             if(this.state.dataLoaded==true || this.state.socketLoaded==true)
             {
                 return (
-                        <>
+                    <>
+                    {console.log(items.length)}
+
+                    <OwlCarousel options={options}>
                             {items.map((item,index) => 
                                 (
                                     <Device key={index} device={item} />
                                 )
                             )}
+                        </OwlCarousel>
                         </>
                         )
                 }

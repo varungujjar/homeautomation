@@ -93,7 +93,7 @@ render() {
                     </div>
                     <div className="section mt-4">
                         <h3 className="mb-2">Devices</h3>
-                        
+                            
                              <Devices></Devices>
                     </div>
                 </div>

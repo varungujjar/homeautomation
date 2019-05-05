@@ -143,7 +143,16 @@ h3 {
 .card-shadow {
     box-shadow: 0 6px 20px 5px rgba(154, 154, 154, 0.05);
 }
+.card-hover{
+   cursor: pointer;
+   transition: 0.3s;
+}
+.card-hover:focus, card-hover:active{
+ }
+.card-hover:hover{
+    transform: scale(0.95);
+
+}   
 
 .owl-item.active:first-child {
-    display: none;
     }
