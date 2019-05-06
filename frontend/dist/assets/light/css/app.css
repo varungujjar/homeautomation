@@ -150,7 +150,7 @@ h3 {
 .card-hover:focus, card-hover:active{
  }
 .card-hover:hover{
-    transform: scale(0.98);
+    opacity: 0.9;
 
 }   
 

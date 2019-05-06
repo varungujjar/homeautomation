@@ -1,7 +1,6 @@
 import React from "react";
 
     const toggleState = function(deviceId, relayIndex, relayState){
-        console.log("i clciked");
         var relayIndexString =  relayIndex;
         var setRelaystate = 0;
         if(relayState==0){
