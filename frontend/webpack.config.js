@@ -26,7 +26,7 @@ module.exports = {
       historyApiFallback: true,
       proxy: {
         '/api': {
-          target: 'http://localhost:8000',
+          target: 'http://raspberrypi.local:8000',
           secure: false,
           bypass: function(req, res, proxyOptions) {
             if (req.headers.accept.indexOf('html') !== -1) {
