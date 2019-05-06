@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "webpack-dev-server --config ./webpack.config.js --mode development --host raspberrypi.local --port 80",
+    "start": "webpack-dev-server --config ./webpack.config.js --mode development --host raspberrypi.local --port 8080",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

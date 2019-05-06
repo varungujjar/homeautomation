@@ -4,26 +4,9 @@ import { device } from "./api"
 import { Switch } from "./switch"
 
 
-function Device(props){
-        const device = props.device;
-        // console.log(props.device);
-        if(device.type=="switch"){
-            return (
-                    <>
-                        <Switch key={device.id} data={device}></Switch> 
-                    </>
-                   
-                )
-            }
-        if(device.type=="sensor2"){
-            return (
-                <></>
-                )
-        }
-        return (
-            <></>
-        )
-}
+
+
+
 
 export class Devices extends Component {
     constructor(props) {
@@ -34,6 +17,9 @@ export class Devices extends Component {
             socketLoaded:false,
         }
     }
+
+
+     
 
 
     componentDidMount() {
@@ -49,6 +35,7 @@ export class Devices extends Component {
             .catch((error) => {
                 console.error(error)
             })
+
             device(result =>{
                 this.setState({
                     items:this.state.items.filter(item => item.id!=result.id).concat(result).sort((a, b) => a.id - b.id),
@@ -61,6 +48,29 @@ export class Devices extends Component {
 
 
     render() {
+
+        const Device = function(props) {
+            const device = props.device;
+            // console.log(props.device);
+            if(device.type=="switch"){
+                return (
+                        <>
+                        Rendering  switch
+                            {/* <Switch key={device.id} data={device}></Switch>  */}
+                        </>
+                       
+                    )
+                }
+            if(device.type=="sensor2"){
+                return (
+                    <></>
+                    )
+            }
+            return (
+                <></>
+            )
+        }    
+
         const options = {
             loop: false,
             margin: 15,
