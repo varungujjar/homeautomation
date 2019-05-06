@@ -3,24 +3,15 @@ import OwlCarousel from 'react-owl-carousel2';
 import { device } from "./api"
 import { Switch } from "./switch"
 
-
-
-
-
-
 export class Devices extends Component {
     constructor(props) {
         super(props);
         this.state = {
             items:[],
-            dataLoaded:false,
-            socketLoaded:false,
+            dataLoaded:false
+            
         }
     }
-
-
-     
-
 
     componentDidMount() {
         console.log("mounted")
@@ -39,24 +30,21 @@ export class Devices extends Component {
             device(result =>{
                 this.setState({
                     items:this.state.items.filter(item => item.id!=result.id).concat(result).sort((a, b) => a.id - b.id),
-                    socketLoaded:true
+                    dataLoaded:true
                 });
-                this.forceUpdate()
             })
     }
 
 
 
     render() {
-
         const Device = function(props) {
             const device = props.device;
             // console.log(props.device);
             if(device.type=="switch"){
                 return (
                         <>
-                        Rendering  switch
-                            {/* <Switch key={device.id} data={device}></Switch>  */}
+                            <Switch key={device.id} data={device}></Switch>
                         </>
                        
                     )
@@ -89,7 +77,7 @@ export class Devices extends Component {
         };
             const { items }  = this.state;
             
-            if(this.state.dataLoaded==true || this.state.socketLoaded==true)
+            if(this.state.dataLoaded==true)
             {
                 return (
                     <>
