@@ -459,20 +459,24 @@
   box-shadow: 0 0 0 1px rgba(255,255,255,0.6);
 }
 .iziToast.iziToast-color-red {
-
+  background: #F7475E;
+  border-color: #F7475E;
 }
 .iziToast.iziToast-color-orange {
-
+  background: #F19438;
+  border-color: #F19438;
 }
 .iziToast.iziToast-color-yellow {
-
+  background: #F19438;
+  border-color: #F19438;
 }
 .iziToast.iziToast-color-blue {
   background: #5E5E90;
   border-color: #5E5E90;
 }
 .iziToast.iziToast-color-green {
-
+  background: #51D679;
+  border-color: #51D679;
 }
 .iziToast.iziToast-layout2 .iziToast-body .iziToast-texts,
 .iziToast.iziToast-layout2 .iziToast-body .iziToast-message {
