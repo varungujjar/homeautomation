@@ -29,6 +29,16 @@ class switch(object):
         self.topic = 0
 
 
+    def dispatchNotification(self,data,type):
+        if type == "state":
+            stateText = "Off"
+            if data["properties"]["relay"]["0"]:
+                stateText = "On"
+            roomName = data["room_name"] or "None"
+            message = data["name"] + " Switch Turned <b>"+stateText+"</b>"
+            dbInsertHistory("info","device",None,roomName,message,1)
+        
+
     def publish(self,topic,value):
         loop = asyncio.get_event_loop()
         loop.create_task(publish(topic, value))
@@ -116,14 +126,10 @@ class switch(object):
         state = False   
         state = self.checkStateChanged(deviceAddress,deviceProperties)
         dbSync = dbSyncDevice(deviceClass,deviceProperties,deviceActions,deviceAddress,COMPONENT)
-        #loop.create_task(eventsHandler(dbSync["id"]))
+
         if dbSync and state:
-            relayState = dbSync["properties"]["relay"]
-            dbInsertHistory(dbSync["id"],dbSync["name"],dbSync["type"],dbSync["component"],"changed",relayState)
-            # loop = asyncio.get_event_loop()
-            # loop.run_until_complete(eventsHandler(dbSync["id"]))
+            self.dispatchNotification(dbSync,"state")
             eventsHandler(dbSync["id"])
-            # eventsHandler(dbSync["id"])
             
             
 

@@ -118,6 +118,7 @@ async def doThen(ruleData):
     thenDataJson = json.loads(ruleData["then"])
     checkifActive = ruleData["trigger"]
     ruleID = ruleData["id"]
+    ruleIDStr = str(ruleData["id"])
 
     if "device" in thenDataJson:
         getDevice = dbGetDevice(None,None,thenDataJson["device"])
@@ -147,7 +148,7 @@ async def doThen(ruleData):
             except Exception as exception:
                 logger.error("%s" % str(exception))
 
-        dbInsertHistory(ruleID,"Rule","rule","system","triggered",0)
+        dbInsertHistory("success","system",None,"Rule "+ruleIDStr,"Triggered",1)
 
 
 # if __name__ == '__main__':

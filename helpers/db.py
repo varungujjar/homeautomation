@@ -42,17 +42,23 @@ def dbGetConfig():
 	return config
 
 
-def dbInsertHistory(id,name,type,component,status,value):
-	try:
-		db = sqlite3.connect(db_path)
-		cur = db.cursor()
-		cur.execute("INSERT INTO notifications(id, name, type, component, status, value, read, created) VALUES(?,?,?,?,?,?,?,datetime(CURRENT_TIMESTAMP, 'localtime'))", (int(id), str(name),str(type),str(component),str(status),str(value),1))
-		db.commit()
-	except Exception as err:
-		logger.eror('[DB] Notification Error: %s' % (str(err)))
-	finally:
-		db.close()
-	sioConnect().emit('notification', str(name)+" "+str(status))		
+def dbInsertHistory(type,identifier,params=None,title=None,message=None,store=None):
+	if store == 1:
+		try:
+			db = sqlite3.connect(db_path)
+			cur = db.cursor()
+			cur.execute("INSERT INTO notifications(type, identifier, params, title, message, read, created) VALUES(?,?,?,?,?,?,datetime(CURRENT_TIMESTAMP, 'localtime'))", (str(type), str(identifier),str(params),str(title),str(message),1))
+			db.commit()
+		except Exception as err:
+			logger.eror('[DB] Notification Error: %s' % (str(err)))
+		finally:
+			db.close()
+	data = {}
+	data["type"] = type
+	data["title"] = title
+	data["message"] = message
+	logger.info(str(data))
+	sioConnect().emit('notification', data)		
 
 
 def dbSetDeviceStatus(id,status):
@@ -121,7 +127,7 @@ def dbGetAllDevices(type=0):
 		db.row_factory = lambda c, r: dict([(col[0], r[idx]) for idx, col in enumerate(c.description)])
 		cur = db.cursor()
 		if(type==0):
-			cur.execute("SELECT * FROM devices")
+			cur.execute("SELECT devices.*, rooms.id as room_id, rooms.name as room_name FROM devices LEFT JOIN rooms on room_id = rooms.id")
 		else:
 			cur.execute("SELECT devices.*, rooms.id as room_id, rooms.name as room_name FROM devices LEFT JOIN rooms on room_id = rooms.id WHERE type!=? AND featured=0",("system",))		
 		devices = cur.fetchall()
@@ -205,11 +211,4 @@ def setAutomationTriggerStatus(id,status):
 		db.close()
 	return True
 
-
-def db_tb_automation_triggered(id):
-	db = sqlite3.connect(db_path)
-	cur = db.cursor()
-	cur.execute('UPDATE automation SET last_triggered = CURRENT_TIMESTAMP WHERE id = ?',(id,))
-	db.commit()
-	return True	
 

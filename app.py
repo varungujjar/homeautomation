@@ -14,9 +14,6 @@ from system.events import *
 from system.status import *
 from helpers.db import *
 from components.zigbee.server import closeSerialConnection
-# from components.mqtt.server2 import *
-# sys.path.append("./components/mqtt/")
-
 
 COMPONENTS_DIR = "components"
 
@@ -69,7 +66,6 @@ class RunServer:
         return web.json_response({'Status': 'Dispatched'})
     
 
-
     def getList(self, path):
         folderList = [d for d in os.listdir(path) if os.path.isdir(os.path.join(path, d))]
         dirList = []
@@ -78,6 +74,7 @@ class RunServer:
             if folderItem not in ignorelist:
                 dirList.append(folderItem)
         return dirList
+
 
     def runTaskList(self, path):
         componentsList = getList(path)
@@ -147,7 +144,7 @@ class RunServer:
             getDeviceClass = str(getDevice["type"])
             getDeviceComponent = str(getDevice["component"])
             try:
-                buildComponentPath = "components."+getDeviceComponent+"."+getDeviceModule
+                buildComponentPath = COMPONENTS_DIR+"."+getDeviceComponent+"."+getDeviceModule
                 importModule = __import__(buildComponentPath, fromlist=getDeviceModule)
                 importDeviceClass = getattr(importModule, getDeviceClass)
                 deviceClass = importDeviceClass()
@@ -168,9 +165,11 @@ class RunServer:
         sensors = dbGetWeatherSensor()
         return web.json_response(sensors)
 
+
     async def getHorizon(self,request):
         horizon = dbGetDevice("horizon","")
         return web.json_response(horizon)
+
 
     async def createApp(self):
         app = web.Application()
@@ -187,10 +186,10 @@ class RunServer:
         # app.router.add_get('/api/history', self.getDevices)
         return app
 
+
     @sio.on('connect')
     async def connect(self, data):
-        await sio.emit('connect', str({'data': 'Connected to React Frontend'}))
-        # logger.info(data)
+        dbInsertHistory("success","system",None,"Hi, there","I Am now connected.")
     
 
     def runApp(self):
@@ -207,8 +206,6 @@ class RunServer:
         web.run_app(app, host=self.host, port=self.port, handle_signals=False) 
  
         
-           
-
 if __name__ == '__main__':
     s = RunServer(host='0.0.0.0', port=8000)
     s.runApp()

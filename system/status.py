@@ -20,7 +20,7 @@ def deviceCheckIncoming(device):
     if device["online"] == 0:
         importDbModule = __import__("helpers.db", fromlist="db")
         importDbModule.dbSetDeviceStatus(device["id"],1)
-        external_sio.emit("message", "Device "+device["name"]+" is online")
+        importDbModule.dbInsertHistory("success","device",None,device["room_name"] or device["component"],"Device "+device["name"]+" is now Online",1)
         logger.info("Device(%d) %s is online" % (device["id"],device["name"]))
         pass
 
@@ -41,11 +41,10 @@ def statusCheck():
         delta = now-modified
         seconds = delta.seconds
         if seconds > CHECK_THRESHOLD:
-            logger.warning("Device(%d) %s is offline" % (device["id"],device["name"]))
-            external_sio.emit("message", "Device "+device["name"]+" went offline")
+            logger.error("Device(%d) %s is offline" % (device["id"],device["name"]))
+            importDbModule.dbInsertHistory("error","device",None,device["room_name"] or device["component"],"Device "+device["name"]+" went Offline",1)
             if device["online"] == 1:
-                external_sio.emit("message", "Device "+device["name"]+" went offline")
+                importDbModule.dbInsertHistory("error","device",None,device["room_name"] or device["component"],"Device "+device["name"]+" went Offline",1)
                 importDbModule.dbSetDeviceStatus(device["id"],0)
                 #set notification table with message
-    logger.debug("Status Check Completed")
 
