@@ -10,6 +10,7 @@
   transform: translateZ(0);
   backface-visibility: hidden;
   transition: transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1), height 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+  margin-bottom: 15px;
 }
 .iziToast-capsule,
 .iziToast-capsule * {
@@ -145,12 +146,12 @@
   letter-spacing: 0.02em;
   background: rgba(0,0,0,0.1);
   color: #000;
-  box-shadow: 0 0 0 1px rgba(0,0,0,0.2);
+  box-shadow: 0 6px 20px 5px rgba(154, 154, 154, 0.09);
   min-height: 26px;
 }
 .iziToast > .iziToast-body .iziToast-inputs > input:not([type=checkbox]):not([type=radio]):focus,
 .iziToast > .iziToast-body .iziToast-inputs > select:focus {
-  box-shadow: 0 0 0 1px rgba(0,0,0,0.6);
+  box-shadow: 0 6px 20px 5px rgba(154, 154, 154, 0.09);
 }
 .iziToast > .iziToast-body .iziToast-buttons {
   min-height: 17px;
@@ -180,7 +181,7 @@
 .iziToast > .iziToast-body .iziToast-buttons > a:focus,
 .iziToast > .iziToast-body .iziToast-buttons > button:focus,
 .iziToast > .iziToast-body .iziToast-buttons > input:not([type=checkbox]):not([type=radio]):focus {
-  box-shadow: 0 0 0 1px rgba(0,0,0,0.6);
+  box-shadow: 0 6px 20px 5px rgba(154, 154, 154, 0.09);
 }
 .iziToast > .iziToast-body .iziToast-buttons > a:active,
 .iziToast > .iziToast-body .iziToast-buttons > button:active,
@@ -385,7 +386,6 @@
     width: 100%;
     height: 100%;
     border-radius: 3px;
-    box-shadow: inset 0 -10px 20px -10px rgba(0,0,0,0.2), inset 0 0 5px rgba(0,0,0,0.1), 0 8px 8px -5px rgba(0,0,0,0.25);
   }
   .iziToast:not(.iziToast-rtl) .iziToast-cover {
     border-radius: 3px 0 0 3px;
@@ -394,21 +394,19 @@
     border-radius: 0 3px 3px 0;
   }
   .iziToast.iziToast-color-dark:after {
-    box-shadow: inset 0 -10px 20px -10px rgba(255,255,255,0.3), 0 10px 10px -5px rgba(0,0,0,0.25);
   }
   .iziToast.iziToast-balloon .iziToast-progressbar {
     background: transparent;
   }
   .iziToast.iziToast-balloon:after {
-    box-shadow: 0 10px 10px -5px rgba(0,0,0,0.25), inset 0 10px 20px -5px rgba(0,0,0,0.25);
+    box-shadow: 0 6px 20px 5px rgba(154, 154, 154, 0.3);
   }
   .iziToast-target .iziToast:after {
-    box-shadow: inset 0 -10px 20px -10px rgba(0,0,0,0.2), inset 0 0 5px rgba(0,0,0,0.1);
   }
 }
 .iziToast.iziToast-theme-dark {
-  background: #565c70;
-  border-color: #565c70;
+  background: #333;
+  border-color: #333;
 }
 .iziToast.iziToast-theme-dark .iziToast-title {
   color: #fff;
@@ -461,24 +459,20 @@
   box-shadow: 0 0 0 1px rgba(255,255,255,0.6);
 }
 .iziToast.iziToast-color-red {
-  background: rgba(255,175,180,0.9);
-  border-color: rgba(255,175,180,0.9);
+
 }
 .iziToast.iziToast-color-orange {
-  background: rgba(255,207,165,0.9);
-  border-color: rgba(255,207,165,0.9);
+
 }
 .iziToast.iziToast-color-yellow {
-  background: rgba(255,249,178,0.9);
-  border-color: rgba(255,249,178,0.9);
+
 }
 .iziToast.iziToast-color-blue {
-  background: rgba(157,222,255,0.9);
-  border-color: rgba(157,222,255,0.9);
+  background: #5E5E90;
+  border-color: #5E5E90;
 }
 .iziToast.iziToast-color-green {
-  background: rgba(166,239,184,0.9);
-  border-color: rgba(166,239,184,0.9);
+
 }
 .iziToast.iziToast-layout2 .iziToast-body .iziToast-texts,
 .iziToast.iziToast-layout2 .iziToast-body .iziToast-message {

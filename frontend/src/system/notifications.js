@@ -17,11 +17,16 @@ export class Notification extends Component {
             image: '',
             imageWidth: 50,
             progressBar: false,
-            position: 'topRight',
+            position: 'bottomRight',
             transitionIn: 'fadeIn',
             transitionOut: 'fadeOut',
             icon:"",
+            maxWidth:"300px",
+            layout:2,
+            balloon:true,
             iconColor:"",
+            messageSize:12,
+            messageLineHeight:20,
             timeout: 5000,
             theme: 'dark'
         })

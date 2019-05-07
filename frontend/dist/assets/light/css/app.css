@@ -55,6 +55,11 @@ body {
     font-weight: 300;
 }
 
+b{
+    font-weight: 600!important;
+    opacity: 1!important;
+}
+
 p {
     margin: 0px;
     padding: 0px;

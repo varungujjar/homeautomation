@@ -16,7 +16,7 @@ export class Devices extends Component {
             .then(response => response.json())
             .then((result) => {
                 this.setState({
-                    items: result.sort((a, b) => a.id - b.id),
+                    items: result.sort((a, b) => a.order - b.order),
                     dataLoaded: true
                 });
             })
@@ -25,7 +25,7 @@ export class Devices extends Component {
             })
         device(result => {
             this.setState({
-                items: this.state.items.filter(item => item.id != result.id).concat(result).sort((a, b) => a.id - b.id),
+                items: this.state.items.filter(item => item.id != result.id).concat(result).sort((a, b) => a.order - b.order),
                 dataLoaded: true
             });
         })
