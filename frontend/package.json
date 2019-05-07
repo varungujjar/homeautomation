@@ -28,6 +28,7 @@
   "dependencies": {
     "css-loader": "^2.1.1",
     "http-proxy-middleware": "^0.19.1",
+    "izitoast": "^1.4.0",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "react-owl-carousel2": "^0.3.0",

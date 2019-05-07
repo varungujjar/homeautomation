@@ -1,6 +1,8 @@
 import React from "react";
+import { Notification } from "../system/notifications";
 
-    const toggleState = function(deviceId, relayIndex, relayState){
+
+    const toggleState = (deviceId, relayIndex, relayState) => {
         var relayIndexString =  relayIndex;
         var setRelaystate = 0;
         if(relayState==0){
@@ -20,6 +22,10 @@ import React from "react";
                 actions: relay,
             })
         })
+
+        return(
+            <Notification data={true}/>
+        )
         
       }
 

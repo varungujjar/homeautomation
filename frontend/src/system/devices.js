@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import OwlCarousel from 'react-owl-carousel2';
-import { device } from "./api"
-import { Switch } from "./switch"
+import { device } from "./socketio"
+import { Switch } from "../components/switch"
 
 export class Devices extends Component {
     constructor(props) {
@@ -69,7 +69,8 @@ export class Devices extends Component {
         const { items } = this.state;
         if (this.state.dataLoaded == true) {
             return (
-                <>
+                <div className="section mt-4">
+                <h3 className="mb-2">Devices</h3>
                     <OwlCarousel options={options}>
                         {items.map((item, index) =>
                             (
@@ -77,7 +78,8 @@ export class Devices extends Component {
                             )
                         )}
                     </OwlCarousel>
-                </>
+                    </div>
+              
             )
         }
         return (

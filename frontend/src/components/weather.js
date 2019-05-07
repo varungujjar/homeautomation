@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { device } from "./api";
+import { device } from "../system/socketio";
 
 
 export class Weather extends Component {

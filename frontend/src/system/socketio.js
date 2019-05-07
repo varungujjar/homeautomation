@@ -1,21 +1,22 @@
+import React, {Component} from "react";
 import openSocket from "socket.io-client";
 // const socket = openSocket("http://" + document.domain + ":8000");
 const socket = openSocket("http://raspberrypi.local:8000");
 
-
-export function device(returnData) {
-  socket.on("device", data => {
-    returnData(data);
-  });
-}
-
-export function notification(returnData) {
+export const notifications = (returnData) => {
   socket.on("notification", data => {
     returnData(data);
   });
 }
 
-export function connect(returnData) {
+export const device = (returnData) => {
+  socket.on("device", data => {
+    returnData(data);
+  });
+}
+
+
+export const connect = (returnData) => {
   socket.on("connect", data => {
     returnData(data)
   });
