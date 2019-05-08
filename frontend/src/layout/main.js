@@ -50,8 +50,12 @@ export class Layout extends Component {
 
         return (
             <div className="wrapper">
-                <div className="header mb-5">
+            <div className="row">
+            <div className="col-md-9"> <div className="header mb-5">
                     <h1>{this.props.name}</h1>
+                </div></div>
+               
+                <div className="col-md-3 text-right"> <img src="assets/light/images/morning.svg" className="icon-left" /></div>
                 </div>
                 <div className="row">
                     <div className="col-md-4">
