@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import OwlCarousel from 'react-owl-carousel2';
-import { device } from "./socketio"
-import { Switch } from "../components/switch"
+import { device } from "../system/socketio"
+import { Switch } from "./switch"
 
 export class Devices extends Component {
     constructor(props) {

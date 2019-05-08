@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import OwlCarousel from 'react-owl-carousel2';
-import { Rooms } from "./rooms"
-import { Devices } from "./devices"
+import { Rooms } from "../components/rooms"
+import { Devices } from "../components/devices"
 import { Horizon } from "../components/horizon"
 import { Weather } from "../components/weather"
 import { Home } from "../components/home"

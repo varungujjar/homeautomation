@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import ReactDOM from 'react-dom';
-import { Layout } from "./system/main";
+import { Layout } from "./layout/main";
 import { Notification } from "./system/notifications";
 
 import "../dist/assets/common/css/bootstrap-reboot.min.css"
