@@ -88,7 +88,7 @@ export class Notification extends Component {
               <Notification type={this.state.notificationData.type} title={this.state.notificationData.title} message={this.state.notificationData.message}></Notification>
             )
         }
-        return(<></>);
+        return(null);
       }
 
 }

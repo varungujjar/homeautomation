@@ -17,16 +17,16 @@ module.exports = {
         extensions: ['*', '.js', '.jsx']
       },
     output: {
-      path: __dirname + '/dist',
+      path: __dirname + '/src',
       publicPath: '/',
       filename: 'bundle.js'
     },
     devServer: {
-      contentBase: './dist',
+      contentBase: './src',
       historyApiFallback: true,
       proxy: {
         '/api': {
-          target: 'http://raspberrypi.local:8000',
+          target: 'http://192.168.1.114:8000',
           secure: false,
           bypass: function(req, res, proxyOptions) {
             if (req.headers.accept.indexOf('html') !== -1) {

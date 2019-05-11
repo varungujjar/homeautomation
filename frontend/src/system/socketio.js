@@ -1,7 +1,7 @@
 import React, {Component} from "react";
 import openSocket from "socket.io-client";
 // const socket = openSocket("http://" + document.domain + ":8000");
-const socket = openSocket("http://raspberrypi.local:8000");
+const socket = openSocket("http://192.168.1.114:8000");
 
 export const notifications = (returnData) => {
   socket.on("notification", data => {
