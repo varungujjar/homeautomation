@@ -17,12 +17,12 @@ def getCPUTemperature():
 
 
 def getMQTTStatus():
-	mqttStatus = os.popen("systemctl is-active mosquitto.service").readline()
+	mqttStatus = os.popen("systemctl is-active mosquitto.service").readline().rstrip('\n')
 	return mqttStatus
 
 
 def getRedisStatus():
-	redisStatus = os.popen("systemctl is-active redis-server").readline()
+	redisStatus = os.popen("systemctl is-active redis-server").readline().rstrip('\n')
 	return redisStatus
 
 
@@ -53,10 +53,10 @@ def systemHandler():
 	data["process"] = server.supervisor.getProcessInfo('app')
 
 	data["mqtt"] = {}
-	data["mqtt"]["status"] = getMQTTStatus()
+	data["mqtt"]["status"] = str(getMQTTStatus())
 
 	data["redis"] = {}
-	data["redis"]["status"] = getRedisStatus()
+	data["redis"]["status"] = str(getRedisStatus())
 
 	deviceProperties = data
 	logger.info("%s" % str(deviceProperties))
