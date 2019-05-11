@@ -14,6 +14,7 @@ from system.events import *
 from system.status import *
 from helpers.db import *
 from components.zigbee.server import closeSerialConnection
+from components.system.system import *
 
 COMPONENTS_DIR = "components"
 
@@ -96,7 +97,6 @@ class RunServer:
                 importModule = __import__(buildComponentPath, fromlist="*")
                 functionCall = getattr(importModule, "%sHandler" % component)()
                 app.loop.create_task(functionCall)
-        # app.loop.create_task(mqttHandler())        
         app.loop.create_task(eventsHandlerTimer())
         app.loop.create_task(statusHandler())
         
@@ -132,10 +132,8 @@ class RunServer:
 
     async def setDevice(self,request):
         requestParams = await request.json()
-        print(requestParams)
         deviceId = requestParams["device"]
-        deviceAction = requestParams["actions"]
-        
+        deviceAction = requestParams["actions"] 
         getDevice = dbGetDevice(None,None,deviceId)
         getDeviceProperties = getDevice["properties"]
         getDeviceActions = getDevice["actions"]
@@ -171,6 +169,11 @@ class RunServer:
         return web.json_response(horizon)
 
 
+    async def getSystem(self,request):
+        system = systemHandler()
+        return web.json_response(system)
+
+
     async def createApp(self):
         app = web.Application()
         sio.attach(app)   
@@ -179,6 +182,7 @@ class RunServer:
         app.router.add_get('/api/devices', self.getDevices)
         app.router.add_get('/api/weather', self.getWeather)
         app.router.add_get('/api/horizon', self.getHorizon)
+        app.router.add_get('/api/system', self.getSystem)
         app.router.add_post('/api/device', self.setDevice)
         # app.router.add_get('/api/scenes', self.getDevices)
         # app.router.add_get('/api/automations', self.getDevices)
@@ -196,11 +200,6 @@ class RunServer:
         loop = self.loop 
         app = loop.run_until_complete(self.createApp())
         app.on_startup.append(self.startBackgroundProcesses)
-        # future = concurrent.futures.Future()
-        # t = Thread(target=self.start_loop, args=(loop,))
-        # t.start()
-        # app.on_shutdown.append(self.shutdown)
-        # app.on_cleanup.append(self.cleanupBackgroundProcesses)
         for sig in (signal.SIGTERM, signal.SIGINT):
             loop.add_signal_handler(sig, lambda: asyncio.ensure_future(self.stopHandler()))
         web.run_app(app, host=self.host, port=self.port, handle_signals=False) 
