@@ -1,0 +1,48 @@
+.nav-tabs .nav-item{
+    transition: 0.3s;
+    cursor: pointer;
+    margin-right: 20px;
+
+}
+.nav-tabs .nav-item i{
+   color: #ccc;
+}
+.nav-tabs .nav-item i:hover{
+    color: #333;
+}
+.nav-tabs .nav-item:hover{
+    color: #4949BE
+
+}
+.nav-item{
+    padding: 0px 0px;
+    position: relative;
+    font-weight: 600;
+}
+.nav-link{
+    padding: 20px 0px;
+    margin:0px 10px 0px 0px;
+    border:none!important;
+    border-bottom: 2px solid transparent!important;
+    color: #999!important;
+}
+
+.nav-link.active{
+    border:none!important;
+    border-bottom: 2px solid #4949BE!important;
+    background-color: transparent!important;
+    color: #333!important;
+}
+
+/* .nav-link.active::after {
+    content: "";
+    position: absolute;
+    border-width: 0 6px 6px;
+    border-style: solid;
+    border-color: #4949BE transparent !important;
+    display: inline-block;
+    width: 0;
+    margin-left: -3px;
+    bottom: -0.1px;
+    left: 50%;
+} */

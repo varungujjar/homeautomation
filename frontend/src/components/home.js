@@ -1,29 +1,35 @@
 import React, { Component } from "react";
 
+
 export class Home extends Component {
     constructor(props) {
         super(props);
+        this._isMounted = false;
         this.state = {
             itemsLoaded: false
         }
     }
 
+
     componentDidMount() {
-
-        setInterval( () => {
+        this._isMounted = true;
+        setInterval(() => {
             var time = new Date();
-            this.setState({
-              curTime : time.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric',  second: 'numeric', hour12: true })
-            })
-          },1000)
-
+            if (this._isMounted) {
+                this.setState({
+                    curTime: time.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: true })
+                })
+            }
+        }, 1000)
         fetch("/api/home")
             .then(response => response.json())
             .then((result) => {
-                this.setState({
-                    items: result,
-                    itemsLoaded: true
-                });
+                if (this._isMounted) {
+                    this.setState({
+                        items: result,
+                        itemsLoaded: true
+                    });
+                }
             })
             .catch((error) => {
                 console.error(error)
@@ -31,8 +37,12 @@ export class Home extends Component {
     }
 
 
-    render() {
+    componentWillUnmount() {
+        this._isMounted = false;
+    }
 
+
+    render() {
         const RoomItem = (props) => {
             return (
                 <div key={props.room.id} className="card card-shadow item">
@@ -42,12 +52,9 @@ export class Home extends Component {
                 </div>
             )
         }
-
         if (this.state.itemsLoaded == false) {
             return (
-               
-               <div className="card card-shadow">   
-                  
+                <div className="card card-shadow">
                     <div className="card-body">
                         <img src="assets/light/images/home.svg" />
                         <h2 className="mt-3">Good Morning, Varun</h2>

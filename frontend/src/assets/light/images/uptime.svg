@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="43px" height="43px" viewBox="0 0 43 43" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 54.1 (76490) - https://sketchapp.com -->
+    <title>Group 12</title>
+    <desc>Created with Sketch.</desc>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="UI-Home-Light-Copy-2" transform="translate(-994.000000, -630.000000)">
+            <g id="Group-12" transform="translate(994.000000, 630.000000)">
+                <g id="Group-17-Copy-5" fill="#F1F1FA">
+                    <circle id="Oval-Copy-5" cx="21.5" cy="21.5" r="21.5"></circle>
+                </g>
+                <g id="clock-circular-outline" opacity="0.504813058" transform="translate(12.000000, 12.000000)" fill="#4949BE" fill-rule="nonzero">
+                    <path d="M10,0 C4.48600247,0 0,4.48600247 0,10 C0,15.5139975 4.48600247,20 10,20 C15.5139975,20 20,15.5139975 20,10 C20,4.48600247 15.5139975,0 10,0 Z M10,17.8721696 C5.65932483,17.8721696 2.12762454,14.340881 2.12762454,10 C2.12762454,5.65911898 5.65932483,2.12783038 10,2.12783038 C14.3406752,2.12783038 17.8723755,5.65911898 17.8723755,10 C17.8723755,14.340881 14.3406752,17.8721696 10,17.8721696 Z" id="Shape"></path>
+                    <path d="M15.0541499,10.3267974 L9.89170017,10.3267974 L9.89170017,4.83660131 C9.89170017,4.37458824 9.46819579,4 8.94585008,4 C8.42350437,4 8,4.37458824 8,4.83660131 L8,11.1633987 C8,11.6254118 8.42350437,12 8.94585008,12 L15.0541499,12 C15.5764956,12 16,11.6254118 16,11.1633987 C16,10.7013856 15.5764956,10.3267974 15.0541499,10.3267974 Z" id="Path"></path>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>
