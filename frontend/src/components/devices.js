@@ -3,33 +3,49 @@ import OwlCarousel from 'react-owl-carousel2';
 import { device } from "../system/socketio"
 import { Switch } from "./switch"
 
+
 export class Devices extends Component {
     constructor(props) {
         super(props);
+        this._isMounted = false;
         this.state = {
             items: [],
             dataLoaded: false
         }
     }
+
+
     componentDidMount() {
+        this._isMounted = true;
         fetch("/api/devices")
             .then(response => response.json())
             .then((result) => {
-                this.setState({
-                    items: result.sort((a, b) => a.order - b.order),
-                    dataLoaded: true
-                });
+                if (this._isMounted) {
+                    this.setState({
+                        items: result.sort((a, b) => a.order - b.order),
+                        dataLoaded: true
+                    });
+                }
             })
             .catch((error) => {
                 console.error(error)
             })
         device(result => {
-            this.setState({
-                items: this.state.items.filter(item => item.id != result.id).concat(result).sort((a, b) => a.order - b.order),
-                dataLoaded: true
-            });
+            if (this._isMounted) {
+                this.setState({
+                    items: this.state.items.filter(item => item.id != result.id).concat(result).sort((a, b) => a.order - b.order),
+                    dataLoaded: true
+                });
+            }
         })
     }
+
+
+    componentWillUnmount() {
+        this._isMounted = false;
+    }
+
+
     render() {
         const Device = function (props) {
             const device = props.device;
@@ -70,7 +86,7 @@ export class Devices extends Component {
         if (this.state.dataLoaded == true) {
             return (
                 <div className="section mt-4">
-                <h3 className="mb-2">Devices</h3>
+                    <h3 className="mb-2">Devices</h3>
                     <OwlCarousel options={options}>
                         {items.map((item, index) =>
                             (
@@ -78,8 +94,7 @@ export class Devices extends Component {
                             )
                         )}
                     </OwlCarousel>
-                    </div>
-              
+                </div>
             )
         }
         return (

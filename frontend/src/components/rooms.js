@@ -1,34 +1,50 @@
 import React, { Component } from "react";
 import OwlCarousel from 'react-owl-carousel2';
 
+
 export class Rooms extends Component {
     constructor(props) {
         super(props);
+        this._isMounted = false;
         this.state = {
             items: [],
             itemsLoaded: false
         }
     }
+
+
     componentDidMount() {
+        this._isMounted = true;
         fetch("/api/rooms")
             .then(response => response.json())
             .then((result) => {
-                this.setState({
-                    items: result,
-                    itemsLoaded: true
-                });
+                if (this._isMounted) {
+                    this.setState({
+                        items: result,
+                        itemsLoaded: true
+                    });
+                }
             })
             .catch((error) => {
                 console.error(error)
             })
     }
+
+
+    componentWillUnmount() {
+        this._isMounted = false;
+    }
+
+
     render() {
         const RoomItem = (props) => {
             return (
                 <div key={props.room.id} className="card card-shadow item">
-                    <img src="assets/light/images/bedroom.svg" />
-                    <div className="text-bold mt-2">{props.room.name}</div>
-                    <div className="text-secondary text-md">2 Devices</div>
+                    <div className="card-body">
+                        <img src="assets/light/images/bedroom.svg" />
+                        <div className="text-bold mt-2">{props.room.name}</div>
+                        <div className="text-secondary text-md">2 Devices</div>
+                    </div>
                 </div>
             )
         }
