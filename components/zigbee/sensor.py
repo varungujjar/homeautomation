@@ -7,7 +7,7 @@ import asyncio
 import binascii
 from helpers.logger import formatLogger
 from helpers.db import *
-from system.events import *
+from system.rules import *
 
 logger = formatLogger(__name__)
 
