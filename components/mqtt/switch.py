@@ -32,11 +32,13 @@ class switch(object):
     def dispatchNotification(self,data,type):
         if type == "state":
             stateText = "Off"
+            stateType = "default"
             if data["properties"]["relay"]["0"]:
                 stateText = "On"
+                stateType = "success"
             roomName = data["room_name"] or "None"
             message = data["name"] + " Switch Turned <b>"+stateText+"</b>"
-            dbInsertHistory("info","device",None,roomName,message,1)
+            dbInsertHistory(stateType,"device",None,roomName,message,1)
         
 
     def publish(self,topic,value):
