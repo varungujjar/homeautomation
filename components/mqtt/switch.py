@@ -3,7 +3,7 @@ import json
 import asyncio
 from helpers.logger import formatLogger
 from helpers.db import *
-from system.events import *
+from system.rules import *
 from publish import *
 
 logger = formatLogger(__name__)

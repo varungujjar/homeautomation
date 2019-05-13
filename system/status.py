@@ -4,7 +4,6 @@ import json
 import asyncio
 import time
 from helpers.logger import formatLogger
-import socketio
 import datetime
 from datetime import datetime, timedelta
 from helpers.dt import *
@@ -13,8 +12,6 @@ TIMER = 60 #seconds
 CHECK_THRESHOLD = 900 #seconds if device did not respond it will be considered as offline
 
 logger = formatLogger(__name__)
-external_sio = socketio.RedisManager('redis://', write_only=True)
-
 
 def deviceCheckIncoming(device):
     if device["online"] == 0:
@@ -42,9 +39,8 @@ def statusCheck():
         seconds = delta.seconds
         if seconds > CHECK_THRESHOLD:
             logger.error("Device(%d) %s is offline" % (device["id"],device["name"]))
-            importDbModule.dbInsertHistory("error","device",None,device["room_name"] or device["component"],"Device "+device["name"]+" went Offline",1)
+            importDbModule.dbInsertHistory("error","device",None,device["room_name"] or device["component"],"Device "+device["name"]+" went Offline")
             if device["online"] == 1:
                 importDbModule.dbInsertHistory("error","device",None,device["room_name"] or device["component"],"Device "+device["name"]+" went Offline",1)
                 importDbModule.dbSetDeviceStatus(device["id"],0)
-                #set notification table with message
-
+            

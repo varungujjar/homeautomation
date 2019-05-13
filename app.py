@@ -10,7 +10,7 @@ import socketio
 import signal
 import functools
 import threading
-from system.events import *
+from system.rules import *
 from system.status import *
 from components.zigbee.server import closeSerialConnection
 from system.system import *
@@ -18,54 +18,19 @@ from system.api import *
 
 COMPONENTS_DIR = "components"
 
-# logging.basicConfig(level=logging.INFO,format='[%(levelname)s] [%(name)s] => %(funcName)s : %(asctime)s : %(message)s',datefmt='%a %Y-%m-%d %H:%M:%S',)
-# logging.basicConfig(level=logging.DEBUG,format='%(asctime)s %(levelname)s %(message)s',filename='/tmp/myapp.log',filemode='w')
-
 logger = formatLogger(__name__)
 
 mgr = socketio.AsyncRedisManager('redis://')
 sio = socketio.AsyncServer(client_manager=mgr,async_mode='aiohttp')
 
- 
-# async def post_request(url, json, proxy=None):
-#     async with ClientSession() as client:
-#         try:
-#             async with client.post(url, json=json, proxy=proxy, timeout=60) as response:
-#                 html = await response.text()
-#                 return {'html': html, 'status': response.status}
-#         except ClientError as err:
-#             return {'error': err}
- 
-# def get_request(url):
-#     try:
-#         res = requests.get(url)
-#         return {'html': res.text, 'status': res.status_code, 'url': res.url, 'original_url': url}
-#     except requests.RequestException:
-#         return
- 
- 
+
 class RunServer:
- 
     def __init__(self, host, port):
         self.host = host
         self.port = port
         self.pool = ThreadPoolExecutor(max_workers=20)
         self.loop = asyncio.get_event_loop()
         self.api = Api()
-
-
-    # async def index(self,request):
-    #     with open('test.html') as f:
-    #         return web.Response(text=f.read(), content_type='text/html')    
- 
-    # async def get_urls(self, request):
-    #     data = await request.json()
-    #     url = data.get('url')
-    #     if url:
-    #         t = self.loop.run_in_executor(self.pool, get_request, url)
-    #         t.add_done_callback(self.scrape_callback)
-    #     return web.json_response({'Status': 'Dispatched'})
-    
 
     def getList(self, path):
         folderList = [d for d in os.listdir(path) if os.path.isdir(os.path.join(path, d))]
@@ -104,7 +69,7 @@ class RunServer:
     async def stopHandler(self):
         logger.info("Closing Serial Connection")
         closeSerialConnection()
-        logger.info("Cancelling All Tasks...")
+        logger.info("Cancelling All Tasks")
         pending = asyncio.Task.all_tasks()
         for task in pending:
             task.cancel()

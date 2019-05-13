@@ -1,5 +1,5 @@
 import asyncio, json
-from system.events import *
+from system.rules import *
 from system.status import *
 
 logger = formatLogger(__name__)
