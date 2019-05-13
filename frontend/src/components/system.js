@@ -53,21 +53,21 @@ export class System extends Component {
             return (
                 <>
                     <div className="row">
-                        <div className="col-md-3"><div className="card card-shadow  mt-4">
+                        <div className="col-md-6"><div className="card card-shadow  mt-4">
                             <div className="card-body">
-                                <img src="assets/light/images/uptime.svg" className="icon-left" />
+                                <span className="icon-1x icon-info icon-clock icon-left"></span>
                                 <h4 className="text-bold">{system.process.description} </h4>
                                 <span className="text-secondary title-case">Proccess Information</span>
                                 <div>
-                                    <span className={system.process.statename == "RUNNING" ? "badge bg-info text-capitalize" : "badge bg-danger text-capitalize"}>{system.process.statename}</span>
+                                    <span className={system.process.statename == "RUNNING" ? "badge badge-success text-capitalize" : "badge badge-danger text-capitalize"}>{system.process.statename}</span>
                                 </div>
                                 <div className="clearfix"></div>
                             </div>
                         </div></div>
-                        <div className="col-md-3">
+                        <div className="col-md-6">
                             <div className="card card-shadow  mt-4">
                                 <div className="card-body">
-                                    <img src="assets/light/images/cpu.svg" className="icon-left" />
+                                    <span className="icon-1x icon-info icon-cpu icon-left"></span>
                                     <h4 className="text-bold">{system.cpu.percent}% Load</h4>
                                     <span className="text-secondary title-case">{system.cpu.temperature.value}°{system.cpu.temperature.unit} Temperature</span>
                                     <div className="clearfix"></div>
@@ -77,10 +77,10 @@ export class System extends Component {
                                 </div>
                             </div>
                         </div>
-                        <div className="col-md-3">
+                        <div className="col-md-6">
                             <div className="card card-shadow  mt-4">
                                 <div className="card-body">
-                                    <img src="assets/light/images/memory.svg" className="icon-left" />
+                                    <span className="icon-1x icon-info icon-memory icon-left"></span>
                                     <h4 className="text-bold">{Number((system.memory.used / 1000) / 1000).toFixed(1)} MB Used</h4>
                                     <span className="text-secondary title-case">Total Memory {Number((system.memory.total / 1000) / 1000).toFixed(1)} MB</span>
                                     <div className="clearfix"></div>
@@ -90,10 +90,10 @@ export class System extends Component {
                                 </div>
                             </div>
                         </div>
-                        <div className="col-md-3">
+                        <div className="col-md-6">
                             <div className="card card-shadow  mt-4">
                                 <div className="card-body">
-                                    <img src="assets/light/images/sdcard.svg" className="icon-left" />
+                                    <span className="icon-1x icon-info icon-sdcard icon-left"></span>
                                     <h4 className="text-bold">{Number((system.disk.free / 1000) / 1000 / 1000).toFixed(1)} GB Free</h4>
                                     <span className="text-secondary title-case">Total {Number((system.disk.total / 1000) / 1000 / 1000).toFixed(1)} GB</span>
                                     <div className="clearfix"></div>
@@ -115,21 +115,21 @@ export class System extends Component {
                                     {system.mqtt && (
                                     <tr>
                                         <th scope="row">MQTT Broker</th>
-                                        <td className="text-right text-capitalize"><span className={system.mqtt.status == "active" ? "badge bg-success" : "badge bg-danger"}>{system.mqtt.status}</span></td>
+                                        <td className="text-right text-capitalize"><span className={system.mqtt.status == "active" ? "badge badge-success" : "badge badge-danger"}>{system.mqtt.status}</span></td>
                                     </tr>
                                     )}
                                     
                                     {system.redis && (
                                     <tr>
                                         <th scope="row">Redis Server</th>
-                                        <td className="text-right text-capitalize"><span className={system.redis.status == "active" ? "badge bg-success" : "badge bg-danger"}>{system.redis.status}</span></td>
+                                        <td className="text-right text-capitalize"><span className={system.redis.status == "active" ? "badge badge-success" : "badge badge-danger"}>{system.redis.status}</span></td>
                                     </tr>
                                     )}
 
                                     {system.nginx && (
                                     <tr>
                                         <th scope="row">Nginx Server</th>
-                                        <td className="text-right text-capitalize"><span className={system.nginx.status == "active" ? "badge bg-success" : "badge bg-danger"}>{system.nginx.status}</span></td>
+                                        <td className="text-right text-capitalize"><span className={system.nginx.status == "active" ? "badge badge-success" : "badge badge-danger"}>{system.nginx.status}</span></td>
                                     </tr>
                                     )}
 

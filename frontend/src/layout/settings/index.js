@@ -109,7 +109,7 @@ export class Settings extends Component {
 
         return (
             <>   
-            <Header name={this.props.name}></Header>
+            <Header name={this.props.name} icon={this.props.icon}></Header>
                       
                         <ul className="nav nav-tabs" id="myTab" role="tablist">
                             <li className="nav-item">

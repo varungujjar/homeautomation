@@ -39,11 +39,14 @@ export class Rooms extends Component {
     render() {
         const RoomItem = (props) => {
             return (
-                <div key={props.room.id} className="card card-shadow item">
+                <div key={props.room.id} className="card card-shadow item  ">
                     <div className="card-body">
-                        <img src="assets/light/images/bedroom.svg" />
-                        <div className="text-bold mt-2">{props.room.name}</div>
-                        <div className="text-secondary text-md">2 Devices</div>
+                        
+                        <div className="text-center">
+                            <span className={`icon-2x icon-${ props.room.icon ? props.room.icon : ""}`}></span>
+                        </div>
+                        <div className="text-bold mt-2 text-center">{props.room.name}</div>
+                        <div className="text-secondary text-md text-center">2 Devices</div>
                     </div>
                 </div>
             )
@@ -60,8 +63,12 @@ export class Rooms extends Component {
                     items: 3
                 },
                 1000: {
+                    items: 3
+                },
+                1400: {
                     items: 5
                 }
+               
             }
         };
         const items = this.state.items;

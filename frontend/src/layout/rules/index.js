@@ -11,7 +11,7 @@ export class Automation extends Component {
 
         return (
             <>
-                <Header name={this.props.name}></Header>
+                <Header name={this.props.name} icon={this.props.icon}></Header>
              
             </>)
     }

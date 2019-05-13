@@ -58,7 +58,7 @@ export class Scenes extends Component {
                 <OwlCarousel options={options}>
                     <div className="card card-shadow item">
                     <div className="card-body">
-                        <img src="assets/light/images/morning.svg" className="icon-left" />
+                        <span className="icon-1x icon-info icon-sunrise icon-left"></span>
                         <span className="text-bold mt-3">Early Morning</span>
                         <div className="text-secondary text-md">2 Devices Triggered</div>
                         <div className="clearfix"></div>
@@ -66,7 +66,7 @@ export class Scenes extends Component {
                     </div>
                     <div className="card card-shadow item">
                     <div className="card-body">
-                        <img src="assets/light/images/night.svg" className="icon-left" />
+                        <span className="icon-1x icon-info icon-moon icon-left"></span>
                         <span className="text-bold mt-3">Good Night</span>
                         <div className="text-secondary text-md">2 Devices Triggered</div>
                         <div className="clearfix"></div>
@@ -74,7 +74,7 @@ export class Scenes extends Component {
                     </div>
                     <div className="card card-shadow item">
                     <div className="card-body">
-                        <img src="assets/light/images/movie.svg" className="icon-left" />
+                        <span className="icon-1x icon-info icon-popcorn icon-left"></span>
                         <span className="text-bold mt-3">Movie Time</span>
                         <div className="text-secondary text-md">2 Devices Triggered</div>
                         <div className="clearfix"></div>

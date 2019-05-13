@@ -1,0 +1,152 @@
+.offline-icon {
+    display: none;
+}
+
+.offline-icon::before {
+    font-family: "Font Awesome 5 Pro";
+    font-weight: bold;
+    content: "\f06a";
+    font-size: 20px;
+
+}
+
+.icon-1x {
+    width: 44px;
+    height: 44px;
+    border-radius: 100%;
+    display: inline-block;
+    font-size: 20px;
+    font-weight: 200;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 45px;
+}
+.icon-2x {
+  border-radius: 100%;
+  display: inline-block;
+  font-size: 30px;
+  font-weight: 200;
+  text-align: center;
+  vertical-align: middle;
+  line-height: 45px;
+}
+
+.icon-humidity::before {
+    font-family: "Font Awesome 5 Pro";
+    content: "\f748";
+}
+
+.icon-light::before {
+    font-family: "Font Awesome 5 Pro";
+    content: "\f764";
+}
+
+.icon-pressure::before {
+    font-family: "Font Awesome 5 Pro";
+    content: "\f0e4";
+}
+
+.icon-wind::before {
+    font-family: "Font Awesome 5 Pro";
+    content: "\f72e";
+}
+
+.icon-sun::before {
+    font-family: "Font Awesome 5 Pro";
+    content: "\f185";
+}
+
+.icon-night::before {
+  font-family: "Font Awesome 5 Pro";
+  content: "\f755";
+}
+
+.icon-moon::before {
+  font-family: "Font Awesome 5 Pro";
+  content: "\f186";
+}
+
+.icon-sunrise::before {
+  font-family: "Font Awesome 5 Pro";
+  content: "\f763";
+}
+
+.icon-sunset::before {
+  font-family: "Font Awesome 5 Pro";
+  content: "\f765";
+}
+
+.icon-popcorn::before {
+  font-family: "Font Awesome 5 Pro";
+  content: "\f819";
+}
+
+.icon-cpu::before {
+  font-family: "Font Awesome 5 Pro";
+  content: "\f2db";
+}
+
+.icon-memory::before {
+  font-family: "Font Awesome 5 Pro";
+  content: "\f538";
+}
+
+.icon-sdcard::before {
+  font-family: "Font Awesome 5 Pro";
+  content: "\f7c2";
+}
+
+.icon-clock::before {
+  font-family: "Font Awesome 5 Pro";
+  content: "\f017";
+}
+
+.icon-home::before{
+  font-family: "Font Awesome 5 Pro";
+  content: "\f80b";
+}
+
+.icon-lamp::before{
+  font-family: "Font Awesome 5 Pro";
+  content: "\f4ca";
+}
+
+.icon-livingroom::before{
+  font-family: "Font Awesome 5 Pro";
+  content: "\f4b8";
+}
+.icon-bedroom::before{
+  font-family: "Font Awesome 5 Pro";
+  content: "\f236";
+}
+.icon-kitchen::before{
+  font-family: "Font Awesome 5 Pro";
+  content: "\f6bf";
+}
+.icon-bathroom::before{
+  font-family: "Font Awesome 5 Pro";
+  content: "\f2cc";
+}
+
+
+
+.icon-default {
+  background-color: #efefef;
+  color: #666;
+}
+
+
+.icon-info {
+    background-color: #F1F1FA;
+    color: #4949BE;
+}
+
+.icon-warning {
+  background-color: #FFEFE0;
+  color: #F19438;
+}
+
+.icon-success {
+    background-color: #D7F6E0;
+    color: #51D679;
+}

@@ -12,6 +12,7 @@ import "./assets/common/css/owl.theme.default.min.css"
 import "./assets/common/css/toast.css"
 import "./assets/common/css/toast.css"
 import "./assets/common/css/tabs.css"
+import "./assets/common/css/icons.css"
 import "./assets/light/css/app.css"
 
 

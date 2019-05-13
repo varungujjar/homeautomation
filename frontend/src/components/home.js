@@ -54,11 +54,12 @@ export class Home extends Component {
         }
         if (this.state.itemsLoaded == false) {
             return (
-                <div className="card card-shadow">
+                <div className="card card-outline">
                     <div className="card-body">
-                        <img src="assets/light/images/home.svg" />
-                        <h2 className="mt-3">Good Morning, Varun</h2>
-                        <span className="text-secondary text-lg">{this.state.curTime}</span>
+                         <span className="icon-1x icon-info icon-home"></span>
+
+                        <h2 className="mt-3 ">Good Morning, Varun</h2>
+                        <div className="text-xxl mt-2">{this.state.curTime}</div>
                         <p className="mt-2">I will keep you updated right here with the most important events of your home.
                         </p>
                     </div>

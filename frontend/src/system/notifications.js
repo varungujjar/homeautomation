@@ -20,6 +20,7 @@ export class Notification extends Component {
             position: 'bottomRight',
             transitionIn: 'fadeIn',
             transitionOut: 'fadeOut',
+            animateInside: false,
             icon:"",
             maxWidth:"300px",
             layout:2,

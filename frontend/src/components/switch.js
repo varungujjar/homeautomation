@@ -36,9 +36,9 @@ import React from "react";
                     ( 
                         <div key={index} className={ relays[index] ? ("on") : ("") } onClick={() => {toggleState(device.id, index, relays[index])}}> 
                         <span className="show-device-props"><img src="assets/light/images/dots.svg" /></span>
-                        {
-                           relays[index] ? (<img src="assets/light/images/lampon.svg" />) : (<img src="assets/light/images/lampoff.svg" />)
-                        }
+        
+                        <span className={`icon-1x icon-lamp ${relays[index] ? "icon-success" : "icon-default"}`}></span> 
+
                         
                         <div className="text-status">
                         {
