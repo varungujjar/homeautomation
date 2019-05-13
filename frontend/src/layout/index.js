@@ -1,5 +1,5 @@
 import React from "react";
-import { Nav, MobileNav } from "./common/nav";
+import { SideNav, MobileNav } from "./common/nav";
 import { Switch, Route, BrowserRouter as Router } from 'react-router-dom';
 
 import { Dashboard } from "./dashboard";
@@ -25,7 +25,7 @@ export const Layout = () => {
     <>
     <Router>
         <div className="layout-sidenav">
-          <Nav></Nav>
+          <SideNav></SideNav>
         </div>
         <div className="layout-highlight">
                         <Home></Home>
