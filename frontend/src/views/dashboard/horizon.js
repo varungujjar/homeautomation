@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { device } from "../system/socketio";
+import { device } from "../../system/socketio";
 
 
 export class Horizon extends Component {

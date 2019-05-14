@@ -415,6 +415,12 @@ h4{
     }
 }
 
+.slider-slide{
+    padding: 0px 10px;
+}
+.slider-wrapper{
+    margin: 0px -10px;
+}
 
 .nav-mobile{
     position: fixed;
@@ -442,4 +448,23 @@ box-shadow: 2px -4px 17px -4px rgba(0,0,0,0.1);
     background-color: #F1F1FA;
     color: #4949BE;
     border-bottom: 3px solid #4949BE;
+}
+
+/* Bootstrap Button Overide CSS */
+.btn{
+    border-radius: 40px;
+    font-size: 13px;
+    padding: 12px 20px;
+    border: none;
+}
+.btn:hover, .btn:focus, .btn:active{
+    box-shadow: none!important;
+    background: #333;
+}
+.btn:active{
+    background: #555!important;
+}
+.btn-info{
+    background: #4949BE;
+    color: #fff;
 }

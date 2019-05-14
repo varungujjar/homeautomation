@@ -1,7 +1,7 @@
 import React, { Component } from "react";
-import OwlCarousel from 'react-owl-carousel2';
-import { device } from "../system/socketio"
-import { Switch } from "./switch"
+import Slider from "react-slick";
+import { device } from "../../system/socketio"
+import { Switch } from "../../components/switch"
 
 
 export class Devices extends Component {
@@ -66,39 +66,73 @@ export class Devices extends Component {
                 <></>
             )
         }
-        const options = {
-            loop: false,
-            margin: 15,
-            nav: false,
-            responsive: {
-                0: {
-                    items: 2
+        var settings = {
+            dots: true,
+            infinite: false,
+            speed: 500,
+            arrows:false,
+            swipeToSlide:true,
+            slidesToShow: 5,
+            slidesToScroll: 1,
+            responsive: [
+                {
+                    breakpoint: 1280,
+                    settings: {
+                      slidesToShow: 4,
+                      slidesToScroll: 1,
+                      infinite: true,
+                      dots: true
+                    }
+                  },
+                {
+                  breakpoint: 1024,
+                  settings: {
+                    slidesToShow: 3,
+                    slidesToScroll: 1,
+                    infinite: true,
+                    dots: true
+                  }
                 },
-                600: {
-                    items: 3
+                {
+                  breakpoint: 600,
+                  settings: {
+                    slidesToShow: 2,
+                    slidesToScroll:1
+                  }
                 },
-                1000: {
-                    items: 5
+                {
+                  breakpoint: 480,
+                  settings: {
+                    slidesToShow: 2,
+                    slidesToScroll: 1
+                  }
                 }
-            }
-        };
+                // You can unslick at a given breakpoint now by adding:
+                // settings: "unslick"
+                // instead of a settings object
+              ]
+          };
         const { items } = this.state;
         if (this.state.dataLoaded == true) {
+            console.log(items);
             return (
+
                 <div className="section mt-4">
                     <h3 className="mb-2">Devices</h3>
-                    <OwlCarousel options={options}>
+                    <div className="slider-wrapper">
+                    <Slider {...settings}>
                         {items.map((item, index) =>
                             (
                                 <Device key={index} device={item} />
                             )
                         )}
-                    </OwlCarousel>
+                    </Slider>
+                </div>
                 </div>
             )
         }
         return (
-            <div>...</div>
+            null
         )
     }
 }

@@ -1,8 +1,7 @@
 import React, { Component } from "react";
-import { Rooms } from "../../components/rooms";
-import { Scenes } from "../../components/scenes";
-import { Devices } from "../../components/devices";
-
+import { Rooms } from "./rooms";
+import { Scenes } from "./scenes";
+import { Devices } from "./devices";
 import { Header } from "../common/header";
 
 

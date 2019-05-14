@@ -5,9 +5,9 @@ import { Switch, Route, BrowserRouter as Router } from 'react-router-dom';
 import { Dashboard } from "./dashboard";
 import { Automation } from "./rules";
 import { Settings } from "./settings";
-import { Horizon } from "../components/horizon";
-import { Weather } from "../components/weather";
-import { Home } from "../components/home";
+import { Horizon } from "./dashboard/horizon";
+import { Weather } from "./dashboard/weather";
+import { Home } from "./dashboard/home";
 
 function NoMatch({ location }) {
   return (
@@ -20,7 +20,7 @@ function NoMatch({ location }) {
 }
 
 
-export const Layout = () => {
+export const Views = () => {
   return (
     <>
     <Router>

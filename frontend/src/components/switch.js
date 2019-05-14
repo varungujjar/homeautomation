@@ -28,6 +28,7 @@ import React from "react";
         const device = props.data;
         const relays = props.data.properties.relay;
         return (
+            <div className="slider-slide">
             <div className={`card card-shadow item card-hover ${device.online ? "" : "offline"}`}>
             <div className="offline-icon text-danger"></div>
              <div className="card-body">
@@ -53,6 +54,7 @@ import React from "react";
                     )
                 }
                 </div>
+            </div>  
             </div>  
         )
     }
