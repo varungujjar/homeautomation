@@ -1,25 +1,14 @@
 import React, {Component} from "react";
 import openSocket from "socket.io-client";
 // const socket = openSocket("http://" + document.domain + ":8000");
-const socket = openSocket("http://192.168.1.114:8000");
+export const socket = openSocket("http://192.168.1.114:8000");
 
-export const notifications = (returnData) => {
-  socket.on("notification", data => {
-    returnData(data);
+socket.on("connect", data => {
+  console.log("Connected!");
+});
+
+export const sio = (type, callback) => {
+  socket.on(type, data => {
+    callback(data);
   });
 }
-
-export const device = (returnData) => {
-  socket.on("device", data => {
-    returnData(data);
-  });
-}
-
-
-export const connect = (returnData) => {
-  socket.on("connect", data => {
-    returnData(data)
-  });
-  // socket.emit('connect', {data: 'Connected to Backend.'});
-}
-

@@ -1,7 +1,6 @@
 import React from "react";
 
 export const Header = (props) => {
-    console.log(props.icon);
     return (
         <div className="header mb-4">
             <div className="float-left">

@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import ReactDOM from "react-dom";
 import { Notification } from "./system/notifications";
 import { Views } from "./views";
+import { Provider } from "./system/provider";
 
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 
@@ -16,18 +17,15 @@ import "./assets/common/css/icons.css"
 import "./assets/light/css/app.css"
 
 
-
 class App extends Component {
-  constructor(props) {
-    super(props);
-  }
-
    render() {
       return (
-        <div className="App">
-           <Views></Views>
-           <Notification/>
-        </div>
+        <Provider>
+          <div className="App">
+            <Views></Views>
+            <Notification/>
+          </div>
+        </Provider>
       );
     }
 }

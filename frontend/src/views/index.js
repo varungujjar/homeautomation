@@ -1,13 +1,13 @@
 import React from "react";
 import { SideNav, MobileNav } from "./common/nav";
 import { Switch, Route, BrowserRouter as Router } from 'react-router-dom';
-
 import { Dashboard } from "./dashboard";
 import { Automation } from "./rules";
 import { Settings } from "./settings";
 import { Horizon } from "./dashboard/horizon";
 import { Weather } from "./dashboard/weather";
 import { Home } from "./dashboard/home";
+
 
 function NoMatch({ location }) {
   return (
@@ -23,31 +23,27 @@ function NoMatch({ location }) {
 export const Views = () => {
   return (
     <>
-    <Router>
+      <Router>
         <div className="layout-sidenav">
           <SideNav></SideNav>
         </div>
         <div className="layout-highlight">
-                        <Home></Home>
-                        <Weather></Weather>
-                        <Horizon></Horizon>
+          <Home></Home>
+          <Weather></Weather>
+          <Horizon></Horizon>
         </div>
         <div className="layout-body">
-        <div className="wrapper">
-        <Switch>
-            <Route exact path="/" component={()=><Dashboard name={"Dashboard"} icon="home"/>} />
-            <Route path="/rules" component={()=> <Automation name={"Rules"} icon="list-alt"/>} />
-            <Route path="/settings" component={()=> <Settings name={"Settings"} icon="cog"/>} />
-            <Route component={NoMatch} />
-          </Switch>
+          <div className="wrapper">
+            <Switch>
+              <Route exact path="/" component={() => <Dashboard name={"Dashboard"} icon="home" />} />
+              <Route path="/rules" component={() => <Automation name={"Rules"} icon="list-alt" />} />
+              <Route path="/settings" component={() => <Settings name={"Settings"} icon="cog" />} />
+              <Route component={NoMatch} />
+            </Switch>
           </div>
-          </div>
-
+        </div>
         <MobileNav></MobileNav>
-       
       </Router>
     </>
   )
-
 }
-
