@@ -2,7 +2,7 @@ import React from "react";
 import { SideNav, MobileNav } from "./common/nav";
 import { Switch, Route, BrowserRouter as Router } from 'react-router-dom';
 import { Dashboard } from "./dashboard";
-import { Automation } from "./rules";
+import { Rules, RuleEdit } from "./rules";
 import { Settings } from "./settings";
 import { Horizon } from "./dashboard/horizon";
 import { Weather } from "./dashboard/weather";
@@ -35,9 +35,10 @@ export const Views = () => {
         <div className="layout-body">
           <div className="wrapper">
             <Switch>
-              <Route exact path="/" component={() => <Dashboard name={"Dashboard"} icon="home" />} />
-              <Route path="/rules" component={() => <Automation name={"Rules"} icon="list-alt" />} />
-              <Route path="/settings" component={() => <Settings name={"Settings"} icon="cog" />} />
+              <Route exact path="/" render={() => <Dashboard name={"Dashboard"} icon="home" />} />
+              <Route exact path="/rules" render={() => <Rules name={"Rules"} icon="list-alt" />} />
+              <Route exact path="/rules/:id" render={(props) => <RuleEdit {...props} name={"Rule Edit"} icon="list-alt" />} />
+              <Route path="/settings" render={() => <Settings name={"Settings"} icon="cog" />} />
               <Route component={NoMatch} />
             </Switch>
           </div>
