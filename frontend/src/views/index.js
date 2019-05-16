@@ -23,7 +23,6 @@ function NoMatch({ location }) {
 export const Views = () => {
   return (
     <>
-      <Router>
         <div className="layout-sidenav">
           <SideNav></SideNav>
         </div>
@@ -44,7 +43,6 @@ export const Views = () => {
           </div>
         </div>
         <MobileNav></MobileNav>
-      </Router>
     </>
   )
 }
