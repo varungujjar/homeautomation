@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import {notifications} from "../system/socketio";
+import {sio} from "../system/socketio";
 import iziToast from "izitoast";
 
 export class Notification extends Component {
@@ -31,15 +31,16 @@ export class Notification extends Component {
             timeout: 5000,
             theme: 'dark'
         })
-       
-        notifications(result =>{
-                this.setState({
-                    notificationData:result,
-                    notificationDataReceived:true
+        
+        sio("notification",data=>{
+            this.setState({
+                notificationData:data,
+                notificationDataReceived:true
             })
-            console.log("from backend");
         })
-    }
+       
+
+        }
 
     render(){
         const Notification = (props) => {

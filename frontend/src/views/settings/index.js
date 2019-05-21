@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { Formik } from 'formik';
 import { Header } from "../common/header";
-import { System } from "../../components/system";
+import { System } from "./system";
 import PropTypes from 'prop-types'
 import SelectTimezone, { getTimezoneProps } from 'react-select-timezone'
 

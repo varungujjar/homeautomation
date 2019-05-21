@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "webpack-dev-server --config ./webpack.config.js --mode development --host 0.0.0.0 --port 8080",
+    "start": "webpack-dev-server --config ./webpack.config.js --mode development --host 0.0.0.0 --port 8080 --history-api-fallback",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -14,10 +14,14 @@
     "presets": [
       "@babel/preset-env",
       "@babel/preset-react"
+    ],
+    "plugins": [
+      "@babel/plugin-proposal-class-properties"
     ]
   },
   "devDependencies": {
     "@babel/core": "^7.4.3",
+    "@babel/plugin-proposal-class-properties": "^7.4.4",
     "@babel/preset-env": "^7.4.3",
     "@babel/preset-react": "^7.0.0",
     "babel-loader": "^8.0.5",
@@ -38,10 +42,11 @@
     "moment-timezone": "^0.5.25",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
-    "react-owl-carousel2": "^0.3.0",
+    "react-redux": "^7.0.3",
     "react-router-dom": "^5.0.0",
     "react-select": "^2.4.3",
     "react-select-timezone": "^1.0.0",
+    "react-slick": "^0.24.0",
     "socket.io-client": "^2.2.0",
     "style-loader": "^0.23.1",
     "url-loader": "^1.1.2"

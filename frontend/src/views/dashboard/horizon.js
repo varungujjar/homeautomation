@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { device } from "../system/socketio";
+import { socket } from "../../system/socketio";
 
 
 export class Horizon extends Component {
@@ -7,6 +7,7 @@ export class Horizon extends Component {
         super(props);
         this._isMounted = false;
         this.state = {
+            deviceId:0,
             aboveHorizon: null,
             astralTimeDigit: 0,
             astralTimeDigitUnit: null,
@@ -22,32 +23,34 @@ export class Horizon extends Component {
         fetch("/api/horizon")
             .then(response => response.json())
             .then((result) => {
-                if (this._isMounted) {
+                if (this._isMounted) {      
                     this.setState({
+                        deviceId:result.id,
                         aboveHorizon: result.properties.astral.above_horizon,
                         astralTimeDigit: result.properties.astral.next_time.number,
                         astralTimeDigitUnit: result.properties.astral.next_time.unit,
                         astralNext: result.properties.astral.next_astral,
                         dataLoaded: true
                     });
-                }
+                }     
+                socket.on(this.state.deviceId, data => {
+                    console.log(data);
+                    if (this._isMounted) {
+                        this.setState({
+                            aboveHorizon: data.properties.astral.above_horizon,
+                            astralTimeDigit: data.properties.astral.next_time.number,
+                            astralTimeDigitUnit: data.properties.astral.next_time.unit,
+                            astralNext: data.properties.astral.next_astral,
+                            dataLoaded: true
+                        });
+                    }
+                }); 
+               
             })
             .catch((error) => {
                 console.error(error)
             })
-        device(result => {
-            if (result.component == "horizon") {
-                if (this._isMounted) {
-                    this.setState({
-                        aboveHorizon: result.properties.astral.above_horizon,
-                        astralTimeDigit: result.properties.astral.next_time.number,
-                        astralTimeDigitUnit: result.properties.astral.next_time.unit,
-                        astralNext: result.properties.astral.next_astral,
-                        dataLoaded: true
-                    });
-                }
-            }
-        })
+
     }
 
 

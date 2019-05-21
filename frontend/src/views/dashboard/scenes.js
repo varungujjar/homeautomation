@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import OwlCarousel from 'react-owl-carousel2';
+import Slider from "react-slick";
 
 export class Scenes extends Component {
     constructor(props) {
@@ -23,6 +23,54 @@ export class Scenes extends Component {
         //     })
     }
     render() {
+        
+        var settings = {
+            dots: true,
+            infinite: false,
+            speed: 500,
+            arrows:false,
+            swipeToSlide:true,
+            slidesToShow: 3,
+            slidesToScroll: 1,
+            responsive: [
+                {
+                    breakpoint: 1280,
+                    settings: {
+                      slidesToShow: 2,
+                      slidesToScroll: 1,
+                      infinite: true,
+                      dots: true
+                    }
+                  },
+                {
+                  breakpoint: 1024,
+                  settings: {
+                    slidesToShow: 2,
+                    slidesToScroll: 1,
+                    infinite: true,
+                    dots: true
+                  }
+                },
+                {
+                  breakpoint: 600,
+                  settings: {
+                    slidesToShow: 1,
+                    slidesToScroll:1
+                  }
+                },
+                {
+                  breakpoint: 480,
+                  settings: {
+                    slidesToShow: 1,
+                    slidesToScroll: 1
+                  }
+                }
+                // You can unslick at a given breakpoint now by adding:
+                // settings: "unslick"
+                // instead of a settings object
+              ]
+          };
+
         const RoomItem = (props) => {
             return (
                 <div key={props.room.id} className="card card-shadow item">
@@ -34,29 +82,18 @@ export class Scenes extends Component {
                 </div>
             )
         }
-        const options = {
-            loop: false,
-            margin: 15,
-            nav: false,
-            responsive: {
-                0: {
-                    items: 1
-                },
-                600: {
-                    items: 2
-                },
-                1000: {
-                    items: 3
-                }
-            }
-        };
+        
         const items = this.state.items;
+
+
         // if (this.state.itemsLoaded == true) {
             return (
                 <div className="section mt-4">
                 <h3 className="mb-2">Scenes</h3>
-                <OwlCarousel options={options}>
-                    <div className="card card-shadow item">
+                <div className="slider-wrapper">
+                <Slider {...settings}>
+                    <div className="slider-slide">
+                    <div className="card card-shadow">
                     <div className="card-body">
                         <span className="icon-1x icon-info icon-sunrise icon-left"></span>
                         <span className="text-bold mt-3">Early Morning</span>
@@ -64,7 +101,9 @@ export class Scenes extends Component {
                         <div className="clearfix"></div>
                         </div>
                     </div>
-                    <div className="card card-shadow item">
+                    </div>
+                    <div className="slider-slide">
+                    <div className="card card-shadow">
                     <div className="card-body">
                         <span className="icon-1x icon-info icon-moon icon-left"></span>
                         <span className="text-bold mt-3">Good Night</span>
@@ -72,7 +111,9 @@ export class Scenes extends Component {
                         <div className="clearfix"></div>
                         </div>
                     </div>
-                    <div className="card card-shadow item">
+                    </div>
+                    <div className="slider-slide">
+                    <div className="card card-shadow">
                     <div className="card-body">
                         <span className="icon-1x icon-info icon-popcorn icon-left"></span>
                         <span className="text-bold mt-3">Movie Time</span>
@@ -80,7 +121,9 @@ export class Scenes extends Component {
                         <div className="clearfix"></div>
                         </div>
                     </div>
-                </OwlCarousel>
+                    </div>
+                </Slider>
+                </div>
             </div>
             )
         // }
