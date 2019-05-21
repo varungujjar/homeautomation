@@ -36,7 +36,7 @@ def mqttHandler():
             topic = packet.variable_header.topic_name
             payload = str(packet.payload.data.decode())
             mqttPayload = json.loads(payload)
-            logger.info("%s" % str(mqttPayload))
+            # logger.info("%s" % str(mqttPayload))
             if isinstance(mqttPayload,dict):
                 for key, value in mqttPayload.items():
                     if key in SUPPORTED_HEADERS:

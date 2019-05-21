@@ -9,9 +9,23 @@ class Api:
     def __init__(self):
         self.loop = asyncio.get_event_loop()
 
+    async def getRules(self,request):
+        id = None
+        active = None
+        if "id" in request.query:
+            id = int(request.query["id"])
+            if "published" in request.query:
+                published = int(request.query["published"])
+                dbPublished("rules",id,published)
+                id = None    
+        rules = dbGetTable("rules",id)
+        return web.json_response(rules)
 
     async def getRooms(self,request):
-        rooms = dbGetDeviceRooms()
+        id = None
+        if "id" in request.query:
+            id = int(request.query["id"])
+        rooms = dbGetTable("rooms",id)
         return web.json_response(rooms)
 
 
@@ -73,7 +87,7 @@ class Api:
         app.router.add_get('/api/system', self.getSystem)
         app.router.add_post('/api/device', self.setDevice)
         # app.router.add_get('/api/scenes', self.getDevices)
-        # app.router.add_get('/api/automations', self.getDevices)
+        app.router.add_get('/api/rules', self.getRules)
         # app.router.add_get('/api/components', self.getDevices)
         # app.router.add_get('/api/history', self.getDevices)
 

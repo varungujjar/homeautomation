@@ -29,7 +29,7 @@ def eventsHandler(id=None):
         external_sio.emit('message', str(getDevice["properties"]))
 
     logger.debug("Rule Check Started")
-    getRules = dbGetAutomationRules()
+    getRules = dbGetTable("rules",None,1)
     for ruleData in getRules:
         validateIfCondition = validateIf(ruleData)
         validateAndCondition = validateAnd(ruleData)
@@ -99,11 +99,11 @@ def validateIf(ruleData):
         logger.warning("No Valid Handlers Found for Rule")
 
     if conditionStatus and checkifActive == 1:
-        setAutomationTriggerStatus(ruleID,0)
+        setRuleTriggerStatus(ruleID,0)
         status = True
     elif not conditionStatus and checkifActive == 0:
         pass 
-        setAutomationTriggerStatus(ruleID,1)    
+        setRuleTriggerStatus(ruleID,1)    
     else:
         pass
     logger.debug("Rule ID %d %s" % (ruleID, str(status)))
