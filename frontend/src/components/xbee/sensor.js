@@ -10,9 +10,12 @@ export const ModuleRule = (props) => {
         condition = "Less than";
     }
     let properties = props.component.if.properties;
+    const online =  props.data.online;
     return (
-        <div className="card card-outline-default  h-100">
+        <div className={`card card-outline-default h-100 ${online ? "" : "offline"}`}>
+            <div className="offline-icon text-danger"></div>
             <div className="p-all-less">
+                
                 <span className="icon-1x icon-sensor icon-info icon-left"></span>
                 <div className="text-bold">{props.data.name ? props.data.name : "..."}</div>
                 <div className="text-secondary">

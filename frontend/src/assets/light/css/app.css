@@ -296,15 +296,17 @@ h4{
 .offline{
     position: relative;
     transition:0.3s;
+   
+}
+
+.offline div:nth-child(2){
+    opacity: 0.4;
 }
 
 .offline-icon{
     display: none;
 }
 
-.offline .card-body{
-    opacity: 0.2;
-}
 .offline-icon::before{
     font-family: "Font Awesome 5 Pro";
     font-weight: bold;

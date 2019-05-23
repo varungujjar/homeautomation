@@ -25,8 +25,11 @@ const toggleState = (deviceId, relayIndex, relayState) => {
 
 export const ModuleRule = (props) => {
     const relays = props.component.if.properties.relay;
+    const online =  props.data.online;
     return (
-        <div className="card  card-outline-default h-100">
+        <div className={`card card-outline-default h-100 ${online ? "" : "offline"}`}>
+            <div className="offline-icon text-danger"></div>
+
             <div className="p-all-less">
                 <span className={`icon-left icon-1x icon-lamp ${relays[0] ? "icon-success" : "icon-default"}`}></span>
                 <div className="text-bold mt-1">{props.data.name ? props.data.name : "..."}</div>
@@ -40,12 +43,8 @@ export const ModuleRule = (props) => {
 
 
 export const Module = (props) => {
-    
     const device = props.data;
     const relays = props.data.properties.relay;
-
-    console.log(device)
-
     return (
         <div className="slider-slide">
             <div className={`card card-shadow item card-hover ${device.online ? "" : "offline"}`}>
