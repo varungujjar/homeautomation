@@ -17,8 +17,9 @@ class Api:
             if "published" in request.query:
                 published = int(request.query["published"])
                 dbPublished("rules",id,published)
-                id = None    
-        rules = dbGetTable("rules",id)
+            rules = dbGetTable("rules",id)
+        else:           
+            rules = dbGetTable("rules",None)
         return web.json_response(rules)
 
     async def getRooms(self,request):
@@ -30,7 +31,12 @@ class Api:
 
 
     async def getDevices(self,request):
-        devices = dbGetAllDevices(1)
+        id = None
+        if "id" in request.query:
+            id = int(request.query["id"])
+            devices = dbGetDevice(None,None,id)
+        else:    
+            devices = dbGetAllDevices(1)
         return web.json_response(devices)
     
 

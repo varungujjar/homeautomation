@@ -43,7 +43,7 @@ def eventsHandler(id=None):
  
 
 def validateIf(ruleData):
-    ifDataJson = json.loads(ruleData["if"])
+    ifDataJson = ruleData["if"]
     checkifActive = ruleData["trigger"]
     ruleID = ruleData["id"]
     status = False
@@ -51,49 +51,48 @@ def validateIf(ruleData):
     ifProperties = ifDataJson["properties"]
     ifType = ifDataJson["condition"]
 
-    if "device" in ifDataJson:
-        getDevice = dbGetDevice(None,None,ifDataJson["device"])
+    if ifDataJson["type"] == "device":
+        getDevice = dbGetDevice(None,None,ifDataJson["id"])
         getDeviceProperties = getDevice["properties"]
+        getDevicePropertiesKeys = []
+        for key, value in getDeviceProperties.items():
+            getDevicePropertiesKeys.append(key)    
 
         if getDevice:
             for key, value in ifProperties.items():
-                if isinstance(value,dict):
-                    for k, v in value.items():
-                        getDeviceProperty= getDeviceProperties[key][k]
-                        getIfProperty = ifProperties[key][k]
-                else:
-                    getDeviceProperty = getDeviceProperties[key]
-                    getIfProperty = ifProperties[key]
-                    
-                if ifType == "=":
-                    if getDeviceProperty == getIfProperty:
-                        conditionStatus = True
+                if key in getDevicePropertiesKeys:
+                    if isinstance(value,dict):
+                        for k, v in value.items():
+                            getDeviceProperty= getDeviceProperties[key][k]
+                            getIfProperty = ifProperties[key][k]
+                    else:
+                        getDeviceProperty = getDeviceProperties[key]
+                        getIfProperty = ifProperties[key]
+                        
+                    if ifType == "=":
+                        if getDeviceProperty == getIfProperty:
+                            conditionStatus = True
 
-                elif ifType == ">":
-                    if getDeviceProperty > getIfProperty:
-                        conditionStatus = True
+                    elif ifType == ">":
+                        if getDeviceProperty > getIfProperty:
+                            conditionStatus = True
 
-                elif ifType == "<":
-                    if getDeviceProperty < getIfProperty:
-                        conditionStatus = True
+                    elif ifType == "<":
+                        if getDeviceProperty < getIfProperty:
+                            conditionStatus = True
 
         else:
-            logger.warning("Device with %s Not Found" % str(ifDataJson["device"])) 
+            logger.warning("Device with %s Not Found" % str(ifDataJson["id"])) 
 
-    elif "datetime" in ifDataJson:
-        dateTimeType = ifDataJson["datetime"]
-        
-        if dateTimeType == "time":
-            getIfHours = ifProperties["time"][0]
-            getIfMinutes = ifProperties["time"][1]
-            now = datetime.datetime.now()
-            #reference now.year, now.month, now.day, now.hour, now.minute, now.second
-            if now.weekday() in ifProperties["day"]:
-                if getIfHours == now.hour and getIfMinutes == now.minute and now.second == 0:
-                    conditionStatus = True
+    elif ifDataJson["type"] == "datetime":
+        getIfHours = ifProperties["time"][0]
+        getIfMinutes = ifProperties["time"][1]
+        now = datetime.datetime.now()
+        #reference now.year, now.month, now.day, now.hour, now.minute, now.second
+        if now.weekday() in ifProperties["day"]:
+            if getIfHours == now.hour and getIfMinutes == now.minute and now.second == 0:
+                conditionStatus = True
 
-        if dateTimeType == "date":
-            pass
 
     else:
         logger.warning("No Valid Handlers Found for Rule")
@@ -115,7 +114,7 @@ def validateAnd(ruleData):
 
 
 async def doThen(ruleData):
-    thenDataJson = json.loads(ruleData["then"])
+    thenDataJson = ruleData["then"]
     checkifActive = ruleData["trigger"]
     ruleID = ruleData["id"]
     ruleIDStr = str(ruleData["id"])

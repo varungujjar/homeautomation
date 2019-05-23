@@ -26,6 +26,15 @@ def formatDeviceEntries(device):
 			jsonItem[key] = value
 	return jsonItem
 
+def formatData(data):
+	jsonItem = {}
+	for key, value in data.items():
+		if key in ["properties","actions","if","and","then"]:
+			jsonItem[key] = eval(value)
+		else:	
+			jsonItem[key] = value
+	return jsonItem
+
 
 def dbGetConfig():
 	try:
@@ -109,7 +118,7 @@ def dbGetDevice(component=None,address=None,id=None):
 		cur.execute('SELECT devices.*, rooms.id as room_id, rooms.name as room_name FROM devices LEFT JOIN rooms on room_id = rooms.id WHERE component=? AND address=?',(component,address))
 		device = cur.fetchone()
 	else:
-		cur.execute('SELECT * FROM "devices" WHERE id=?',(id,))
+		cur.execute('SELECT devices.*, rooms.id as room_id, rooms.name as room_name FROM devices LEFT JOIN rooms on room_id = rooms.id WHERE devices.id=?',(id,))
 		device = cur.fetchone()
 	db.commit()
 	if device is None:
@@ -185,9 +194,20 @@ def dbGetTable(tableName,id=None,published=None):
 		logger.eror('[DB] Get Rules Error: %s' % (str(err)))
 	finally:
 		db.close()
-	if table is None:
-		return {}
-	return table
+	if id:	
+		if table is None:
+			return {}
+		else:
+			table = formatData(table)
+			return table
+	else:
+		if table is None:
+			return {}
+		else:	
+			tableFormat = []
+			for tableItem in table:
+				tableFormat.append(formatData(tableItem))
+			return tableFormat
 
 
 def dbPublished(tableName,id=None,published=None):
