@@ -97,10 +97,10 @@ def dbSyncDevice(type,prop,actions,address,component):
 		finally:
 			db.close()
 	thisDevice = dbGetDevice(component,address)
-	sioConnect().emit("device", thisDevice)
+	sioConnect().emit(thisDevice["id"], thisDevice)
 	return thisDevice
 
-
+#needs to be combined with bottom dbgetall devices
 def dbGetDevice(component=None,address=None,id=None):
 	db = sqlite3.connect(db_path)
 	db.row_factory = lambda c, r: dict([(col[0], r[idx]) for idx, col in enumerate(c.description)])
@@ -165,45 +165,51 @@ def dbGetWeatherSensor():
 	return device
 
 
-def dbGetDeviceRooms(id=None):
+
+def dbGetTable(tableName,id=None,published=None):
 	try:
 		db = sqlite3.connect(db_path)
 		db.row_factory = lambda c, r: dict([(col[0], r[idx]) for idx, col in enumerate(c.description)])
 		cur = db.cursor()
-		cur.execute("SELECT * FROM rooms")
-		rooms = cur.fetchall()
-		db.commit()
-	except Exception as err:
-		logger.eror('[DB] Get All Rooms Error: %s' % (str(err)))
-	finally:
-		db.close()
-	if rooms is None:
-		return {}	
-	return rooms
-
-
-def dbGetAutomationRules():
-	try:
-		db = sqlite3.connect(db_path)
-		db.row_factory = lambda c, r: dict([(col[0], r[idx]) for idx, col in enumerate(c.description)])
-		cur = db.cursor()
-		cur.execute('SELECT * FROM automation WHERE published = 1')
-		automation = cur.fetchall()
+		if id:
+			cur.execute('SELECT * FROM %s WHERE id=%s' % (tableName,int(id)))		
+			table = cur.fetchone()		
+		elif published:
+			cur.execute('SELECT * FROM %s WHERE published=%s' % (tableName,int(published)))
+			table = cur.fetchall()
+		else:
+			cur.execute('SELECT * FROM %s' % (tableName))
+			table = cur.fetchall()
 		db.commit()
 	except Exception as err:
 		logger.eror('[DB] Get Rules Error: %s' % (str(err)))
 	finally:
 		db.close()
-	if automation is None:
+	if table is None:
 		return {}
-	return automation
+	return table
 
 
-def setAutomationTriggerStatus(id,status):
+def dbPublished(tableName,id=None,published=None):
 	try:
 		db = sqlite3.connect(db_path)
 		cur = db.cursor()
-		cur.execute("UPDATE automation SET trigger=?, modified=datetime(CURRENT_TIMESTAMP, 'localtime') WHERE id=?",(int(status), int(id)))
+		cur.execute("UPDATE %s SET published=%s, modified=datetime(CURRENT_TIMESTAMP, 'localtime') WHERE id=%s" % (tableName,int(published),int(id)))
+		db.commit()
+	except Exception as err:
+		logger.eror('[DB] Set Published Error: %s' % (str(err)))
+	finally:
+		db.close()
+	return True
+
+
+
+
+def setRuleTriggerStatus(id,status):
+	try:
+		db = sqlite3.connect(db_path)
+		cur = db.cursor()
+		cur.execute("UPDATE rules SET trigger=?, modified=datetime(CURRENT_TIMESTAMP, 'localtime') WHERE id=?",(int(status), int(id)))
 		db.commit()
 	except Exception as err:
 		logger.eror('[DB] Rule Set Active Error: %s' % (str(err)))
