@@ -21,19 +21,19 @@ export class Home extends Component {
                 })
             }
         }, 1000)
-        fetch("/api/home")
-            .then(response => response.json())
-            .then((result) => {
-                if (this._isMounted) {
-                    this.setState({
-                        items: result,
-                        itemsLoaded: true
-                    });
-                }
-            })
-            .catch((error) => {
-                console.error(error)
-            })
+        // fetch("/api/home")
+        //     .then(response => response.json())
+        //     .then((result) => {
+        //         if (this._isMounted) {
+        //             this.setState({
+        //                 items: result,
+        //                 itemsLoaded: true
+        //             });
+        //         }
+        //     })
+        //     .catch((error) => {
+        //         console.error(error)
+        //     })
     }
 
 
@@ -54,7 +54,7 @@ export class Home extends Component {
         }
         if (this.state.itemsLoaded == false) {
             return (
-                <div className="card card-outline">
+                <div className="card card-outline-default">
                     <div className="card-body">
                          <span className="icon-1x icon-info icon-home"></span>
 

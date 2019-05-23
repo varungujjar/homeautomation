@@ -75,9 +75,12 @@ ul{
     font-weight: 600;
     color: #222;
 }
+.text-light{
+    color: #fff!important;
+}
 .text-xl {
-    font-size: 20px;
-    line-height: 38px;
+    font-size: 22px;
+    line-height: 30px;
 }
 
 .text-xxl {
@@ -91,7 +94,9 @@ ul{
     opacity: 0.8;
     color: #8A929E;
 }
-
+.italics{
+    font-style: italic;
+}
 b{
     font-weight: 600!important;
     opacity: 1!important;
@@ -211,6 +216,13 @@ h4{
     transition:0.3s;
 
 }
+.p-all-less{
+    padding: 13px 15px;
+}
+.p-all-less-md{
+    padding: 20px 23px;
+}
+
 .card-footer{
     background: none;
     border: none;
@@ -371,8 +383,17 @@ h4{
     color: #fff!important;
     opacity: 0.8;
 }
-.card-outline{
-    border: 1px solid #efefef;
+.card-outline-default{
+    border: 1px solid #f5f5f5;
+}
+.card-outline-info{
+    border: 1px solid #4949BE;
+}
+.card-outline-warning{
+    border: 1px solid #F19438;
+}
+.card-outline-success{
+    border: 1px solid #51D679;
 }
 
 .nav-mobile{
@@ -467,4 +488,52 @@ box-shadow: 2px -4px 17px -4px rgba(0,0,0,0.1);
 .btn-info{
     background: #4949BE;
     color: #fff;
+}
+
+
+.h-100{
+    height: 100%;
+}
+.card-inner-50{
+    width: 50%;
+    float: left;
+    height: 100%;
+    border-top-right-radius: 6px;
+    border-bottom-right-radius: 6px;
+}
+
+.v-center{
+    display: flex;
+    justify-content: center;
+  flex-direction: column;
+}
+
+
+ul.days li{
+    display: inline-block;
+    font-weight: normal;
+    opacity: 0.5;
+    border-radius: 3px;
+}
+.list-item{
+    border-bottom: 1px solid #f1f1f1;
+    border-left: 2px solid #fff;
+    cursor: pointer;
+}
+.list-item:hover{
+    background: #fafafa;
+    border-left: 2px solid #4949BE;
+}
+
+
+
+.badge-1x {
+    height: 44px;
+    border-radius: 30px;
+    display: inline-block;
+    padding: 0px 30px;
+    font-size: 20px;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 45px;
 }
