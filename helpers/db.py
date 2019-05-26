@@ -175,19 +175,39 @@ def dbGetWeatherSensor():
 
 
 
-def dbGetTable(tableName,id=None,published=None):
+def dbDeleteRecordsTable(tableName):
+	try:
+		db = sqlite3.connect(db_path)
+		db.row_factory = lambda c, r: dict([(col[0], r[idx]) for idx, col in enumerate(c.description)])
+		cur = db.cursor()
+		if tableName:
+			cur.execute('DELETE FROM %s' % (tableName))		
+			db.commit()
+	except Exception as err:
+		logger.eror('[DB] Delete Records Error: %s' % (str(err)))
+	finally:
+		db.close()
+
+
+
+
+
+def dbGetTable(tableName,id=None,published=None,order=None):
 	try:
 		db = sqlite3.connect(db_path)
 		db.row_factory = lambda c, r: dict([(col[0], r[idx]) for idx, col in enumerate(c.description)])
 		cur = db.cursor()
 		if id:
-			cur.execute('SELECT * FROM %s WHERE id=%s' % (tableName,int(id)))		
+			cur.execute('SELECT * FROM %s WHERE id=%s ' % (tableName,int(id)))		
 			table = cur.fetchone()		
 		elif published:
 			cur.execute('SELECT * FROM %s WHERE published=%s' % (tableName,int(published)))
 			table = cur.fetchall()
 		else:
-			cur.execute('SELECT * FROM %s' % (tableName))
+			if order:
+				cur.execute('SELECT * FROM %s ORDER BY %s DESC' % (tableName, order))
+			else:
+				cur.execute('SELECT * FROM %s' % (tableName))
 			table = cur.fetchall()
 		db.commit()
 	except Exception as err:

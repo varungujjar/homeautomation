@@ -43,4 +43,6 @@ def statusCheck():
             if device["online"] == 1:
                 importDbModule.dbInsertHistory("error","device",None,device["room_name"] or device["component"],"Device "+device["name"]+" went Offline",1)
                 importDbModule.dbSetDeviceStatus(device["id"],0)
-            
+
+
+
