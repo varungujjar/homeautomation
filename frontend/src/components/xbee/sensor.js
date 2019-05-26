@@ -16,7 +16,7 @@ export const ModuleRule = (props) => {
             <div className="offline-icon text-danger"></div>
             <div className="p-all-less">
                 
-                <span className="icon-1x icon-sensor icon-info icon-left"></span>
+                <span className="icon-1x icon-sensor icon-bg-info icon-left"></span>
                 <div className="text-bold">{props.data.name ? props.data.name : "..."}</div>
                 <div className="text-secondary">
                     {

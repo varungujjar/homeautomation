@@ -95,7 +95,7 @@ export class Scenes extends Component {
                     <div className="slider-slide">
                     <div className="card card-shadow">
                     <div className="card-body">
-                        <span className="icon-1x icon-info icon-sunrise icon-left"></span>
+                        <span className="icon-1x icon-bg-info icon-sunrise icon-left"></span>
                         <span className="text-bold mt-3">Early Morning</span>
                         <div className="text-secondary text-md">2 Devices Triggered</div>
                         <div className="clearfix"></div>
@@ -105,7 +105,7 @@ export class Scenes extends Component {
                     <div className="slider-slide">
                     <div className="card card-shadow">
                     <div className="card-body">
-                        <span className="icon-1x icon-info icon-moon icon-left"></span>
+                        <span className="icon-1x icon-bg-info icon-moon icon-left"></span>
                         <span className="text-bold mt-3">Good Night</span>
                         <div className="text-secondary text-md">2 Devices Triggered</div>
                         <div className="clearfix"></div>
@@ -115,7 +115,7 @@ export class Scenes extends Component {
                     <div className="slider-slide">
                     <div className="card card-shadow">
                     <div className="card-body">
-                        <span className="icon-1x icon-info icon-popcorn icon-left"></span>
+                        <span className="icon-1x icon-bg-info icon-popcorn icon-left"></span>
                         <span className="text-bold mt-3">Movie Time</span>
                         <div className="text-secondary text-md">2 Devices Triggered</div>
                         <div className="clearfix"></div>

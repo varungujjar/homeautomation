@@ -31,7 +31,7 @@ export const ModuleRule = (props) => {
             <div className="offline-icon text-danger"></div>
 
             <div className="p-all-less">
-                <span className={`icon-left icon-1x icon-lamp ${relays[0] ? "icon-success" : "icon-default"}`}></span>
+                <span className={`icon-left icon-1x icon-lamp ${relays[0] ? "icon-bg-success" : "icon-bg-default"}`}></span>
                 <div className="text-bold mt-1">{props.data.name ? props.data.name : "..."}</div>
                 <div className="text-secondary text-md">{props.data.room_name}</div>
             </div>
@@ -55,7 +55,7 @@ export const Module = (props) => {
                             (
                                 <div key={index} className={relays[index] ? ("on") : ("")} onClick={() => { toggleState(device.id, index, relays[index]) }}>
                                     <span className="show-device-props"><img src="assets/light/images/dots.svg" /></span>
-                                    <span className={`icon-1x icon-lamp ${relays[index] ? "icon-success" : "icon-default"}`}></span>
+                                    <span className={`icon-1x icon-lamp ${relays[index] ? "icon-bg-success" : "icon-bg-default"}`}></span>
                                     <div className="text-status">
                                         {
                                             relays[index] ? ("On") : ("Off")
