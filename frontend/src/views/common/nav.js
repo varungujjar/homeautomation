@@ -6,7 +6,7 @@ const Nav = () => {
         <ul>
             <li><NavLink exact to="/" activeClassName="active"><i className="fal fa-home"></i></NavLink></li>
             <li><NavLink to="/rules" activeClassName="active"><i className="fal fa-list-alt"></i></NavLink></li>
-            <li><NavLink to="timeline" activeClassName="active"><i className="fal fa-stream"></i></NavLink></li>
+            <li><NavLink to="/timeline" activeClassName="active"><i className="fal fa-stream"></i></NavLink></li>
             <li><NavLink to="/settings" activeClassName="active"><i className="fal fa-cog"></i></NavLink></li>
         </ul>
     )

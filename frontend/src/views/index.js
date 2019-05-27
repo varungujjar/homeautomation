@@ -4,9 +4,10 @@ import { Switch, Route, BrowserRouter as Router } from 'react-router-dom';
 import { Dashboard } from "./dashboard";
 import { Rules, RuleEdit } from "./rules";
 import { Settings } from "./settings";
-import { Horizon } from "./dashboard/horizon";
+import { Horizon } from "../components/horizon/system";
 import { Weather } from "./dashboard/weather";
 import { Home } from "./dashboard/home";
+import { Timeline } from "./timeline";
 
 
 function NoMatch({ location }) {
@@ -36,6 +37,7 @@ export const Views = () => {
             <Switch>
               <Route exact path="/" render={() => <Dashboard name={"Dashboard"} icon="home" />} />
               <Route exact path="/rules" render={() => <Rules name={"Rules"} icon="list-alt" />} />
+              <Route exact path="/timeline" render={() => <Timeline name={"Timeline"} icon="list-alt" />} />
               <Route exact path="/rules/:id" render={(props) => <RuleEdit {...props} name={"Rule Edit"} icon="list-alt" />} />
               <Route path="/settings" render={() => <Settings name={"Settings"} icon="cog" />} />
               <Route component={NoMatch} />

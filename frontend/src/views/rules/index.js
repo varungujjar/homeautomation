@@ -189,7 +189,7 @@ export class Rules extends Component {
                                 <div className="row">
                                     <div className="col-md-1 text-center text-lg text-bold v-center">
                                         <div className="content-v-center">
-                                            <span className="icon-1x icon-info text-bold ">if</span>
+                                            <span className="icon-1x icon-bg-info text-bold ">if</span>
 
                                         </div>
                                     </div>
@@ -207,10 +207,10 @@ export class Rules extends Component {
                                         
                                     </div>
                                     <div className="col-md-3 text-right v-center">
-                                    <span className="badge-1x icon-info text-bold">then</span>
+                                    <span className="badge-1x icon-bg-info text-bold">then</span>
                                     </div>
                                     <div className="col-md-2 text-right v-center">
-                                    <Link to={{ pathname: `/rules/${item.id}`, data: item }} className="btn btn-default"><img src="assets/light/images/dots.svg" /></Link>
+                                    <Link to={{ pathname: `/rules/${item.id}`, data: item }} className="btn "><img src="assets/light/images/dots.svg" /></Link>
                                         </div>    
                                     <div className="col-md-1 text-right v-center text-xl">
                                         {
@@ -293,8 +293,6 @@ export class RuleEdit extends Component {
 
     render() {
         let ruleData = this.state.item;
-        // console.log(this.state.item)
-
         return (
             <>
                 <Header name={this.props.name} icon={this.props.icon}></Header>
@@ -320,7 +318,6 @@ export class RuleEdit extends Component {
                     </>
 
                 )
-                
                 
                 }
             </>)    

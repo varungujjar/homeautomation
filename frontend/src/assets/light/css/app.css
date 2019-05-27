@@ -78,6 +78,9 @@ ul{
 .text-light{
     color: #fff!important;
 }
+.text-muted{
+    color: #b7bdc7!important;
+}
 .text-xl {
     font-size: 22px;
     line-height: 30px;
@@ -176,6 +179,7 @@ h4{
     position: relative;
     border: none;
     display: block;
+    overflow:hidden;
     
 }
 .card-header{
@@ -237,6 +241,9 @@ h4{
 .progress{
     height: 3px;
 }
+.bg-default{
+    background-color: #333!important;
+}
 .bg-info{
     background-color: #4949BE!important;
 }
@@ -249,7 +256,7 @@ h4{
 .text-danger{
     color: #ff6b6b!important;
 }
-.bg-danger{
+.bg-danger, .bg-error{
     background-color: #ff6b6b!important;
 }
 .badge{
@@ -296,15 +303,17 @@ h4{
 .offline{
     position: relative;
     transition:0.3s;
+   
+}
+
+.offline div:nth-child(2){
+    opacity: 0.4;
 }
 
 .offline-icon{
     display: none;
 }
 
-.offline .card-body{
-    opacity: 0.2;
-}
 .offline-icon::before{
     font-family: "Font Awesome 5 Pro";
     font-weight: bold;
@@ -481,12 +490,17 @@ box-shadow: 2px -4px 17px -4px rgba(0,0,0,0.1);
 .btn:hover, .btn:focus, .btn:active{
     box-shadow: none!important;
     background: #333;
+    color: #fff;
 }
 .btn:active{
     background: #555!important;
 }
 .btn-info{
     background: #4949BE;
+    color: #fff;
+}
+.btn-default{
+    background: #555;
     color: #fff;
 }
 
@@ -525,6 +539,9 @@ ul.days li{
     border-left: 2px solid #4949BE;
 }
 
+.bl-success{
+    border-left: 3px solid #51D679;
+}
 
 
 .badge-1x {
