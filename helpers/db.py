@@ -17,15 +17,6 @@ def sioConnect():
 	return sio
 
 
-def formatDeviceEntries(device):
-	jsonItem = {}
-	for key, value in device.items():
-		if key in ["properties","actions"]:
-			jsonItem[key] = eval(value)
-		else:	
-			jsonItem[key] = value
-	return jsonItem
-
 def formatData(data):
 	jsonItem = {}
 	for key, value in data.items():
@@ -124,7 +115,7 @@ def dbGetDevice(component=None,address=None,id=None):
 	if device is None:
 		return {}
 	else:
-		device = formatDeviceEntries(device)			
+		device = formatData(device)			
 	return device
 
 
@@ -136,9 +127,9 @@ def dbGetAllDevices(type=0):
 		db.row_factory = lambda c, r: dict([(col[0], r[idx]) for idx, col in enumerate(c.description)])
 		cur = db.cursor()
 		if(type==0):
-			cur.execute("SELECT devices.*, rooms.id as room_id, rooms.name as room_name FROM devices LEFT JOIN rooms on room_id = rooms.id")
+			cur.execute("SELECT devices.*, rooms.id as room_id, rooms.name as room_name FROM devices LEFT JOIN rooms on room_id = rooms.id ORDER BY 'order' ASC")
 		else:
-			cur.execute("SELECT devices.*, rooms.id as room_id, rooms.name as room_name FROM devices LEFT JOIN rooms on room_id = rooms.id WHERE type!=? AND featured=0",("system",))		
+			cur.execute("SELECT devices.*, rooms.id as room_id, rooms.name as room_name FROM devices LEFT JOIN rooms on room_id = rooms.id WHERE type!=? AND featured=0 ORDER BY 'order' ASC",("system",))		
 		devices = cur.fetchall()
 		db.commit()
 	except Exception as err:
@@ -150,7 +141,7 @@ def dbGetAllDevices(type=0):
 	else:
 		jsonDevices = []
 		for device in devices:
-			jsonDevices.append(formatDeviceEntries(device))
+			jsonDevices.append(formatData(device))
 	return jsonDevices
 
 
@@ -170,28 +161,48 @@ def dbGetWeatherSensor():
 	if device is None:
 		return {}
 	else:
-		device = formatDeviceEntries(device)			
+		device = formatData(device)			
 	return device
 
 
 
-def dbGetTable(tableName,id=None,published=None):
+def dbDeleteRecordsTable(tableName):
+	try:
+		db = sqlite3.connect(db_path)
+		db.row_factory = lambda c, r: dict([(col[0], r[idx]) for idx, col in enumerate(c.description)])
+		cur = db.cursor()
+		if tableName:
+			cur.execute('DELETE FROM %s' % (tableName))		
+			db.commit()
+	except Exception as err:
+		logger.eror('[DB] Delete Records Error: %s' % (str(err)))
+	finally:
+		db.close()
+
+
+
+
+
+def dbGetTable(tableName,id=None,published=None,order=None):
 	try:
 		db = sqlite3.connect(db_path)
 		db.row_factory = lambda c, r: dict([(col[0], r[idx]) for idx, col in enumerate(c.description)])
 		cur = db.cursor()
 		if id:
-			cur.execute('SELECT * FROM %s WHERE id=%s' % (tableName,int(id)))		
+			cur.execute("SELECT * FROM %s WHERE id=%s" % (tableName,int(id)))		
 			table = cur.fetchone()		
 		elif published:
-			cur.execute('SELECT * FROM %s WHERE published=%s' % (tableName,int(published)))
+			cur.execute("SELECT * FROM %s WHERE published=%s" % (tableName,int(published)))
 			table = cur.fetchall()
 		else:
-			cur.execute('SELECT * FROM %s' % (tableName))
+			if order:
+				cur.execute("SELECT * FROM %s ORDER BY %s DESC" % (tableName, order))
+			else:
+				cur.execute("SELECT * FROM %s" % (tableName))
 			table = cur.fetchall()
 		db.commit()
 	except Exception as err:
-		logger.eror('[DB] Get Rules Error: %s' % (str(err)))
+		logger.eror("[DB] Get Rules Error: %s" % (str(err)))
 	finally:
 		db.close()
 	if id:	
@@ -208,6 +219,7 @@ def dbGetTable(tableName,id=None,published=None):
 			for tableItem in table:
 				tableFormat.append(formatData(tableItem))
 			return tableFormat
+
 
 
 def dbPublished(tableName,id=None,published=None):

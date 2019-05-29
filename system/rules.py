@@ -147,7 +147,7 @@ async def doThen(ruleData):
             except Exception as exception:
                 logger.error("%s" % str(exception))
 
-        dbInsertHistory("success","system",None,"Rule "+ruleIDStr,"Triggered",1)
+        dbInsertHistory("info","system",None,"Rule "+ruleIDStr,"Triggered",1)
 
 
 # if __name__ == '__main__':
@@ -159,4 +159,9 @@ async def doThen(ruleData):
 #     except (KeyboardInterrupt, SystemExit):
 #         loop.close()
 
-    
+    #  UPDATE_EVERY = 1
+# if __name__ == '__main__':
+#     logger.info("[TIMER] Timer Running")
+#     sched = BlockingScheduler()
+#     sched.add_job(eventsHandler, "interval", seconds=UPDATE_EVERY)
+#     sched.start() 
