@@ -47,15 +47,16 @@ export const Module = (props) => {
     const relays = props.data.properties.relay;
     return (
         <div className="slider-slide">
-            <div className={`card card-shadow item card-hover ${device.online ? "" : "offline"}`}>
+            <div className={`card card-shadow card-module-height item card-hover ${device.online ? "" : "offline"}`}>
                 <div className="offline-icon text-danger"></div>
                 <div className="card-body">
                     {
                         Object.keys(relays).map(index =>
                             (
-                                <div key={index} className={relays[index] ? ("on") : ("")} onClick={() => { toggleState(device.id, index, relays[index]) }}>
+                                <div key={index} className={relays[index] ? ("on") : ("")} >
                                     <span className="show-device-props"><img src="assets/light/images/dots.svg" /></span>
-                                    <span className={`icon-1x icon-lamp ${relays[index] ? "icon-bg-success" : "icon-bg-default"}`}></span>
+                                    <div onClick={() => { toggleState(device.id, index, relays[index]) }}>
+                                    <span className={`icon-1x icon-lamp ${relays[index] ? "icon-bg-success" : "icon-bg-default"}`} ></span>
                                     <div className="text-status">
                                         {
                                             relays[index] ? ("On") : ("Off")
@@ -63,6 +64,7 @@ export const Module = (props) => {
                                     </div>
                                     <div className="text-bold mt-2">{device.name ? device.name : "..."}</div>
                                     <div className="text-secondary text-md">{device.room_name}</div>
+                                    </div>
                                 </div>
                             )
 

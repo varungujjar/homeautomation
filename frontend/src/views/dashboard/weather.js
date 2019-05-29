@@ -27,7 +27,7 @@ export class Weather extends Component {
 
                     });
                     socket.on(this.state.deviceId, data => {
-                        console.log(data);
+                        // console.log(data);
                         if (this._isMounted) {
                             this.setState({
                                 item: data,

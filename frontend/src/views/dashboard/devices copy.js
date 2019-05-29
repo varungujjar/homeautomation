@@ -4,6 +4,18 @@ import { sio, sioDisconnect, sioOpen } from "../../system/socketio";
 import { ContextData } from "../../system/provider";
 
 
+// const Device = function (props) {
+//     const device = props.device;
+//     const OtherComponent = import();
+//     const ModuleMe = OtherComponent.Module
+
+//     return (
+//         <ModuleMe key={props.key} data={device}/>
+//     )
+
+
+// }
+
 
 export const GetDevice = (id,resultData) => {
     fetch(`/api/devices?id=${id}`)
@@ -14,24 +26,22 @@ export const GetDevice = (id,resultData) => {
             .catch((error) => {
                 console.error(error)
             })
+         
 }
 
-
-const SliderInner = (props) => { 
-    let devices = props.items;
+const SliderInner = (props) => {
     return (
         <Slider {...props.settings}>
-
-            {
-                Object.keys(devices).map((key, index) => { 
-                    const Component = devices[key].deviceComponent;
-                    const Data = devices[key].deviceData;
+            {props.items.map((item, index) =>
+                {
+                    const Component = item.deviceComponent;
+                    const Data = item.deviceData;
                     return(
                         <Component key={index} data={Data} />
                     )
-                })
-
-            }
+                    
+                }
+            )}
         </Slider>
     )
 }
@@ -44,14 +54,21 @@ export class Devices extends Component {
         super(props);
         this._isMounted = false;
         this.state = {
-            devices :[],
+            items: [],
             dataLoaded: false,
         }
-        // const contextType = ContextData;
+        const contextType = ContextData;
     }
 
 
-    
+    dataReceived(data) {
+        if (this._isMounted) {
+            this.setState({
+                items: this.state.items.filter(item => item.id != data.id).concat(data).sort((a, b) => a.order - b.order),
+                dataLoaded: true,
+            })
+        }
+    }
 
     componentDidMount() {
         this._isMounted = true;
@@ -59,7 +76,10 @@ export class Devices extends Component {
             .then(response => response.json())
             .then((result) => {
                 if (this._isMounted) {
-                    result.map((item) => {
+                    let items = [];
+                    items = result.sort((a, b) => a.order - b.order);
+
+                    items.map((item) => {
                         import(`../../components/${item.component}/${item.type}`)
                             .then(component => {
                                 const componentItem = {
@@ -68,13 +88,9 @@ export class Devices extends Component {
                                 };
 
                                 this.setState({
-                                    devices : { 
-                                        ...this.state.devices,
-                                        [item.id]: componentItem,
-                                    },
+                                    items: this.state.items.concat(componentItem),
                                     dataLoaded: true
                                 })
-
                             }
 
                             )
@@ -96,18 +112,17 @@ export class Devices extends Component {
                     //Get all devices and check if it was already added to Main Provider Array If Not add it to the socket io stream once only.
                     sio(item.id, data => {
                         if (this._isMounted) {
+                            let items = [];
+                            items = this.state.items.filter(item => item.deviceData.id != data.id);
                             import(`../../components/${data.component}/${data.type}`)
                                 .then(component => {
+
                                     const componentItem = {
                                         deviceComponent: component.Module,
                                         deviceData: data,
                                     };
-                                    
                                     this.setState({
-                                        devices : { 
-                                            ...this.state.devices,
-                                            [data.id]: componentItem,
-                                        },
+                                        items: items.concat(componentItem).sort((a, b) => a.deviceData.order - b.deviceData.order),
                                         dataLoaded: true
                                     })
                                 })
@@ -181,9 +196,7 @@ export class Devices extends Component {
         };
 
 
-        const { devices } = this.state;
-
-        // console.log(this.state)
+        const { items } = this.state;
 
         if (this.state.dataLoaded == true) {
             return (
@@ -191,7 +204,7 @@ export class Devices extends Component {
                     <div className="section mt-4">
                         <h3 className="mb-2">Devices</h3>
                         <div className="slider-wrapper">
-                            <SliderInner settings={settings} items={devices}></SliderInner>
+                            <SliderInner settings={settings} items={items}></SliderInner>
                         </div>
                     </div>
                 </>
@@ -203,5 +216,5 @@ export class Devices extends Component {
     }
 }
 
-// Devices.contextType = ContextData;
+Devices.contextType = ContextData;
 

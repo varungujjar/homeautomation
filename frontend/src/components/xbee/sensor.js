@@ -42,10 +42,16 @@ export const Module = (props) => {
     const device = props.data;
     return (
         <div className="slider-slide">
-            <div className={`card card-shadow item card-hover ${device.online ? "" : "offline"}`}>
+            <div className={`card card-module-height card-shadow item ${device.online ? "" : "offline"}`}>
                 <div className="offline-icon text-danger"></div>
                 <div className="card-body">
-                    Xbee Sensor
+                <span className="show-device-props"><img src="assets/light/images/dots.svg" /></span>
+                        <span className="icon-1x icon-bg-info icon-sensor"></span>
+                        <div className="text-status ">{Number(device.properties.temperature.value).toFixed(1)} ° {device.properties.temperature.unit}</div>
+                        <div className="text-bold mt-2">{device.name ? device.name : "..."}</div>
+                        <div className="text-secondary text-md">{device.room_name ? device.room_name : "..."}</div>
+                        <div className="clearfix"></div>
+                
                 </div>
             </div>
         </div>

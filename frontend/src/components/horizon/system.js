@@ -16,17 +16,21 @@ export const ModuleRule = (props) => {
             </div>
         </div>
     )
-
 }
 
 export const Module = (props) => {
     const device = props.data;
     return (
         <div className="slider-slide">
-            <div className={`card card-shadow item card-hover ${device.online ? "" : "offline"}`}>
+            <div className={`card card-module-height card-shadow item ${device.online ? "" : "offline"}`}>
                 <div className="offline-icon text-danger"></div>
                 <div className="card-body">
-                   Horizon
+                <span className="show-device-props"><img src="assets/light/images/dots.svg" /></span>
+                        <span className={`icon-1x icon-bg-default ${device.properties.astral.above_horizon == "true" ? "icon-sunrise icon-bg-warning " : "icon-moon"}`}></span>
+                        <div className="text-status ">{device.properties.astral.above_horizon == "true" ? ("Above Horizon") : ("Below Horizon")}</div>
+                        <div className="text-secondary title-case mt-2">{device.properties.astral.next_astral} in {device.properties.astral.next_time.number} {device.properties.astral.next_time.unit}</div>
+                        <div className="clearfix"></div>
+                
                 </div>
             </div>
         </div>
@@ -67,7 +71,7 @@ export class Horizon extends Component {
                     });
                 }     
                 socket.on(this.state.deviceId, data => {
-                    console.log(data);
+                    // console.log(data);
                     if (this._isMounted) {
                         this.setState({
                             aboveHorizon: data.properties.astral.above_horizon,
