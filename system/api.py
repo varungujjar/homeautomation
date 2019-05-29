@@ -53,7 +53,7 @@ class Api:
             id = int(request.query["id"])
             devices = dbGetDevice(None,None,id)
         else:    
-            devices = dbGetAllDevices(1)
+            devices = dbGetAllDevices(0)
         return web.json_response(devices)
     
 
