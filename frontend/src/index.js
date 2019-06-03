@@ -27,6 +27,7 @@ class App extends Component {
             <div className="App">
               <Views></Views>
               <Notification/>
+              
             </div>
           </Router>
         </Provider>

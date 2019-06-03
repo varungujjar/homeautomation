@@ -64,8 +64,14 @@ export class Timeline extends Component {
         this._isMounted = true;
         this.renderList();
         sio("notification",data=>{
-            this.renderList();
+            if (this._isMounted) {
+                this.renderList();
+            }
         })
+    }
+
+    componentWillUnmount() {
+        this._isMounted = false;
     }
 
     render() {

@@ -45,6 +45,7 @@ export const Views = () => {
           </div>
         </div>
         <MobileNav></MobileNav>
+        
     </>
   )
 }
