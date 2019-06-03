@@ -122,10 +122,10 @@ export class Rules extends Component {
         //     }
         // ]
 
-        // // this.setState({
-        // //     items: result.sort((a, b) => a.id - b.id),
-        // //     dataLoaded: true
-        // // });
+        // this.setState({
+        //     items: result.sort((a, b) => a.id - b.id),
+        //     dataLoaded: true
+        // });
         // this.renderResult(result);
 
         this._isMounted = true;
@@ -249,22 +249,22 @@ export class RuleEdit extends Component {
 
     componentDidMount() {
 
-        // let result = 
-        //     {
-        //         "trigger": 0,
-        //         "and": "{}",
-        //         "modified": "2019-05-13 00:41:25",
-        //         "id": 1,
-        //         "published": 0,
-        //         "if": "{\"device\":8,\"condition\":\"=\",\"properties\":{\"relay\":{\"0\":1}}}",
-        //         "then": "{\"device\":9,\"actions\":{\"relay\":{\"0\":1}}}"
-        //     }
+        let result = 
+            {
+                "trigger": 0,
+                "and": "{}",
+                "modified": "2019-05-13 00:41:25",
+                "id": 1,
+                "published": 0,
+                "if": "{\"device\":8,\"condition\":\"=\",\"properties\":{\"relay\":{\"0\":1}}}",
+                "then": "{\"device\":9,\"actions\":{\"relay\":{\"0\":1}}}"
+            }
         
 
-        // this.setState({
-        //     item: result,
-        //     dataLoaded: true
-        // });
+        this.setState({
+            item: result,
+            dataLoaded: true
+        });
 
         this._isMounted = true;
         fetch(`/api/rules?id=${this.props.match.params.id}`)

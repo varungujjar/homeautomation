@@ -193,11 +193,14 @@ h4{
     right: 20px;
     top: 20px;
 }
+.show-device-props:hover{
+    opacity: 0.6;
+}
 
 .text-status{
     font-weight: 700;
     font-size: 20px;
-    line-height: 15px;
+    line-height: 20px;
     margin-top: 10px;
 }
 
@@ -218,8 +221,12 @@ h4{
 .card-body{
     padding: 23px 25px;
     transition:0.3s;
-
 }
+
+.card-module-height{
+    min-height: 168px;
+}
+
 .p-all-less{
     padding: 13px 15px;
 }
@@ -542,6 +549,7 @@ ul.days li{
 .bl-success{
     border-left: 3px solid #51D679;
 }
+
 
 
 .badge-1x {

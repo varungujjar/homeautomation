@@ -7,12 +7,13 @@ from aiohttp import web, ClientSession, ClientError
 import requests
 from helpers.logger import formatLogger
 import socketio
+import sys
 import signal
 import functools
 import threading
 from system.rules import *
 from system.status import *
-from components.zigbee.server import closeSerialConnection
+
 from system.system import *
 from system.api import *
 
@@ -25,12 +26,13 @@ sio = socketio.AsyncServer(client_manager=mgr,async_mode='aiohttp')
 
 
 class RunServer:
-    def __init__(self, host, port):
+    def __init__(self, host, port, mode):
         self.host = host
         self.port = port
         self.pool = ThreadPoolExecutor(max_workers=20)
         self.loop = asyncio.get_event_loop()
         self.api = Api()
+        self.mode = mode
 
     def getList(self, path):
         folderList = [d for d in os.listdir(path) if os.path.isdir(os.path.join(path, d))]
@@ -51,24 +53,29 @@ class RunServer:
 
 
     async def startBackgroundProcesses(self, app):
-        logger.info("Starting Background Processes")
-        path = "./"+COMPONENTS_DIR
-        componentsList = self.getList(path)
-        for component in componentsList:
-            fileList = os.listdir(path+"/"+component)
-            if "server.py" in fileList:
-                buildComponentPath = COMPONENTS_DIR+"."+component+".server"
-                sys.path.append(path+"/"+component)
-                importModule = __import__(buildComponentPath, fromlist="*")
-                functionCall = getattr(importModule, "%sHandler" % component)()
-                app.loop.create_task(functionCall)
+        mode = self.mode
+        if mode is not 1:
+            logger.info("Starting Background Processes")
+            path = "./"+COMPONENTS_DIR
+            componentsList = self.getList(path)
+            for component in componentsList:
+                fileList = os.listdir(path+"/"+component)
+                if "server.py" in fileList:
+                    buildComponentPath = COMPONENTS_DIR+"."+component+".server"
+                    sys.path.append(path+"/"+component)
+                    importModule = __import__(buildComponentPath, fromlist="*")
+                    functionCall = getattr(importModule, "%sHandler" % component)()
+                    app.loop.create_task(functionCall)
         app.loop.create_task(eventsHandlerTimer())
         app.loop.create_task(statusHandler())
         
 
     async def stopHandler(self):
-        logger.info("Closing Serial Connection")
-        closeSerialConnection()
+        mode = self.mode
+        if mode is not 1:
+            logger.info("Closing Serial Connection")
+            from components.zigbee.server import closeSerialConnection
+            closeSerialConnection()
         logger.info("Cancelling All Tasks")
         pending = asyncio.Task.all_tasks()
         for task in pending:
@@ -98,14 +105,17 @@ class RunServer:
     
 
     def runApp(self):
-        loop = self.loop 
+        loop = self.loop
         app = loop.run_until_complete(self.createApp())
         app.on_startup.append(self.startBackgroundProcesses)
         for sig in (signal.SIGTERM, signal.SIGINT):
             loop.add_signal_handler(sig, lambda: asyncio.ensure_future(self.stopHandler()))
         web.run_app(app, host=self.host, port=self.port, handle_signals=False) 
  
-        
+    
 if __name__ == '__main__':
-    s = RunServer(host='0.0.0.0', port=8000)
+    os = None
+    if len(sys.argv) > 1:
+        os = int(sys.argv[1])
+    s = RunServer(host='0.0.0.0', port=8000, mode=os)
     s.runApp()

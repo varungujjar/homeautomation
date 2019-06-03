@@ -56,7 +56,7 @@ export class Home extends Component {
             return (
                 <div className="card card-outline-default">
                     <div className="card-body">
-                         <span className="icon-1x icon-info icon-home"></span>
+                         <span className="icon-1x icon-bg-info icon-home"></span>
 
                         <h2 className="mt-3 ">Good Morning, Varun</h2>
                         <div className="text-xxl mt-2">{this.state.curTime}</div>

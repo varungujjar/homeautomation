@@ -10,7 +10,8 @@ from jsonmerge import merge
 logger = formatLogger(__name__)
 
 global db_path
-db_path = '/home/pi/db/db'
+# db_path = '/home/pi/db/db'
+db_path = '/Volumes/Work/homeautomation/db/db'
 
 
 def sioConnect():
