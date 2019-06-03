@@ -47,7 +47,7 @@ class sensor(object):
         deviceProperties = {}
         deviceActions = {}
         if TYPE in deviceClass:
-            deviceProperties = json.dumps(self.getDeviceProperties(devicePayload["payload"]))
+            deviceProperties = self.getDeviceProperties(devicePayload["payload"])
         else:
             pass
         logger.info("%s" % str(deviceProperties))
