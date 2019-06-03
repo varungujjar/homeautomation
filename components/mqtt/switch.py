@@ -95,7 +95,7 @@ class switch(object):
             devicePropertiesLoad = getDevice["properties"]
             #print(devicePropertiesLoad)
             for key, value in devicePropertiesLoad["relay"].items():
-                StateJson = json.loads(deviceProperties)
+                StateJson = deviceProperties
                 newState = StateJson["relay"][key]
                 currentState = value
                 if newState != currentState:
@@ -121,8 +121,8 @@ class switch(object):
         deviceActions = {}
         
         if TYPE in deviceClass:
-            deviceProperties = json.dumps(self.getDeviceProperties(devicePayload))
-            deviceActions = json.dumps(self.getDeviceActions(devicePayload))
+            deviceProperties = self.getDeviceProperties(devicePayload)
+            deviceActions = self.getDeviceActions(devicePayload)
         else:
             pass
         state = False   

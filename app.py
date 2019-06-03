@@ -34,6 +34,7 @@ class RunServer:
         self.api = Api()
         self.mode = mode
 
+
     def getList(self, path):
         folderList = [d for d in os.listdir(path) if os.path.isdir(os.path.join(path, d))]
         dirList = []
@@ -42,14 +43,6 @@ class RunServer:
             if folderItem not in ignorelist:
                 dirList.append(folderItem)
         return dirList
-
-
-    def runTaskList(self, path):
-        componentsList = getList(path)
-        for component in componentsList:
-            fileList = os.listdir(path+"/"+component)
-            if "server.py" in fileList:
-                print(component)
 
 
     async def startBackgroundProcesses(self, app):
@@ -114,8 +107,8 @@ class RunServer:
  
     
 if __name__ == '__main__':
-    os = None
+    arg = None
     if len(sys.argv) > 1:
-        os = int(sys.argv[1])
-    s = RunServer(host='0.0.0.0', port=8000, mode=os)
+        arg = int(sys.argv[1])
+    s = RunServer(host='0.0.0.0', port=8000, mode=arg)
     s.runApp()

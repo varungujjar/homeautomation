@@ -6,16 +6,21 @@ import time, datetime
 from helpers.logger import formatLogger
 from system.status import deviceCheckIncoming
 import socketio
+
 logger = formatLogger(__name__)
 
 global db_path
-# db_path = '/home/pi/db/db'
-db_path = '/Volumes/Work/homeautomation/db/db'
+db_path = '/home/pi/db/db'
 
 
 def sioConnect():
 	sio = socketio.RedisManager('redis://', write_only=True)
 	return sio
+
+
+def Merge(oldProps, newProps): 
+    result = {**oldProps, **newProps} 
+    return result 
 
 
 def formatData(data):
@@ -88,10 +93,11 @@ def dbSyncDevice(type,prop,actions,address,component):
 			db.close()	
 	else:
 		deviceCheckIncoming(getDevice)
+		combinedProperties = Merge(getDevice["properties"],prop)
 		try:
 			db = sqlite3.connect(db_path)
 			cur = db.cursor()
-			cur.execute("UPDATE devices SET type=?, properties=?, actions=?, modified=datetime(CURRENT_TIMESTAMP, 'localtime') WHERE address=? AND component=?",(str(type), str(prop), str(actions), str(address), str(component)))
+			cur.execute("UPDATE devices SET type=?, properties=?, actions=?, modified=datetime(CURRENT_TIMESTAMP, 'localtime') WHERE address=? AND component=?",(str(type), str(combinedProperties), str(actions), str(address), str(component)))
 			db.commit()
 		except Exception as err:
 			logger.eror('[DB] Device Update Sync Error: %s' % (str(err)))
