@@ -6,12 +6,11 @@ import time, datetime
 from helpers.logger import formatLogger
 from system.status import deviceCheckIncoming
 import socketio
-from jsonmerge import merge
+
 logger = formatLogger(__name__)
 
 global db_path
-# db_path = '/home/pi/db/db'
-db_path = '/Volumes/Work/homeautomation/db/db'
+db_path = '/home/pi/db/db'
 
 
 def sioConnect():
