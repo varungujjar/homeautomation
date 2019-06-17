@@ -119,11 +119,11 @@ async def doThen(ruleData):
     ruleID = ruleData["id"]
     ruleIDStr = str(ruleData["id"])
 
-    if "device" in thenDataJson:
-        getDevice = dbGetDevice(None,None,thenDataJson["device"])
+    if "type" in thenDataJson:
+        getDevice = dbGetDevice(None,None,thenDataJson["id"])
         getDeviceProperties = getDevice["properties"]
         getDeviceActions = getDevice["actions"]
-        thenActions = thenDataJson["actions"]
+        thenActions = thenDataJson["properties"]
 
         if getDevice:
             getDeviceModule = str(getDevice["type"])
