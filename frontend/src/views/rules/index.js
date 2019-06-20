@@ -56,78 +56,6 @@ export class Rules extends Component {
 
     
     componentDidMount() {
-        // let result = [
-        //     {
-        //         "trigger": 0,
-        //         "and": "{}",
-        //         "modified": "2019-05-13 00:41:25",
-        //         "id": 1,
-        //         "published": 0,
-        //         "if": "{\"device\":8,\"condition\":\"=\",\"properties\":{\"relay\":{\"0\":1}}}",
-        //         "then": "{\"device\":9,\"actions\":{\"relay\":{\"0\":1}}}"
-        //     },
-        //     {
-        //         "trigger": 1,
-        //         "and": "{}",
-        //         "modified": "2019-05-13 00:41:25",
-        //         "id": 2,
-        //         "published": 0,
-        //         "if": "{\"device\":8,\"condition\":\"=\",\"properties\":{\"relay\":{\"0\":0}}}\t",
-        //         "then": "{\"device\":9,\"actions\":{\"relay\":{\"0\":0}}}"
-        //     },
-        //     {
-        //         "trigger": 1,
-        //         "and": "{}",
-        //         "modified": "2019-04-04 00:31:05",
-        //         "id": 3,
-        //         "published": 0,
-        //         "if": "{\"device\":5,\"condition\":\"<\",\"properties\":{\"light\":{\"value\":20}}}\t",
-        //         "then": "{\"device\":9,\"actions\":{\"relay\":{\"0\":1}}}\t"
-        //     },
-        //     {
-        //         "trigger": 1,
-        //         "and": "{}",
-        //         "modified": "2019-04-04 17:04:52",
-        //         "id": 4,
-        //         "published": 0,
-        //         "if": "{\"device\":5,\"condition\":\">\",\"properties\":{\"light\":{\"value\":30}}}\t",
-        //         "then": "{\"device\":9,\"actions\":{\"relay\":{\"0\":0}}}\t"
-        //     },
-        //     {
-        //         "trigger": 0,
-        //         "and": "{}",
-        //         "modified": "2019-05-15 19:00:12",
-        //         "id": 5,
-        //         "published": 1,
-        //         "if": "{\"device\":6,\"condition\":\"=\",\"properties\":{\"astral\":{\"above_horizon\":\"false\"}}}\t",
-        //         "then": "{\"device\":9,\"actions\":{\"relay\":{\"0\":1}}}\t"
-        //     },
-        //     {
-        //         "trigger": 1,
-        //         "and": "{}",
-        //         "modified": "2019-05-15 21:02:01",
-        //         "id": 6,
-        //         "published": 1,
-        //         "if": "{\r\n\t\"datetime\": \"time\",\r\n\t\"condition\": \"=\",\r\n\t\"properties\": {\r\n\t\t\"time\": [21,2],\r\n\t\t\"day\": [\r\n\t\t\t0,1,2,3,4,5,6\r\n\t\t]\r\n\t}\r\n}",
-        //         "then": "{\"device\":9,\"actions\":{\"relay\":{\"0\":1}}}"
-        //     },
-        //     {
-        //         "trigger": 1,
-        //         "and": "{}",
-        //         "modified": "2019-05-16 00:34:01",
-        //         "id": 7,
-        //         "published": 1,
-        //         "if": "{ \"datetime\": \"time\", \"condition\": \"=\", \"properties\": { \"time\": [0,34], \"day\": [ 0,1,2,3,4,6 ] } }\t",
-        //         "then": "{\"device\":8,\"actions\":{\"relay\":{\"0\":1}}}\t"
-        //     }
-        // ]
-
-        // this.setState({
-        //     items: result.sort((a, b) => a.id - b.id),
-        //     dataLoaded: true
-        // });
-        // this.renderResult(result);
-
         this._isMounted = true;
         fetch("/api/rules")
             .then(response => response.json())
@@ -248,24 +176,6 @@ export class RuleEdit extends Component {
     }
 
     componentDidMount() {
-
-        let result = 
-            {
-                "trigger": 0,
-                "and": "{}",
-                "modified": "2019-05-13 00:41:25",
-                "id": 1,
-                "published": 0,
-                "if": "{\"device\":8,\"condition\":\"=\",\"properties\":{\"relay\":{\"0\":1}}}",
-                "then": "{\"device\":9,\"actions\":{\"relay\":{\"0\":1}}}"
-            }
-        
-
-        this.setState({
-            item: result,
-            dataLoaded: true
-        });
-
         this._isMounted = true;
         fetch(`/api/rules?id=${this.props.match.params.id}`)
             .then(response => response.json())

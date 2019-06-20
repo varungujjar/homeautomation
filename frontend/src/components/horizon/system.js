@@ -1,5 +1,6 @@
 import React, {Component} from "react";
 import { socket } from "../../system/socketio";
+import { DeviceModal } from "../../views/common/devicemodal";
 
 
 export const ModuleRule = (props) => {
@@ -18,6 +19,15 @@ export const ModuleRule = (props) => {
     )
 }
 
+
+export const ModuleModal = (props) => {
+    return(
+        <div>
+             {JSON.stringify(props.data)}
+        </div>
+    )
+}
+
 export const Module = (props) => {
     const device = props.data;
     return (
@@ -25,7 +35,7 @@ export const Module = (props) => {
             <div className={`card card-module-height card-shadow item ${device.online ? "" : "offline"}`}>
                 <div className="offline-icon text-danger"></div>
                 <div className="card-body">
-                <span className="show-device-props"><img src="assets/light/images/dots.svg" /></span>
+                        <DeviceModal data={device}/> 
                         <span className={`icon-1x icon-bg-default ${device.properties.astral.above_horizon == "true" ? "icon-sunrise icon-bg-warning " : "icon-moon"}`}></span>
                         <div className="text-status ">{device.properties.astral.above_horizon == "true" ? ("Above Horizon") : ("Below Horizon")}</div>
                         <div className="text-secondary title-case mt-2">{device.properties.astral.next_astral} in {device.properties.astral.next_time.number} {device.properties.astral.next_time.unit}</div>
@@ -35,6 +45,7 @@ export const Module = (props) => {
             </div>
         </div>
     )
+    
 }
 
 

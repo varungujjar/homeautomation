@@ -562,3 +562,18 @@ ul.days li{
     vertical-align: middle;
     line-height: 45px;
 }
+
+.modal-body{
+    padding:0px!important;
+}
+.modal-footer{
+    display: block!important;
+    
+}
+
+.property-list li{
+    display: block;
+    border-bottom: 1px solid #efefef;
+    padding: 7px 0px;
+    color:#343a40;
+}
