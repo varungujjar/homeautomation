@@ -1,15 +1,24 @@
 import React from "react";
 
 
-export const ModuleRule = (props) => {
+
+export const ModuleEdit = (props) => {
+    return (
+        <>
+        I Am Editing Sensor Module
+        </>
+    )
+}
+
+export const ModuleList = (props) => {
    let condition = "";
-   if(props.component.if.condition == ">"){
+   if(props.data.ifData.condition == ">"){
         condition = "Greater than";
    }
-   if(props.component.if.condition == "<"){
+   if(props.data.ifData.condition == "<"){
         condition = "Less than";
     }
-    let properties = props.component.if.properties;
+    let properties = props.data.ifData.properties;
     const online =  props.data.online;
     return (
         <div className={`card card-outline-default h-100 ${online ? "" : "offline"}`}>
@@ -34,7 +43,9 @@ export const ModuleRule = (props) => {
         </div>
     )
 
+
 }
+
 
 
 

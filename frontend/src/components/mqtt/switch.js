@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { DeviceModal } from "../../views/common/devicemodal";
+import { DeviceModalEdit } from "../../views/common/devicemodaledit";
 import Moment from 'react-moment';
 
 const convertAgo = (datetime) => {
@@ -30,10 +31,17 @@ const toggleState = (deviceId, relayIndex, relayState) => {
 
 }
 
+export const ModuleEdit = (props) => {
+    return (
+        <>
+        I Am Editing Switch Module
+        </>
+    )
+}
 
 
-export const ModuleRule = (props) => {
-    const relays = props.component.if.properties.relay;
+export const ModuleList = (props) => {
+    const relays = props.data.properties.relay;
     const online =  props.data.online;
     return (
         <div className={`card card-outline-default h-100 ${online ? "" : "offline"}`}>
@@ -45,11 +53,12 @@ export const ModuleRule = (props) => {
                 <div className="text-secondary text-md">{props.data.room_name}</div>
             </div>
             <div className="clearfix"></div>
+            <DeviceModalEdit device={props.data}/>
         </div>
-       
     )
 
 }
+
 
 
 

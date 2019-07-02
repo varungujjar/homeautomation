@@ -2,9 +2,16 @@ import React, {Component} from "react";
 import { socket } from "../../system/socketio";
 import { DeviceModal } from "../../views/common/devicemodal";
 
+export const ModuleEdit = (props) => {
+    return (
+        <>
+        I Am Editing Horizon Module
+        </>
+    )
+}
 
-export const ModuleRule = (props) => {
-    const horizon = props.component.if.properties.astral.above_horizon;
+export const ModuleList = (props) => {
+    const horizon = props.data.properties.astral.above_horizon;
     return (
         <div className="card card-outline-default">
             <div className="p-all-less">
