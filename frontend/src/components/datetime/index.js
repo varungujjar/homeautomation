@@ -96,7 +96,7 @@ export class ModuleList extends Component {
                         </div>
                         <div className="clearfix"></div>
                     </div>
-                    {console.log(timeOpen)}
+                    {/* {console.log(timeOpen)} */}
                     {
                         this.props.values && (
                             <div className="p-all-less">
@@ -107,7 +107,7 @@ export class ModuleList extends Component {
                                 {this.state.displayTimepicker ?
                                 <div className="time-keeper-box">
                                     <TimeKeeper
-                                        time={`${this.props.values.properties.time[0]}:${this.props.values.properties.time[1] == "0" ? "00" : this.props.values.properties.time[1]}`}
+                                        time={`${this.props.values.properties.time[0]}:${this.props.values.properties.time[1] == "0" ? "00" : 0+this.props.values.properties.time[1]}`}
                                         onChange={this.onTimeChange}
                                         switchToMinuteOnHourSelect={true}
                                         onDoneClick={() => {

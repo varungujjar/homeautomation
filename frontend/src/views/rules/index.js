@@ -241,6 +241,12 @@ export class RuleEdit extends Component {
         const DataType = conditionData["type"]
         let devicesList = [];
 
+        // console.log(DataType);
+
+        // if(Array.isArray(DataType)){
+        //     console.log("yo");
+        // }    
+
         if(DataType=="device"){
             GetDevice(conditionData["id"],data => {
                 import(`../../components/${data.component}/${data.type}`)
@@ -365,6 +371,8 @@ export class RuleEdit extends Component {
         this.addComponent(ifData,item,"if");
         this.addComponent(andData,item,"and");
         this.addComponent(thenData,item,"then");
+
+       
     }
 
 
@@ -404,6 +412,7 @@ export class RuleEdit extends Component {
         
        let myData = this.state.ruleData;  
 
+       console.log(this.state.ifComponents);
         // let ruleData = this.state.item;
         return (
             <>
@@ -461,10 +470,12 @@ export class RuleEdit extends Component {
                                         loadComponent = <Component values={values.if} data={Data} handleBlur={handleBlur} handleChange={handleChange} dataType={`if`} setFieldValue={setFieldValue}/>
                                     })
                                     return (<div key={index}>{loadComponent}</div>);
+
+                                    
                                 })
                             }
                             </div>
-                            <AddDeviceModal/> 
+                            {/* <AddDeviceModal/>  */}
                         </div>
                         <div className="card card-shadow mt-3">
                             <div className="card-body">
@@ -489,7 +500,7 @@ export class RuleEdit extends Component {
                                     result.devices.map((device,index) => {
                                         const Component = device.component;
                                         const Data = device.data;
-                                        loadComponent = <Component data={Data} dataType={`then[${index}]`}/>
+                                        loadComponent = <Component values={values.then} data={Data} handleBlur={handleBlur} handleChange={handleChange} dataType={`then`} setFieldValue={setFieldValue}/>
                                     })
                                     return (<div key={index}>{loadComponent}</div>);
                                 })
