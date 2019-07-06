@@ -67,8 +67,8 @@ class switch(object):
                 deviceProperties = getDevice["properties"]
                 deviceRelayState = int(deviceProperties["relay"][str(relayId)])
                 cleanTopic = (deviceProperties["subscribe"]).strip("/")
-                relayTopic = cleanTopic+"/relay/"+str(relayId)+deviceActions["relay"]["topic"]
-                stateValues = {0:STATE_ON,1:STATE_OFF}
+                relayTopic = cleanTopic+deviceActions["relay"][str(relayId)]["topic"]
+                stateValues = {0:deviceActions["relay"][str(relayId)]["on"],1:deviceActions["relay"][str(relayId)]["off"]}
                 if state is not None:
                     stateValue = state
                 else:
@@ -104,12 +104,15 @@ class switch(object):
 
 
     def getDeviceActions(self,payload):
-        deviceActionsData = {}
-        for key, value in payload["actions"].items():
-                if key in DEVICE_ACTIONS:
-                    deviceActionsData[key] = value
-                else:
-                    pass
+        # deviceActionsData = {}
+        deviceActionsData = {'relay': {
+            '0': {'type': 'switch', 'topic': '/relay/0/set', 'on':1, 'off':0}
+        }}
+        # for key, value in payload["actions"].items():
+        #         if key in DEVICE_ACTIONS:
+        #             deviceActionsData[key] = value
+        #         else:
+        #             pass
         return deviceActionsData
 
 
