@@ -30,6 +30,7 @@ def eventsHandler(id=None):
 
     logger.debug("Rule Check Started")
     getRules = dbGetTable("rules",None,1)
+
     for ruleData in getRules:
         validateIfCondition = validateIf(ruleData)
         validateAndCondition = validateAnd(ruleData)
@@ -43,13 +44,15 @@ def eventsHandler(id=None):
  
 
 def validateIf(ruleData):
-    ifDataJson = ruleData["if"]
+    ifDataJson = ruleData["rule_if"]
     checkifActive = ruleData["trigger"]
     ruleID = ruleData["id"]
     status = False
     conditionStatus = False
     ifProperties = ifDataJson["properties"]
     ifType = ifDataJson["condition"]
+
+    
 
     if ifDataJson["type"] == "device":
         getDevice = dbGetDevice(None,None,ifDataJson["id"])
@@ -114,7 +117,7 @@ def validateAnd(ruleData):
 
 
 async def doThen(ruleData):
-    thenDataJson = ruleData["then"]
+    thenDataJson = ruleData["rule_then"]
     checkifActive = ruleData["trigger"]
     ruleID = ruleData["id"]
     ruleIDStr = str(ruleData["id"])
