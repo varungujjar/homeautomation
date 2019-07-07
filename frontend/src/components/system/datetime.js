@@ -76,7 +76,7 @@ export class ModuleList extends Component {
 
     render() {
         const day = { 0: "Mon", 1: "Tue", 2: "Wed", 3: "Thu", 4: "Fri", 5: "Sat", 6: "Sun" }
-        const defaultProperties = {"type": "device", "condition": "=", "id": this.props.data.id, "properties": { 'day': [], 'time': [12, 0]}}
+        const defaultProperties = {"type": "device", "condition": "=", "id": this.props.data.id, "properties": { 'day': [0,1,2,3,4,5,6], 'time': [12, 0]}}
         const properties = this.props.data.properties.time ? this.props.data.properties : defaultProperties.properties;
 
         let time = "";

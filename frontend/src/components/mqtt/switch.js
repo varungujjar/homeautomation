@@ -41,60 +41,10 @@ export class ModuleList extends Component {
                 selectedProperty:Object.keys(this.props.values.properties)[0] ? Object.keys(this.props.values.properties)[0] : Object.keys(this.props.data.properties)[0],
             }
         }
-
-        
-    }
-
-    
-   
-
-    onPropertyChange = (event) => {
-        const selectedProperty = this.state.selectedProperty;
-        this.props.values.properties[selectedProperty] = event.currentTarget.value;
-        this.props.setFieldValue(this.props.values.properties[selectedProperty])
-    }
-    
-    onSelectProperty = (selectedProperty) => {
-        this.setState({
-            selectedProperty: selectedProperty.currentTarget.value
-        })
-
-        const selectedPropertyChange = selectedProperty.currentTarget.value
-        const relaysInitialStore = this.props.values.properties.relay;
-        this.props.values.properties = {};//empty all properties before writing new one
-
-        if(selectedPropertyChange=="relay"){
-            this.props.values.properties.relay = relaysInitialStore;
-            this.props.setFieldValue(this.props.values.properties.relay);
-        }else{
-            this.props.setFieldValue(this.props.values.properties);
-        }
-
-        this.props.values.properties[selectedPropertyChange] = this.props.data.properties[selectedPropertyChange];
-        this.props.setFieldValue(this.props.values.properties[selectedPropertyChange])
-    }
-    
-
-    handleRelay = (event) => {
-        const target = event.currentTarget;
-
-        if (target.checked) {
-            this.props.values.properties.relay[target.id] = 1;
-        } else {
-            this.props.values.properties.relay[target.id] = 0;
-        }
-
-        this.props.setFieldValue(this.props.values.properties.relay[target.id])
-        this.props.data.properties.relay[target.id] = this.props.values.properties.relay[target.id] //update the UI
-    }
-
-
-    render(){
-        const propsData = this.props;
-        const relays = propsData.data.properties.relay;
-        const online =  propsData.data.online;
-
-        const values = {
+        this.defaultIfProperties = {"type": "device", "condition": "=", "id": this.props.data.id, "properties": {'relay':{"0":0}}}
+        this.deviceData = this.props.data;
+        this.deviceValues = this.props.values;
+        this.allowedValues = {
             "energy":"Energy",
             "relay":"Relay",
             "power":"Power",
@@ -103,29 +53,80 @@ export class ModuleList extends Component {
             "current":"Current",
             "vcc":"VCC"
         }
+    }
+
+
+    onPropertyChange = (event) => {
+        const selectedProperty = this.state.selectedProperty;
+        this.deviceValues.properties[selectedProperty] = event.currentTarget.value;
+        this.props.setFieldValue(this.deviceValues.properties[selectedProperty])
+    }
+
+    
+    onSelectProperty = (selectedProperty) => {
+        this.setState({
+            selectedProperty: selectedProperty.currentTarget.value
+        })
+
+        const selectedPropertyChange = selectedProperty.currentTarget.value
+        const relaysInitialStore = this.deviceValues.properties.relay;
+        this.deviceValues.properties = {};//empty all properties before writing new one
+
+        if(selectedPropertyChange=="relay"){
+            this.deviceValues.properties.relay = relaysInitialStore;
+            this.props.setFieldValue(this.deviceValues.properties.relay);
+        }else{
+            this.props.setFieldValue(this.deviceValues.properties);
+        }
+
+        this.deviceValues.properties[selectedPropertyChange] = this.deviceData.properties[selectedPropertyChange];
+        this.props.setFieldValue(this.deviceValues.properties[selectedPropertyChange])
+    }
+    
+
+    handleRelay = (event) => {
+        const target = event.currentTarget;
+        if (target.checked) {
+            this.deviceValues.properties.relay[target.id] = 1;
+        } else {
+            this.deviceValues.properties.relay[target.id] = 0;
+        }
+        this.props.setFieldValue(this.deviceValues.properties.relay[target.id])
+        this.deviceData.properties.relay[target.id] = this.deviceValues.properties.relay[target.id] //update the UI
+    }
+
+
+    render(){
+        
 
        
     return (
             <div>
-                <div className={`card card-outline-default h-100 ${online ? "" : "offline"}`}>
+                <div className={`card card-outline-default h-100 ${this.deviceData.online ? "" : "offline"}`}>
                     <div className="offline-icon text-danger"></div>
                     <div className="p-all-less">
-                        <span className={`icon-left icon-1x icon-lamp ${relays[0] ? "icon-bg-success" : "icon-bg-default"}`}></span>
-                        <div className="text-bold mt-1">{propsData.data.name ? propsData.data.name : "..."}</div>
-                        <div className="text-secondary text-md">{propsData.data.room_name}</div>
+                        <span className={`icon-left icon-1x icon-lamp ${this.deviceData.properties.relay[0] ? "icon-bg-success" : "icon-bg-default"}`}></span>
+                        <div className="text-bold mt-1">{this.deviceData.name ? this.deviceData.name : "..."}</div>
+                        <div className="text-secondary text-md">{this.deviceData.room_name}</div>
                     </div>
                     <div className="clearfix"></div>
 
+                    {
+                            this.props.addDefaultProperties && (
+                                <button type="button" variant="primary" onClick={() => {this.props.addDefaultProperties(this.defaultIfProperties)}}>+ ADD</button>
+                            )
+                        }
+
                     {(() => {
-                        if (propsData.values && propsData.dataType == "if") {
+                        if (this.deviceValues && this.props.dataType == "if") {
                             return (
                                 <div className="p-all-less">
                                     {
                                         
                                         this.state.selectedProperty == "relay" &&
-                                        Object.keys(propsData.data.properties.relay).map((key, index) => {
+                                        Object.keys(this.deviceData.properties.relay).map((key, index) => {
                                             let checked = false;
-                                            if (propsData.values.properties.relay[key] == 1) { checked = true; }
+                                            if (this.deviceValues.properties.relay[key] == 1) { checked = true; }
                                             return (
                                                 <div className="form-check form-check-inline" key={index}>
                                                     <input className="form-check-input" type="checkbox" id={key} name={`${this.props.dataType}[properties][relay][${key}]`} onChange={this.handleRelay} checked={checked} />
@@ -134,9 +135,8 @@ export class ModuleList extends Component {
                                             )
                                         })
                                     }
-                                    <input className="form-control" type="hidden" value={propsData.values.type} name={`${propsData.dataType}[type]`} onChange={propsData.handleChange} onBlur={propsData.handleBlur} />
                                     
-                                    <select name={`${propsData.dataType}[condition]`} value={propsData.values.condition} onChange={propsData.handleChange}>
+                                    <select name={`${this.props.dataType}[condition]`} value={this.deviceValues.condition} onChange={this.props.handleChange}>
                                         <option value="=">=</option>
                                         <option value=">">&gt;</option>
                                         <option value="<">&lt;</option>
@@ -144,10 +144,10 @@ export class ModuleList extends Component {
 
                                     <select name="" value={this.state.selectedProperty} onChange={this.onSelectProperty}>
                                         {    
-                                            Object.keys(propsData.data.properties).map((property, index) => {
-                                                if(property in values){
+                                            Object.keys(this.deviceData.properties).map((property, index) => {
+                                                if(property in this.allowedValues){
                                                     return (
-                                                        <option value={`${property}`} key={index}>{values[property]}</option>
+                                                        <option value={`${property}`} key={index}>{this.allowedValues[property]}</option>
                                                     )
                                                 }
                                             })
@@ -157,26 +157,26 @@ export class ModuleList extends Component {
                                     {
                                         this.state.selectedProperty && this.state.selectedProperty != "relay" ?
                                             (
-                                                <input className="form-control" value={propsData.values.properties[this.state.selectedProperty] || propsData.data.properties[this.state.selectedProperty]} name={`${propsData.dataType}[properties][${this.state.selectedProperty}]`} onChange={this.onPropertyChange} />
+                                                <input className="form-control" value={this.deviceValues.properties[this.state.selectedProperty] || this.deviceData.properties[this.state.selectedProperty]} name={`${this.props.dataType}[properties][${this.state.selectedProperty}]`} onChange={this.onPropertyChange} />
                                             )
                                             : null
                                     }
                                 </div>
                             )
-                        } else if (propsData.values && propsData.dataType == "and") {
+                        } else if (this.deviceValues && this.props.dataType == "and") {
                             return (
                                 <div>and</div>
                             )
-                        } else if (propsData.values && propsData.dataType == "then") {
+                        } else if (this.deviceValues && this.props.dataType == "then") {
                             // console.log(this.props.data.actions)
                             return (
                                 <div>
 
                                     <select name="" value={this.state.selectedProperty} onChange={this.onSelectProperty}>
                                         {
-                                            Object.keys(propsData.data.actions).map((property, index) => {
+                                            Object.keys(this.deviceData.actions).map((property, index) => {
                                                 return (
-                                                    <option value={`${property}`} key={index}>{values[property]}</option>
+                                                    <option value={`${property}`} key={index}>{this.allowedValues[property]}</option>
                                                 )
                                             })
                                         }
@@ -184,9 +184,9 @@ export class ModuleList extends Component {
 
                                     {
                                         this.state.selectedProperty == "relay" &&
-                                        Object.keys(propsData.data.actions.relay).map((key, index) => {
+                                        Object.keys(this.deviceData.actions.relay).map((key, index) => {
                                             let checked = false;
-                                            if (propsData.values.properties.relay[key] == 1) { checked = true; }
+                                            if (this.deviceValues.properties.relay[key] == 1) { checked = true; }
                                             return (
                                                 <div className="form-check form-check-inline" key={index}>
                                                     <input className="form-check-input" type="checkbox" id={key} name={`${this.props.dataType}[properties][relay][${key}]`} onChange={this.handleRelay} checked={checked} />

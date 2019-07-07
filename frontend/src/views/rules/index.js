@@ -204,7 +204,7 @@ export class RuleEdit extends Component {
             andComponents:[],
             thenComponents:[],
             ruleId:null,
-            ruleData:null,
+            ruleData:{},
             dataLoaded: false,
         }
     }
@@ -279,12 +279,25 @@ export class RuleEdit extends Component {
 
 
     renderDevice = (defaultProperties,setFieldValue,values,dataType) => {
+        
         if(dataType=="if"){
               values.rule_if = defaultProperties;
               setFieldValue(values.rule_if)
               this.setState({
                 ifComponents:[]
-              }) 
+              })
+        }
+
+        if(dataType=="and"){
+            values.rule_and = defaultProperties;
+            setFieldValue(values.rule_and)
+           
+        }
+
+        if(dataType=="then"){
+            values.rule_then = defaultProperties;
+            setFieldValue(values.rule_then)
+           
         }
         
         this.addComponent(defaultProperties,this.state.ruleData,dataType);  
@@ -341,13 +354,20 @@ export class RuleEdit extends Component {
             console.error(error)
         })
     }
+    
 
     
 
     render() {
        let myData = this.state.ruleData; 
+
+       const initialValues = {
+        "rule_if":{},
+        "rule_and":{},
+        "rule_then":{},
+        "published":0
+        }
        
-       console.log(this.state.ifComponents)
         return (
             <>
                 <Header name={this.props.name} icon={this.props.icon}></Header>
@@ -356,7 +376,7 @@ export class RuleEdit extends Component {
                     <>
                         <Formik
                             initialValues={
-                                myData
+                                Object.keys(myData).length == 0 ? initialValues : myData
                             }
                             // validate={}
                             onSubmit={(values, { setSubmitting }) => {
@@ -383,8 +403,8 @@ export class RuleEdit extends Component {
         <div className="card card-shadow mt-3">
                             <div className="card-body">
                                 <div className="row">
-                                {   
-                                    this.state.ifComponents.length != 0 ? (
+                                { 
+                                    this.state.ifComponents.length != 0 ? 
                                         this.state.ifComponents.map((result,index)=>{          
                                             let loadComponent = null;
                                             result.devices.map((device,index) => {
@@ -393,15 +413,11 @@ export class RuleEdit extends Component {
                                                 loadComponent = <Component values={values.rule_if} data={Data} handleBlur={handleBlur} handleChange={handleChange} dataType={`if`} setFieldValue={setFieldValue}/>
                                             })
                                             return (<div className="col-md-4" key={index}>{loadComponent}</div>);
-
-                                            
                                         })
-                                    ) : (
-                                        <>
-                                        Add Devices Here
-                                        <input className="form-control" type="hidden" value={"{}"} name={"rule_if"} onChange={handleChange} onBlur={handleBlur} />
-                                        </>
-                                    )
+                                         : (
+                                            <>Add If Devices Here</>
+                                           )
+                                    
                                 }
                                 </div>
                             </div>
@@ -411,6 +427,7 @@ export class RuleEdit extends Component {
                             <div className="card-body">
                             <div className="row">
                             {   
+                                this.state.andComponents.length != 0 ? 
                                 this.state.andComponents.map((result,index)=>{
                                     let loadComponent = null;
                                     result.devices.map((device,index) => {
@@ -419,16 +436,20 @@ export class RuleEdit extends Component {
                                         loadComponent = <Component data={Data}  dataType={`and[${index}]`}/>
                                     })
                                     return (<div className="col-md-4" key={index}>{loadComponent}</div>);
-                                })
+                                }): (
+                                    <>Add And Devices Here</>
+                                   )
                             }
                             </div>
                             </div>
+                            <AddDeviceModal renderAddedDevice={this.renderDevice} dataType={`and`} setFieldValue={setFieldValue} values={values}/> 
                         </div>
                         <div className="card card-shadow mt-3">
                             <div className="card-body">
                             <div className="row">
                             {   
-                                this.state.thenComponents.map((result,index)=>{
+                               this.state.thenComponents.length != 0 ? 
+                               this.state.thenComponents.map((result,index)=>{
                                     let loadComponent = null;
                                     result.devices.map((device,index) => {
                                         const Component = device.component;
@@ -436,10 +457,13 @@ export class RuleEdit extends Component {
                                         loadComponent = <Component values={values.rule_then} data={Data} handleBlur={handleBlur} handleChange={handleChange} dataType={`then`} setFieldValue={setFieldValue}/>
                                     })
                                     return (<div className="col-md-4" key={index}>{loadComponent}</div>);
-                                })
+                                }): (
+                                    <>Add Then Devices Here</>
+                                   )
                             }
                             </div>
                             </div>
+                            <AddDeviceModal renderAddedDevice={this.renderDevice} dataType={`then`} setFieldValue={setFieldValue} values={values}/> 
                         </div>
                         <button type="submit" disabled={isSubmitting}>
             Submit
