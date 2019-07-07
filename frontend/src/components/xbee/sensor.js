@@ -1,42 +1,37 @@
 import React from "react";
 
 
+export const ModuleList = (props) => {  
+   const data = props.data; 
+   let condition = "None";
 
-export const ModuleEdit = (props) => {
-    return (
-        <>
-        I Am Editing Sensor Module
-        </>
-    )
-}
-
-export const ModuleList = (props) => {
-   let condition = "";
-   if(props.data.ifData.condition == ">"){
-        condition = "Greater than";
-   }
-   if(props.data.ifData.condition == "<"){
-        condition = "Less than";
+   if(data.ifData){       
+        if(data.ifData.condition == ">"){
+                condition = "Greater than";
+        }
+        if(data.ifData.condition == "<"){
+                condition = "Less than";
+        }
     }
-    let properties = props.data.ifData.properties;
-    const online =  props.data.online;
+
     return (
-        <div className={`card card-outline-default h-100 ${online ? "" : "offline"}`}>
+        <div className={`card card-outline-default h-100 ${data.online ? "" : "offline"}`}>
             <div className="offline-icon text-danger"></div>
-            <div className="p-all-less">
-                
+            <div className="p-all-less">          
                 <span className="icon-1x icon-sensor icon-bg-info icon-left"></span>
-                <div className="text-bold">{props.data.name ? props.data.name : "..."}</div>
+                <div className="text-bold">{data.name ? data.name : "..."}</div>
                 <div className="text-secondary">
                     {
-                        Object.keys(properties).map((item, index) => (
+                        data.ifData && 
+                        Object.keys(data.ifData.properties).map((item, index) => (
                             <div key={index}>
                                 <span className="title-case">{item}&nbsp;</span>
-                           <span className="italics">{condition}&nbsp;</span>
-                                <span className="text-bold">{properties[item].value}</span>
+                                <span className="italics">{condition}&nbsp;</span>
+                                <span className="text-bold">{data.properties[item].value}</span>
                             </div>
                         ))
-                    }
+                        
+                    }{data.room_name ? data.room_name : "..."}
                 </div>
                 <div className="clearfix"></div>
             </div>

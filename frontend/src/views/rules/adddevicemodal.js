@@ -10,37 +10,54 @@ export class AddDeviceModal extends Component {
     this.handleHide = this.handleHide.bind(this);
     this.state = {
       show:false,
+      devices :[],
       dataLoaded: true,
     };
   }
 
 
-  getDeviceData = (props) => {
-    GetDevice(props.data.id, data => {
-      import(`../../components/${data.component}/${data.type}`)
-        .then(component => {
-          if (this._isMounted) {
-            this.setState({
-              modalDeviceRender: component.ModuleModal,
-              modalDeviceData: data,
-              dataLoaded: true,
-            })
-          }
-        }
-        ).catch(error => {
-          // console.error(`"${this.props.data.component} ${this.props.data.type}" not yet supported`);
-        });
-    })
-  }
-  
-
-
   componentDidMount() {
     this._isMounted = true;
-    if (this._isMounted) {
-      // this.getDeviceData(this.props)
-    }
-  }
+    fetch("/api/devices?type=0")
+        .then(response => response.json())
+        .then((result) => {
+            if (this._isMounted) {
+                result.map((item) => {
+                    import(`../../components/${item.component}/${item.type}`)
+                        .then(component => {
+                            const componentItem = {
+                                deviceComponent: component.ModuleList,
+                                deviceData: item,
+                            };
+
+                            this.setState({
+                                devices : { 
+                                    ...this.state.devices,
+                                    [item.id]: componentItem,
+                                },
+                                dataLoaded: true
+                            })
+
+                        }
+
+                        )
+                        .catch(error => {
+                            console.error(`"${item.component} ${item.type}" not yet supported`);
+
+                        });
+                })
+            }
+
+
+            result.map((item, index) => {
+                //Get all devices and check if it was already added to Main Provider Array If Not add it to the socket io stream once only.
+                
+
+            })
+               
+
+        })
+}
 
 
   componentWillUnmount() {
@@ -50,7 +67,6 @@ export class AddDeviceModal extends Component {
   handleShow() {
     this._isMounted = true;
     this.setState({ show: true });
-    this.getDeviceData(this.props)
   }
 
   handleHide = () => {
@@ -58,14 +74,29 @@ export class AddDeviceModal extends Component {
     this._isMounted = false;
   };
 
+
+  addDevice = (defaultProperties) => {
+    // if(this.props.dataType=="if"){
+    //   this.props.values.rule_if = type;
+    //   this.props.setFieldValue(this.props.values.rule_if)
+    // }
+    
+    this.props.renderAddedDevice(defaultProperties,this.props.setFieldValue,this.props.values,this.props.dataType);
+    this.handleHide();
+  }
+
+
   render() {
-    const ModalBody = this.state.modalDeviceRender;
-    let deviceData = this.state.modalDeviceData;
+    // const ModalBody = this.state.modalDeviceRender;
+    // let deviceData = this.state.modalDeviceData;
+    const { devices } = this.state;
+
+    // console.log(devices);
 
     return (
       this.state.dataLoaded == true &&
       <>
-        <button variant="primary" onClick={this.handleShow} className="show-device-props">
+        <button type="button" variant="primary" onClick={this.handleShow} className="show-device-props">
           <img src="assets/light/images/dots.svg" />
         </button>
         <Modal
@@ -79,8 +110,24 @@ export class AddDeviceModal extends Component {
             <h2 className="text-bold">Devices List</h2>
           </Modal.Header>
           <Modal.Body>
-            
-            All your devices list here
+            <div className="p-all-less">
+              <div className="row">
+            {
+                Object.keys(devices).map((key, index) => { 
+                    const Component = devices[key].deviceComponent;
+                    const Data = devices[key].deviceData;
+                   
+                    return(
+                        <div className="col-md-4 mb-3" key={index}>
+                             <Component key={index} data={Data} addDefaultProperties={this.addDevice} />
+                        </div>
+                    )
+                })
+
+            }
+            </div>
+           
+        </div>
           </Modal.Body>
         </Modal>
       </>

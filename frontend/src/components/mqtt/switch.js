@@ -31,13 +31,6 @@ const toggleState = (deviceId, relayIndex, relayState) => {
 
 }
 
-export const ModuleEdit = (props) => {
-    return (
-        <>
-        I Am Editing Switch Module
-        </>
-    )
-}
 
 
 export class ModuleList extends Component {
@@ -48,7 +41,12 @@ export class ModuleList extends Component {
                 selectedProperty:Object.keys(this.props.values.properties)[0] ? Object.keys(this.props.values.properties)[0] : Object.keys(this.props.data.properties)[0],
             }
         }
+
+        
     }
+
+    
+   
 
     onPropertyChange = (event) => {
         const selectedProperty = this.state.selectedProperty;
@@ -96,6 +94,16 @@ export class ModuleList extends Component {
         const relays = propsData.data.properties.relay;
         const online =  propsData.data.online;
 
+        const values = {
+            "energy":"Energy",
+            "relay":"Relay",
+            "power":"Power",
+            "apparant":"Apparant",
+            "voltage":"Voltage",
+            "current":"Current",
+            "vcc":"VCC"
+        }
+
        
     return (
             <div>
@@ -113,6 +121,7 @@ export class ModuleList extends Component {
                             return (
                                 <div className="p-all-less">
                                     {
+                                        
                                         this.state.selectedProperty == "relay" &&
                                         Object.keys(propsData.data.properties.relay).map((key, index) => {
                                             let checked = false;
@@ -134,11 +143,13 @@ export class ModuleList extends Component {
                                     </select>
 
                                     <select name="" value={this.state.selectedProperty} onChange={this.onSelectProperty}>
-                                        {
+                                        {    
                                             Object.keys(propsData.data.properties).map((property, index) => {
-                                                return (
-                                                    <option value={`${property}`} key={index}>{property}</option>
-                                                )
+                                                if(property in values){
+                                                    return (
+                                                        <option value={`${property}`} key={index}>{values[property]}</option>
+                                                    )
+                                                }
                                             })
                                         }
                                     </select>
@@ -157,9 +168,37 @@ export class ModuleList extends Component {
                                 <div>and</div>
                             )
                         } else if (propsData.values && propsData.dataType == "then") {
-                            console.log(this.props.data.actions)
+                            // console.log(this.props.data.actions)
                             return (
-                                <div>then</div>
+                                <div>
+
+                                    <select name="" value={this.state.selectedProperty} onChange={this.onSelectProperty}>
+                                        {
+                                            Object.keys(propsData.data.actions).map((property, index) => {
+                                                return (
+                                                    <option value={`${property}`} key={index}>{values[property]}</option>
+                                                )
+                                            })
+                                        }
+                                    </select>
+
+                                    {
+                                        this.state.selectedProperty == "relay" &&
+                                        Object.keys(propsData.data.actions.relay).map((key, index) => {
+                                            let checked = false;
+                                            if (propsData.values.properties.relay[key] == 1) { checked = true; }
+                                            return (
+                                                <div className="form-check form-check-inline" key={index}>
+                                                    <input className="form-check-input" type="checkbox" id={key} name={`${this.props.dataType}[properties][relay][${key}]`} onChange={this.handleRelay} checked={checked} />
+                                                    <label className="form-check-label">Relay {key}</label>
+                                                </div>
+                                            )
+                                        })
+                                    }
+                                        
+
+
+                                </div>
                             )
                         }
                     })()}
