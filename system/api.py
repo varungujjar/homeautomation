@@ -24,6 +24,12 @@ class Api:
         return web.json_response(rules)
 
 
+    async def getRulesSave(self,request):
+        formData = await request.json()
+        dbStoreRule(formData)
+        return web.json_response({})
+
+
     async def getNotifications(self,request):
         action = None
         if "action" in request.query:
@@ -102,15 +108,14 @@ class Api:
 
 
     def Routers(self,app):
-        # app.router.add_get('/', self.index)
         app.router.add_get('/api/rooms', self.getRooms)
         app.router.add_get('/api/devices', self.getDevices)
         app.router.add_get('/api/weather', self.getWeather)
         app.router.add_get('/api/horizon', self.getHorizon)
         app.router.add_get('/api/system', self.getSystem)
         app.router.add_post('/api/device', self.setDevice)
-        # app.router.add_get('/api/scenes', self.getDevices)
         app.router.add_get('/api/rules', self.getRules)
+        app.router.add_post('/api/rules/save', self.getRulesSave)
         app.router.add_get('/api/notifications', self.getNotifications)
         app.router.add_get('/api/components', self.getDevices)
 

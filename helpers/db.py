@@ -26,7 +26,7 @@ def Merge(oldProps, newProps):
 def formatData(data):
 	jsonItem = {}
 	for key, value in data.items():
-		if key in ["properties","actions","if","and","then"]:
+		if key in ["properties","actions","rule_if","rule_and","rule_then"]:
 			jsonItem[key] = eval(value)
 		else:	
 			jsonItem[key] = value
@@ -241,6 +241,36 @@ def dbPublished(tableName,id=None,published=None):
 		db.close()
 	return True
 
+
+def dbStoreRule(formData):
+	if "id" in formData:
+		try:
+			db = sqlite3.connect(db_path)
+			cur = db.cursor()
+			cur.execute("UPDATE rules SET rule_if=?, rule_and=?,  rule_then=?, published=?, trigger=1, modified=datetime(CURRENT_TIMESTAMP, 'localtime') WHERE id=?", (str(formData["rule_if"]), str(formData["rule_and"]), str(formData["rule_then"]), int(formData["published"]), int(formData["id"]) ))
+			db.commit()
+			logger.info('Rule Saved Successfully')
+			showNotification("success","Success","Your data was saved successfully")	
+		except Exception as err:
+			logger.error('[DB] Save Rule Error: %s' % (str(err)))
+			showNotification("error","DB Store Error","There was an error saving your data")
+		finally:
+			db.close()
+	return True
+
+
+def showNotification(type,title,message):
+	data = {}
+	data["type"] = type
+	data["title"] = title
+	data["message"] = message
+	# if(type=="success"):
+	# 	logger.success(str(data))
+	# elif(type=="error"):
+	# 	logger.error(str(data))
+	# elif(type=="warning"):
+	# 	logger.warning(str(data))			
+	sioConnect().emit('notification', data)		
 
 
 
