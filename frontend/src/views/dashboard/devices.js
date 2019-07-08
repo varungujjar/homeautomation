@@ -55,7 +55,7 @@ export class Devices extends Component {
 
     componentDidMount() {
         this._isMounted = true;
-        fetch("/api/devices")
+        fetch("/api/devices?type=1")
             .then(response => response.json())
             .then((result) => {
                 if (this._isMounted) {
@@ -83,12 +83,6 @@ export class Devices extends Component {
 
                             });
                     })
-
-                    // Promise.all(requests).then(() => {
-                    //         this.setState({
-                    //             dataLoaded: true
-                    //         });
-                    // })
                 }
 
 

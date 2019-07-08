@@ -4,7 +4,7 @@ import { Switch, Route, BrowserRouter as Router } from 'react-router-dom';
 import { Dashboard } from "./dashboard";
 import { Rules, RuleEdit } from "./rules";
 import { Settings } from "./settings";
-import { Horizon } from "../components/horizon/system";
+import { Horizon } from "../components/system/horizon";
 import { Weather } from "./dashboard/weather";
 import { Home } from "./dashboard/home";
 import { Timeline } from "./timeline";
