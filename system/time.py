@@ -13,7 +13,6 @@ TIMER = 1
 
 # external_sio = socketio.RedisManager('redis://', write_only=True)
 logger = logging.getLogger(__name__)
-
 UPDATE_EVERY = 1
 
 if __name__ == '__main__':

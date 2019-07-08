@@ -17,8 +17,8 @@ UTC = DEFAULT_TIME_ZONE = pytz.utc
 
 ZERO = timedelta(0)
 
-COMPONENT = "horizon"
-TYPE = "system"
+COMPONENT = "system"
+TYPE = "horizon"
 UPDATE_EVERY = 1
 
 def sun_horizon(sunrise,sunset): #if 1 above horizon if 0 below horzion

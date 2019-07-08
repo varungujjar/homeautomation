@@ -42,7 +42,7 @@ def dbGetConfig():
 		config = cur.fetchone()
 		db.commit()
 	except Exception as err:
-		logger.eror('[DB] Config Error: %s' % (str(err)))
+		logger.error('[DB] Config Error: %s' % (str(err)))
 	finally:
 		db.close()
 	return config
@@ -56,7 +56,7 @@ def dbInsertHistory(type,identifier,params=None,title=None,message=None,store=No
 			cur.execute("INSERT INTO notifications(type, identifier, params, title, message, read, created) VALUES(?,?,?,?,?,?,datetime(CURRENT_TIMESTAMP, 'localtime'))", (str(type), str(identifier),str(params),str(title),str(message),1))
 			db.commit()
 		except Exception as err:
-			logger.eror('[DB] Notification Error: %s' % (str(err)))
+			logger.error('[DB] Notification Error: %s' % (str(err)))
 		finally:
 			db.close()
 	data = {}
@@ -74,13 +74,13 @@ def dbSetDeviceStatus(id,status):
 		cur.execute("UPDATE devices SET online=?, modified=datetime(CURRENT_TIMESTAMP, 'localtime') WHERE id=?",(int(status),int(id)))
 		db.commit()
 	except Exception as err:
-		logger.eror('[DB] Device Update Status Error: %s' % (str(err)))
+		logger.error('[DB] Device Update Status Error: %s' % (str(err)))
 	finally:
 		db.close()
 
 
 def dbSyncDevice(type,prop,actions,address,component):
-	getDevice = dbGetDevice(component,address)
+	getDevice = dbGetDevice(component,type,address)
 	if not getDevice:
 		try:
 			db = sqlite3.connect(db_path)
@@ -88,7 +88,7 @@ def dbSyncDevice(type,prop,actions,address,component):
 			cur.execute("INSERT INTO devices(address, type, component, properties, actions, online, modified, created) VALUES(?,?,?,?,?,datetime(CURRENT_TIMESTAMP, 'localtime'),datetime(CURRENT_TIMESTAMP, 'localtime'))", (str(address), str(type), str(component),str(prop), str(actions), 1))
 			db.commit()
 		except Exception as err:
-			logger.eror('[DB] Device Insert Sync Error: %s' % (str(err)))
+			logger.error('[DB] Device Insert Sync Error: %s' % (str(err)))
 		finally:
 			db.close()	
 	else:
@@ -97,23 +97,24 @@ def dbSyncDevice(type,prop,actions,address,component):
 		try:
 			db = sqlite3.connect(db_path)
 			cur = db.cursor()
-			cur.execute("UPDATE devices SET type=?, properties=?, actions=?, modified=datetime(CURRENT_TIMESTAMP, 'localtime') WHERE address=? AND component=?",(str(type), str(combinedProperties), str(actions), str(address), str(component)))
+			cur.execute("UPDATE devices SET properties=?, actions=?, modified=datetime(CURRENT_TIMESTAMP, 'localtime') WHERE component=? AND type=? AND address=?",(str(combinedProperties), str(actions), str(component), str(type), str(address)))
 			db.commit()
 		except Exception as err:
-			logger.eror('[DB] Device Update Sync Error: %s' % (str(err)))
+			logger.error('[DB] Device Update Sync Error: %s' % (str(err)))
 		finally:
 			db.close()
-	thisDevice = dbGetDevice(component,address)
+	thisDevice = dbGetDevice(component,type,address)
 	sioConnect().emit(thisDevice["id"], thisDevice)
 	return thisDevice
 
+
 #needs to be combined with bottom dbgetall devices
-def dbGetDevice(component=None,address=None,id=None):
+def dbGetDevice(component=None,type=None,address=None,id=None):
 	db = sqlite3.connect(db_path)
 	db.row_factory = lambda c, r: dict([(col[0], r[idx]) for idx, col in enumerate(c.description)])
 	cur = db.cursor()
 	if id is None:
-		cur.execute('SELECT devices.*, rooms.id as room_id, rooms.name as room_name FROM devices LEFT JOIN rooms on room_id = rooms.id WHERE component=? AND address=?',(component,address))
+		cur.execute('SELECT devices.*, rooms.id as room_id, rooms.name as room_name FROM devices LEFT JOIN rooms on room_id = rooms.id WHERE component=? AND type=? AND address=?',(component,type,address))
 		device = cur.fetchone()
 	else:
 		cur.execute('SELECT devices.*, rooms.id as room_id, rooms.name as room_name FROM devices LEFT JOIN rooms on room_id = rooms.id WHERE devices.id=?',(id,))
@@ -126,6 +127,7 @@ def dbGetDevice(component=None,address=None,id=None):
 	return device
 
 
+
 def dbGetAllDevices(type=0):
 	#type = 0 include system devices
 	#type = 1 exclude system devices and featured devices
@@ -136,11 +138,11 @@ def dbGetAllDevices(type=0):
 		if(type==0):
 			cur.execute("SELECT devices.*, rooms.id as room_id, rooms.name as room_name FROM devices LEFT JOIN rooms on room_id = rooms.id ORDER BY 'order' ASC")
 		else:
-			cur.execute("SELECT devices.*, rooms.id as room_id, rooms.name as room_name FROM devices LEFT JOIN rooms on room_id = rooms.id WHERE type!=? AND featured=0 ORDER BY 'order' ASC",("system",))		
+			cur.execute("SELECT devices.*, rooms.id as room_id, rooms.name as room_name FROM devices LEFT JOIN rooms on room_id = rooms.id WHERE component!=? ORDER BY 'order' ASC",("system",))		
 		devices = cur.fetchall()
 		db.commit()
 	except Exception as err:
-		logger.eror('[DB] Get All Devices Error: %s' % (str(err)))
+		logger.error('[DB] Get All Devices Error: %s' % (str(err)))
 	finally:
 		db.close()
 	if devices is None:
@@ -162,7 +164,7 @@ def dbGetWeatherSensor():
 		device = cur.fetchone()
 		db.commit()
 	except Exception as err:
-		logger.eror('[DB] Weather Sensor Get Error: %s' % (str(err)))
+		logger.error('[DB] Weather Sensor Get Error: %s' % (str(err)))
 	finally:
 		db.close()
 	if device is None:
@@ -182,7 +184,7 @@ def dbDeleteRecordsTable(tableName):
 			cur.execute('DELETE FROM %s' % (tableName))		
 			db.commit()
 	except Exception as err:
-		logger.eror('[DB] Delete Records Error: %s' % (str(err)))
+		logger.error('[DB] Delete Records Error: %s' % (str(err)))
 	finally:
 		db.close()
 
@@ -209,7 +211,7 @@ def dbGetTable(tableName,id=None,published=None,order=None):
 			table = cur.fetchall()
 		db.commit()
 	except Exception as err:
-		logger.eror("[DB] Get Rules Error: %s" % (str(err)))
+		logger.error("[DB] Get Rules Error: %s" % (str(err)))
 	finally:
 		db.close()
 	if id:	
@@ -236,7 +238,7 @@ def dbPublished(tableName,id=None,published=None):
 		cur.execute("UPDATE %s SET published=%s, modified=datetime(CURRENT_TIMESTAMP, 'localtime') WHERE id=%s" % (tableName,int(published),int(id)))
 		db.commit()
 	except Exception as err:
-		logger.eror('[DB] Set Published Error: %s' % (str(err)))
+		logger.error('[DB] Set Published Error: %s' % (str(err)))
 	finally:
 		db.close()
 	return True
@@ -256,6 +258,17 @@ def dbStoreRule(formData):
 			showNotification("error","DB Store Error","There was an error saving your data")
 		finally:
 			db.close()
+	else:
+		try:
+			db = sqlite3.connect(db_path)
+			cur = db.cursor()
+			cur.execute("INSERT INTO devices(address, type, component, properties, actions, online, modified, created) VALUES(?,?,?,?,?,datetime(CURRENT_TIMESTAMP, 'localtime'),datetime(CURRENT_TIMESTAMP, 'localtime'))", (str(address), str(type), str(component),str(prop), str(actions), 1))
+			db.commit()
+		except Exception as err:
+			logger.error('[DB] Device Insert Sync Error: %s' % (str(err)))
+		finally:
+			db.close()
+
 	return True
 
 
@@ -281,7 +294,7 @@ def setRuleTriggerStatus(id,status):
 		cur.execute("UPDATE rules SET trigger=?, modified=datetime(CURRENT_TIMESTAMP, 'localtime') WHERE id=?",(int(status), int(id)))
 		db.commit()
 	except Exception as err:
-		logger.eror('[DB] Rule Set Active Error: %s' % (str(err)))
+		logger.error('[DB] Rule Set Active Error: %s' % (str(err)))
 	finally:
 		db.close()
 	return True

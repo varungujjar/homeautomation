@@ -57,9 +57,10 @@ class Api:
         id = None
         if "id" in request.query:
             id = int(request.query["id"])
-            devices = dbGetDevice(None,None,id)
-        else:    
-            devices = dbGetAllDevices(0)
+            devices = dbGetDevice(None,None,None,id)
+        else:
+            type = int(request.query["type"])    
+            devices = dbGetAllDevices(type)
         return web.json_response(devices)
     
 
@@ -69,7 +70,7 @@ class Api:
 
 
     async def getHorizon(self,request):
-        horizon = dbGetDevice("horizon","")
+        horizon = dbGetDevice("system","horizon","")
         return web.json_response(horizon)
 
 
@@ -82,7 +83,7 @@ class Api:
         requestParams = await request.json()
         deviceId = requestParams["device"]
         deviceAction = requestParams["actions"] 
-        getDevice = dbGetDevice(None,None,deviceId)
+        getDevice = dbGetDevice(None,None,None,deviceId)
         getDeviceProperties = getDevice["properties"]
         getDeviceActions = getDevice["actions"]
         if getDevice:
@@ -114,8 +115,10 @@ class Api:
         app.router.add_get('/api/horizon', self.getHorizon)
         app.router.add_get('/api/system', self.getSystem)
         app.router.add_post('/api/device', self.setDevice)
+
         app.router.add_get('/api/rules', self.getRules)
         app.router.add_post('/api/rules/save', self.getRulesSave)
+
         app.router.add_get('/api/notifications', self.getNotifications)
         app.router.add_get('/api/components', self.getDevices)
 

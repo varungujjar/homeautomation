@@ -24,8 +24,9 @@ async def eventsHandlerTimer():
 
 
 def eventsHandler(id=None):
+    dbSyncDevice("datetime",{},{},"","system")
     if id:
-        getDevice = dbGetDevice(None,None,id)
+        getDevice = dbGetDevice(None,None,None,id)
         external_sio.emit('message', str(getDevice["properties"]))
 
     logger.debug("Rule Check Started")
@@ -52,16 +53,14 @@ def validateIf(ruleData):
     ifProperties = ifDataJson["properties"]
     ifType = ifDataJson["condition"]
 
-    
-
     if ifDataJson["type"] == "device":
-        getDevice = dbGetDevice(None,None,ifDataJson["id"])
+        getDevice = dbGetDevice(None,None,None,ifDataJson["id"])
         getDeviceProperties = getDevice["properties"]
         getDevicePropertiesKeys = []
         for key, value in getDeviceProperties.items():
             getDevicePropertiesKeys.append(key)    
 
-        if getDevice:
+        if getDevice["type"]!= "datetime":
             for key, value in ifProperties.items():
                 if key in getDevicePropertiesKeys:
                     if isinstance(value,dict):
@@ -83,18 +82,17 @@ def validateIf(ruleData):
                     elif ifType == "<":
                         if getDeviceProperty < getIfProperty:
                             conditionStatus = True
-
+                            
+        elif getDevice["type"]== "datetime":
+            getIfHours = ifProperties["time"][0]
+            getIfMinutes = ifProperties["time"][1]
+            now = datetime.datetime.now()
+            #reference now.year, now.month, now.day, now.hour, now.minute, now.second
+            if now.weekday() in ifProperties["day"]:
+                if getIfHours == now.hour and getIfMinutes == now.minute and now.second == 0:
+                    conditionStatus = True
         else:
-            logger.warning("Device with %s Not Found" % str(ifDataJson["id"])) 
-
-    elif ifDataJson["type"] == "datetime":
-        getIfHours = ifProperties["time"][0]
-        getIfMinutes = ifProperties["time"][1]
-        now = datetime.datetime.now()
-        #reference now.year, now.month, now.day, now.hour, now.minute, now.second
-        if now.weekday() in ifProperties["day"]:
-            if getIfHours == now.hour and getIfMinutes == now.minute and now.second == 0:
-                conditionStatus = True
+            logger.warning("Device with %s Not Found" % str(ifDataJson["id"]))        
 
 
     else:
@@ -123,7 +121,7 @@ async def doThen(ruleData):
     ruleIDStr = str(ruleData["id"])
 
     if "type" in thenDataJson:
-        getDevice = dbGetDevice(None,None,thenDataJson["id"])
+        getDevice = dbGetDevice(None,None,None,thenDataJson["id"])
         getDeviceProperties = getDevice["properties"]
         getDeviceActions = getDevice["actions"]
         thenActions = thenDataJson["properties"]

@@ -47,7 +47,6 @@ class switch(object):
         
         
     def triggerAction(self,actions,deviceId):
-        print(deviceId)
         triggered = False
         if "relay" in actions:
             relays = actions["relay"]
@@ -60,7 +59,7 @@ class switch(object):
 
 
     def stateToggleChange(self,deviceId,relayId,state=None):
-        getDevice = dbGetDevice(None,None,deviceId)
+        getDevice = dbGetDevice(None,None,None,deviceId)
         if getDevice:      
             if getDevice["type"] == TYPE:        
                 deviceActions = getDevice["actions"]
@@ -88,8 +87,8 @@ class switch(object):
         return devicePropertiesData            
 
 
-    def checkStateChanged(self,deviceAddress,deviceProperties):
-        getDevice = dbGetDevice(COMPONENT,deviceAddress)
+    def checkStateChanged(self,type,deviceAddress,deviceProperties):
+        getDevice = dbGetDevice(COMPONENT,type,deviceAddress)
         state = False
         if getDevice:
             devicePropertiesLoad = getDevice["properties"]
@@ -129,7 +128,7 @@ class switch(object):
         else:
             pass
         state = False   
-        state = self.checkStateChanged(deviceAddress,deviceProperties)
+        state = self.checkStateChanged(deviceClass,deviceAddress,deviceProperties)
         dbSync = dbSyncDevice(deviceClass,deviceProperties,deviceActions,deviceAddress,COMPONENT)
 
         if dbSync and state:
