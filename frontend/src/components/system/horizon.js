@@ -2,28 +2,96 @@ import React, {Component} from "react";
 import { socket } from "../../system/socketio";
 import { DeviceModal } from "../../views/common/devicemodal";
 
-export const ModuleEdit = (props) => {
-    return (
-        <>
-        I Am Editing Horizon Module
-        </>
-    )
-}
 
-export const ModuleList = (props) => {
-    const horizon = props.data.properties.astral.above_horizon;
-    return (
-        <div className="card card-outline-default">
-            <div className="p-all-less">
-            <span className={`icon-1x icon-left ${horizon == "true" ? "icon-bg-warning icon-sunrise " : "icon-bg-dark icon-moon"}`}></span>
-                <div className="text-bold">{horizon == "true" ? ("Sun Above Horizon") : ("Sun Below Horizon")}</div>
-                <div className="text-secondary">
-                {horizon == "true" ? ("On Sunrise") : ("On Sunset")}
+export class ModuleList extends Component {
+    constructor(props) {
+        super(props);
+        this._isMounted = false;
+        this.defaultIfAndProperties = {"type": "device", "condition": "=", "id": this.props.data.id, "properties": {'astral':{"above_horizon":this.props.data.properties.astral.above_horizon}}};
+        if(this.props.values){
+            let devicesValues = {}
+            if(this.props.dataType=="if"){
+                devicesValues = this.props.values.rule_if[this.props.indexMap];
+            }else if(this.props.dataType=="and"){
+                devicesValues = this.props.values.rule_and[this.props.indexMap];
+            }else if(this.props.dataType=="then"){
+                devicesValues = this.props.values.rule_then[this.props.indexMap];
+            }
+            this.deviceValues = devicesValues;
+        }   
+        this.deviceData = this.props.data;
+        if(this.deviceValues){
+            this.state = {
+                selectedProperty:this.deviceValues.properties.astral.above_horizon ? this.deviceValues.properties.astral.above_horizon : this.deviceData.properties.astral.above_horizon,
+            }
+        }
+    }
+
+    componentDidMount() {
+        this._isMounted = true;
+        if (this._isMounted) {
+        }
+    }    
+
+    onSelectProperty = (selectedProperty) => {
+        this.setState({
+            selectedProperty: selectedProperty.currentTarget.value
+        })
+        this.deviceData.properties.astral.above_horizon = selectedProperty.currentTarget.value
+        this.deviceValues.properties.astral.above_horizon = selectedProperty.currentTarget.value;
+        this.props.setFieldValue(this.deviceValues.properties.astral.above_horizon)
+    } 
+
+    
+    componentWillUnmount() {
+        this._isMounted = false;
+    }
+
+    render(){
+        return (
+                <div>
+                     <div className="card card-outline-default">
+                        <div className="p-all-less">
+                        <span className={`icon-1x icon-left ${this.deviceData.properties.astral.above_horizon == "true" ? "icon-bg-warning icon-sunrise " : "icon-bg-dark icon-moon"}`}></span>
+                            <div className="text-bold">{this.deviceData.properties.astral.above_horizon == "true" ? ("Sun Above Horizon") : ("Sun Below Horizon")}</div>
+                            <div className="text-secondary">
+                            {this.deviceData.properties.astral.above_horizon == "true" ? ("On Sunrise") : ("On Sunset")}
+                            </div>
+                            <div className="clearfix"></div>
+                            {
+                                this.props.addDefaultProperties && ( this.props.dataType == "if" || this.props.dataType == "and" )&& (
+                                    <button type="button" variant="primary" onClick={() => {this.props.addDefaultProperties(this.defaultIfAndProperties)}}>+ ADD If AND</button>
+                                )
+                            }
+                           
+                            {
+                            this.deviceValues &&
+                            (() => {
+                            if (this.props.dataType == "if" || this.props.dataType == "and") {
+                                return (
+                                        <>
+                                        <input type="hidden" name={`${this.props.dataType}[condition]`} value={this.deviceValues.condition} onChange={this.props.handleChange}/>
+                                            
+                                        <select name="" value={this.state.selectedProperty} onChange={this.onSelectProperty}>
+                                           <option value="false">On Sunset</option>
+                                           <option value="true">On Sunrise</option>
+                                        </select>
+                                        </>
+                                    
+                                )
+                            }
+                        })()
+                        }
+                        {
+                             this.deviceValues && (
+                                <button type="button" variant="primary" onClick={() => {this.props.deleteDefaultProperties(this.props.indexMap, this.props.setFieldValue, this.props.values, this.props.dataType)}}>- Remove</button>
+                             ) 
+                        }
+                        </div>
+                    </div>
                 </div>
-                <div className="clearfix"></div>
-            </div>
-        </div>
-    )
+            )
+    }
 }
 
 
@@ -34,6 +102,7 @@ export const ModuleModal = (props) => {
         </div>
     )
 }
+
 
 export const Module = (props) => {
     const device = props.data;
@@ -52,7 +121,6 @@ export const Module = (props) => {
             </div>
         </div>
     )
-    
 }
 
 

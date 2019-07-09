@@ -9,8 +9,8 @@ export class Rules extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            ifComponents:[],
-            list:[],
+            ifComponents: [],
+            list: [],
             dataLoaded: false,
         }
     }
@@ -21,61 +21,52 @@ export class Rules extends Component {
             const ifData = item.rule_if;
             const andData = item.rule_and;
             const thenData = item.rule_then;
-            const ifDataType = ifData["type"]
             let devicesList = [];
-            // const ifDataType = Object.keys(ifData)[0];
-
-            if(ifDataType=="device"){
-                GetDevice(ifData["id"],data => {
-                    import(`../../components/${data.component}/${data.type}`)
-                    .then(component => {
-                     
-                        var mergeJSON = require("merge-json") ;
-                        var devicePropertiesMerged = {"properties":mergeJSON.merge(data.properties,ifData.properties)};  
-                        var deviceDataMerged = mergeJSON.merge(data,devicePropertiesMerged);
-                        var ruleData = {"ifData":ifData, "andData":andData, "thenData":thenData}
-                        var deviceDataMergedResult = mergeJSON.merge(deviceDataMerged,ruleData);
-                        
-                        const deviceData = {
-                            id:deviceDataMerged.id, 
-                            data:deviceDataMergedResult, 
-                            component:component.ModuleList
-                        }
-
-                        devicesList.push(deviceData); 
-
-                        const ifComponentData = {
-                            id : item.id,
-                            devices : devicesList
-                        }
-
-                        this.setState({
-                            ifComponents: this.state.ifComponents.concat(ifComponentData),
-                        })
-
-                    })
-                    .catch(error => {
-                        console.error(`"${data.type}" not yet supported`);
-                    });
-                })
-            }
+            const conditionData = ifData;    
             
+
+            if (conditionData.length > 0) {
+                conditionData.map((condition, index) => {
+                    const DataType = condition["type"]    
+                    if (DataType == "device") {
+                        GetDevice(ifData["id"], data => {
+                            import(`../../components/${data.component}/${data.type}`)
+                                .then(component => {
+                                    var mergeJSON = require("merge-json");
+                                    var devicePropertiesMerged = { "properties": mergeJSON.merge(data.properties, ifData.properties) };
+                                    var deviceDataMerged = mergeJSON.merge(data, devicePropertiesMerged);
+                                    var ruleData = { "ifData": ifData, "andData": andData, "thenData": thenData }
+                                    var deviceDataMergedResult = mergeJSON.merge(deviceDataMerged, ruleData);
+
+                                    const deviceData = {
+                                        id: deviceDataMerged.id,
+                                        data: deviceDataMergedResult,
+                                        component: component.ModuleList
+                                    }
+
+                                    devicesList.push(deviceData);
+
+                                    const ifComponentData = {
+                                        id: item.id,
+                                        devices: devicesList
+                                    }
+
+                                    this.setState({
+                                        ifComponents:ifComponentData,
+                                    })
+
+                                })
+                                .catch(error => {
+                                    console.error(`"${data.type}" not yet supported`);
+                                });
+                        })
+                    }
+            })
+        }
+
         })
     }
-    
 
-    // addComponent = (component,id,data) => {
-    //     const componentItem = {
-    //         id: id,
-    //         data : data,
-    //         component:component.ModuleRuleListing,
-    //     };
-    //     this.setState({
-    //         components: this.state.components.concat(componentItem),
-    //     })
-    // }
-
-    
     componentDidMount() {
         this._isMounted = true;
         fetch("/api/rules")
@@ -86,7 +77,6 @@ export class Rules extends Component {
                         list: result.sort((a, b) => a.id - b.id),
                     });
                     this.renderResult(result);
-                    // console.log(result);
                     this.setState({
                         dataLoaded: true
                     })
@@ -95,11 +85,10 @@ export class Rules extends Component {
             .catch((error) => {
                 console.error(error)
             })
-           
     }
 
 
-    togglePublished = (ruleId,publishState) => {
+    togglePublished = (ruleId, publishState) => {
         fetch(`/api/rules?id=${ruleId}&published=${publishState ? 0 : 1}`)
             .then(response => response.json())
             .then((result) => {
@@ -107,86 +96,83 @@ export class Rules extends Component {
                     let list = [];
                     list = this.state.list.filter(item => item.id != result.id).concat(result).sort((a, b) => a.id - b.id);
                     this.setState({
-                        list:list,
+                        list: list,
                         dataLoaded: true,
                     })
                 }
-                
+
             })
             .catch((error) => {
                 console.error(error)
             })
     }
-  
 
-    componentWillUnmount() {  
+
+    componentWillUnmount() {
         this._isMounted = false;
     }
-    
 
-   
+
+
     render() {
-
         return (
             <>
                 <Header name={this.props.name} icon={this.props.icon}></Header>
-                <Link to={{ pathname: `/rules/0`, data:null }} className="btn btn-info mb-2"><i className="fas fa-plus-circle"></i> Create New Rule</Link>
+                <Link to={{ pathname: `/rules/0`, data: null }} className="btn btn-info mb-2"><i className="fas fa-plus-circle"></i> Create New Rule</Link>
 
                 <div className="card card-shadow mt-3">
-                {this.state.dataLoaded && (
-                    this.state.list.map((item, index) => {
+                    {this.state.dataLoaded && (
+                        this.state.list.map((item, index) => {
+                            return (
+                                <div key={index} className="list-item">
+                                    <div className="p-all-less">
+                                        <div className="row">
+                                            <div className="col-md-1 text-center text-lg text-bold v-center">
+                                                <div className="content-v-center">
+                                                    <span className="icon-1x icon-bg-info text-bold ">if</span>
 
-                        return (
-                            <div key={index} className="list-item">
-                            <div className="p-all-less">
-                                <div className="row">
-                                    <div className="col-md-1 text-center text-lg text-bold v-center">
-                                        <div className="content-v-center">
-                                            <span className="icon-1x icon-bg-info text-bold ">if</span>
-
-                                        </div>
-                                    </div>
-                                    <div className="col-md-5">
-                                        {        
-                                            this.state.ifComponents.map((result,index)=>{
-                                                let loadComponent = null;
-                                                if(result.id==item.id){
-                                                     result.devices.map((device,index) =>{
+                                                </div>
+                                            </div>
+                                            <div className="col-md-5">
+                                            {
+                                                this.state.ifComponents.devices ?
+                                                    this.state.ifComponents.devices.map((device, index) => {
                                                         const Component = device.component;
                                                         const Data = device.data;
-                                                        // console.log(Data);
-                                                        loadComponent = <Component data={Data} />
-                                                    })
-                                                   return (<div key={index}>{loadComponent}</div>);
+                                                        const indexMap = device.index;
+                                                        return (
+                                                            <div className="col-md-4" key={index}>
+                                                                <Component key={index} data={Data}/>
+                                                            </div>
+                                                        )
+                                                    }) : (
+                                                        <>No If Devices Here</>
+                                                    )
+                                            }    
+                                            </div>
+                                            <div className="col-md-3 text-right v-center">
+                                                <span className="badge-1x icon-bg-info text-bold">then</span>
+                                            </div>
+                                            <div className="col-md-2 text-right v-center">
+                                                <Link to={{ pathname: `/rules/${item.id}`, data: item }} className="btn "><img src="assets/light/images/dots.svg" /></Link>
+                                            </div>
+                                            <div className="col-md-1 text-right v-center text-xl">
+                                                {
+                                                    item.published ?
+                                                        (
+                                                            <><i className=" text-lg text-success fas fa-check-circle" onClick={() => this.togglePublished(item.id, item.published)}></i></>
+                                                        ) :
+                                                        (
+                                                            <><i className="text-lg text-lg text-muted fas fa-times-circle" onClick={() => this.togglePublished(item.id, item.published)}></i></>
+                                                        )
                                                 }
-                                            })
-
-                                        }
-                                        
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div className="col-md-3 text-right v-center">
-                                    <span className="badge-1x icon-bg-info text-bold">then</span>
-                                    </div>
-                                    <div className="col-md-2 text-right v-center">
-                                    <Link to={{ pathname: `/rules/${item.id}`, data: item }} className="btn "><img src="assets/light/images/dots.svg" /></Link>
-                                        </div>    
-                                    <div className="col-md-1 text-right v-center text-xl">
-                                        {
-                                            item.published ?
-                                                (
-                                                    <><i className=" text-lg text-success fas fa-check-circle" onClick={() => this.togglePublished(item.id, item.published)}></i></>
-                                                ) :
-                                                (
-                                                    <><i className="text-lg text-lg text-muted fas fa-times-circle" onClick={() => this.togglePublished(item.id, item.published)}></i></>
-                                                )
-                                        }
-                                    </div>
-                                </div>
-                            </div>
-                        </div>)
-                    })
-                )
-                }
+                                </div>)
+                        })
+                    )
+                    }
                 </div>
             </>)
     }
@@ -197,142 +183,217 @@ export class Rules extends Component {
 
 
 export class RuleEdit extends Component {
-    constructor(props) {       
+    constructor(props) {
         super(props);
+        this._isMounted = false;
         this.state = {
-            ifComponents:[],
-            andComponents:[],
-            thenComponents:[],
-            ruleId:null,
-            ruleData:{},
+            ifComponents: [],
+            andComponents: [],
+            thenComponents: [],
+            ruleData: [],
             dataLoaded: false,
         }
+        this.initialValues = {
+            "rule_if": [],
+            "rule_and": [],
+            "rule_then": [],
+            "published": 0
+        }
     }
 
 
-    addComponent = (conditionData,ruleData,type) => {
-        const DataType = conditionData["type"]
+    // renderComponents = (type) => {
+
+
+    // }
+
+    uuidv4Key = () => {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+        })
+    }
+
+
+    refreshComponent = (conditionData,type) => {
+        if(this._isMounted){
         let devicesList = [];
+        if (conditionData.length > 0) {
+            conditionData.map((condition, index) => {
+                
+                const DataType = condition["type"]
+                if (DataType == "device") {
+
+                    GetDevice(condition["id"], data => {
+                        import(`../../components/${data.component}/${data.type}`)
+                            .then(component => {
+
+                                var mergeJSON = require("merge-json");
+                                var devicePropertiesMerged = { "properties": mergeJSON.merge(data.properties, condition.properties) };
+                                var deviceDataMerged = mergeJSON.merge(data, devicePropertiesMerged);
+
+                                const deviceData = {
+                                    id: deviceDataMerged.id,
+                                    indexMap: index,
+                                    data: deviceDataMerged,
+                                    component: component.ModuleList,
+                                    // uniqueKey:Date.now() + Math.random(),
+                                }
+
+                                devicesList.push(deviceData);
+
+                                if (type == "if") {
+                                    const ifComponentData = {
+                                        devices: devicesList
+                                    }
+                                    this.setState({
+                                        // ...this.state.ifComponents.devices,
+                                        ifComponents: ifComponentData,
+                                        dataLoaded: true
+                                    })
+                                }
+
+                                if (type == "and") {
+                                    const andComponentData = {
+                                        devices: devicesList
+                                    }
+                                    this.setState({
+                                        // ...this.state.andComponents.devices,
+                                        andComponents: andComponentData,
+                                        dataLoaded: true
+                                    })
+                                }
+
+                                if (type == "then") {
+                                    const thenComponentData = {
+                                        devices: devicesList
+                                    }
+                                    this.setState({
+                                        // ...this.state.thenComponents.devices,
+                                        thenComponents: thenComponentData,
+                                        dataLoaded: true
+                                    })
+                                }
 
 
-        if(DataType=="device"){
-            GetDevice(conditionData["id"],data => {
-                import(`../../components/${data.component}/${data.type}`)
-                .then(component => {
-                 
-                    var mergeJSON = require("merge-json") ;
-                    var devicePropertiesMerged = {"properties":mergeJSON.merge(data.properties,conditionData.properties)};  
-                    var deviceDataMerged = mergeJSON.merge(data,devicePropertiesMerged);
-                    var ruleDataRaw = {"ruleId":this.state.ruleId,"ifData":ruleData.rule_if, "andData":ruleData.rule_and, "thenData":ruleData.rule_then}
-                    var deviceDataMergedResult = mergeJSON.merge(deviceDataMerged,ruleDataRaw);
-                    
-                    const deviceData = {
-                        id:deviceDataMerged.id, 
-                        data:deviceDataMergedResult, 
-                        component:component.ModuleList
-                    }
+                            })
+                            .catch(error => {
+                                console.error(`"${data.type}" not yet supported`);
+                            });
+                    })
 
-                    devicesList.push(deviceData); 
-
-                    if(type=="if"){
-                        
-                        const ifComponentData = {
-                            id : ruleData.id,
-                            devices : devicesList
-                        }
-    
-                        this.setState({
-                            ifComponents: this.state.ifComponents.concat(ifComponentData),
-                        })
-                    }
-                    if(type=="and"){
-                        const andComponentData = {
-                            id : ruleData.id,
-                            devices : devicesList
-                        }
-    
-                        this.setState({
-                            andComponents: this.state.andComponents.concat(andComponentData),
-                        })
-                    }
-                    if(type=="then"){
-                        
-                        const thenComponentData = {
-                            id : ruleData.id,
-                            devices : devicesList
-                        }
-    
-                        this.setState({
-                            thenComponents: this.state.thenComponents.concat(thenComponentData),
-                        })
-                    }
-                    
-
-                })
-                .catch(error => {
-                    console.error(`"${data.type}" not yet supported`);
-                });
+                }
             })
-        }
+        }else{
+            if (type == "if") {
+                this.setState({
+                    ifComponents:[],
+                    dataLoaded: true
+                })
+            }
 
+            if (type == "and") {
+                this.setState({
+                    andComponents: [],
+                    dataLoaded: true
+                })
+            }
+
+            if (type == "then") {
+                this.setState({
+                    thenComponents: [],
+                    dataLoaded: true
+                })
+            }
+        }
+    }
     }
 
 
-    renderDevice = (defaultProperties,setFieldValue,values,dataType) => {
-        
-        if(dataType=="if"){
-              values.rule_if = defaultProperties;
-              setFieldValue(values.rule_if)
-              this.setState({
-                ifComponents:[]
-              })
-        }
+    deleteDevice = (indexMap, setFieldValue, values, dataType) => {
+            if (dataType == "if") {
+                const rule_if = this.initialValues.rule_if.splice(indexMap,1);
+                this.setState({
+                    ruleIf:rule_if
+                })
+                this.refreshComponent(this.initialValues.rule_if,dataType);
+            }
+            if (dataType == "and") {
+                const rule_and = this.initialValues.rule_and.splice(indexMap,1);
+                this.setState({
+                    ruleAnd:rule_and
+                })
+                this.refreshComponent(this.initialValues.rule_and,dataType);
+            }
+            if (dataType == "then") {
+                const rule_then = this.initialValues.rule_then.splice(indexMap,1);
+                this.setState({
+                    ruleAnd:rule_then
+                })
+                this.refreshComponent(this.initialValues.rule_then,dataType);
+            }
 
-        if(dataType=="and"){
-            values.rule_and = defaultProperties;
-            setFieldValue(values.rule_and)
-           
-        }
-
-        if(dataType=="then"){
-            values.rule_then = defaultProperties;
-            setFieldValue(values.rule_then)
-           
-        }
-        
-        this.addComponent(defaultProperties,this.state.ruleData,dataType);  
     }
 
+    shouldComponentUpdate(){
+        return true;
+    } 
+
+    addDevice = (defaultProperties, setFieldValue, values, dataType) => {
+            if (dataType == "if") {
+                this.initialValues.rule_if = [defaultProperties];
+                this.setState({
+                    ruleIf:this.initialValues.rule_if
+                })
+                this.refreshComponent(this.initialValues.rule_if,dataType);
+            }
+            if (dataType == "and") {
+                this.initialValues.rule_and = this.initialValues.rule_and.concat(defaultProperties);
+                this.setState({
+                    ruleAnd:this.initialValues.rule_and
+                })
+                this.refreshComponent(this.initialValues.rule_and,dataType);
+            }
+            if (dataType == "then") {
+                this.initialValues.rule_then = this.initialValues.rule_then.concat(defaultProperties);
+                this.setState({
+                    ruleAnd:this.initialValues.rule_then
+                })
+                this.refreshComponent(this.initialValues.rule_then,dataType);
+            }
+            
+    }
 
     componentDidMount() {
         this._isMounted = true;
-        if(this.props.match.params.id!=0){
-            fetch(`/api/rules?id=${this.props.match.params.id}`)
-                .then(response => response.json())
-                .then((result) => {
-                    if (this._isMounted) {
-                        this.setState({
-                            ruleId:this.props.match.params.id,
-                            ruleData:result,
-                            dataLoaded: true
-                        })
-                        this.addComponent(result.rule_if,result,"if");
-                        this.addComponent(result.rule_and,result,"and");
-                        this.addComponent(result.rule_then,result,"then");        
-                    }     
+        if (this._isMounted) {
+            if (this.props.match.params.id != 0) {
+                fetch(`/api/rules?id=${this.props.match.params.id}`)
+                    .then(response => response.json())
+                    .then((result) => {
+                            this.setState({
+                                ruleData: result,
+                            })
+                            this.initialValues.rule_if = result.rule_if
+                            this.initialValues.rule_and = result.rule_and
+                            this.initialValues.rule_then = result.rule_then
+                            this.refreshComponent(result.rule_if,"if");
+                            this.refreshComponent(result.rule_and,"and");
+                            this.refreshComponent(result.rule_then,"then");               
+                    })
+                    .catch((error) => {
+                        console.error(error)
+                    })
+            } else {
+                this.setState({
+                    dataLoaded: true
                 })
-                .catch((error) => {
-                    console.error(error)
-                })
-        }else{
-            this.setState({
-                dataLoaded: true
-            })
-        }           
+            }
+        }
     }
 
 
-    componentWillUnmount() {  
+    componentWillUnmount() {
         this._isMounted = false;
     }
 
@@ -346,137 +407,130 @@ export class RuleEdit extends Component {
             },
             body: JSON.stringify(data)
         })
-        .then(response => response.json())
-        .then((result) => {
-           console.log(result);
-        })
-        .catch((error) => {
-            console.error(error)
-        })
+            .then(response => response.json())
+            .then((result) => {
+                console.log(result);
+            })
+            .catch((error) => {
+                console.error(error)
+            })
     }
-    
 
-    
+
+
 
     render() {
-       let myData = this.state.ruleData; 
-
-       const initialValues = {
-        "rule_if":{},
-        "rule_and":{},
-        "rule_then":{},
-        "published":0
-        }
-       
         return (
             <>
                 <Header name={this.props.name} icon={this.props.icon}></Header>
-                {this.state.dataLoaded &&                 
-                (
-                    <>
-                        <Formik
-                            initialValues={
-                                Object.keys(myData).length == 0 ? initialValues : myData
-                            }
-                            // validate={}
-                            onSubmit={(values, { setSubmitting }) => {
-                                // this.saveFormData(values);
-                                console.log(values);
-                                setSubmitting(false);
-                            }}
+                {this.state.dataLoaded &&
+                    (
+                        <>
+                            <Formik
+                                enableReinitialize
+                                initialValues={this.initialValues}
+                                // validate={}
+                                onSubmit={(values, { setSubmitting }) => {
+                                    // this.saveFormData(values);
+                                    console.log(values);
+                                    setSubmitting(false);
+                                }}
 
-                            handleChange = {(event) => {
-                                console.log(event);
-                            }}
-                            >               
-                        {({
-        values,
-        errors,
-        touched,
-        handleChange,
-        handleBlur,
-        setFieldValue,
-        handleSubmit,
-        isSubmitting,
-      }) => (
-        <form onSubmit={handleSubmit}>
-        <div className="card card-shadow mt-3">
-                            <div className="card-body">
-                                <div className="row">
-                                { 
-                                    this.state.ifComponents.length != 0 ? 
-                                        this.state.ifComponents.map((result,index)=>{          
-                                            let loadComponent = null;
-                                            result.devices.map((device,index) => {
-                                                const Component = device.component;
-                                                const Data = device.data;
-                                                loadComponent = <Component values={values.rule_if} data={Data} handleBlur={handleBlur} handleChange={handleChange} dataType={`if`} setFieldValue={setFieldValue}/>
-                                            })
-                                            return (<div className="col-md-4" key={index}>{loadComponent}</div>);
-                                        })
-                                         : (
-                                            <>Add If Devices Here</>
-                                           )
-                                    
-                                }
-                                </div>
-                            </div>
-                            <AddDeviceModal renderAddedDevice={this.renderDevice} dataType={`if`} setFieldValue={setFieldValue} values={values}/> 
-                        </div>
-                        <div className="card card-shadow mt-3">
-                            <div className="card-body">
-                            <div className="row">
-                            {   
-                                this.state.andComponents.length != 0 ? 
-                                this.state.andComponents.map((result,index)=>{
-                                    let loadComponent = null;
-                                    result.devices.map((device,index) => {
-                                        const Component = device.component;
-                                        const Data = device.data;
-                                        loadComponent = <Component data={Data}  dataType={`and[${index}]`}/>
-                                    })
-                                    return (<div className="col-md-4" key={index}>{loadComponent}</div>);
-                                }): (
-                                    <>Add And Devices Here</>
-                                   )
-                            }
-                            </div>
-                            </div>
-                            <AddDeviceModal renderAddedDevice={this.renderDevice} dataType={`and`} setFieldValue={setFieldValue} values={values}/> 
-                        </div>
-                        <div className="card card-shadow mt-3">
-                            <div className="card-body">
-                            <div className="row">
-                            {   
-                               this.state.thenComponents.length != 0 ? 
-                               this.state.thenComponents.map((result,index)=>{
-                                    let loadComponent = null;
-                                    result.devices.map((device,index) => {
-                                        const Component = device.component;
-                                        const Data = device.data;
-                                        loadComponent = <Component values={values.rule_then} data={Data} handleBlur={handleBlur} handleChange={handleChange} dataType={`then`} setFieldValue={setFieldValue}/>
-                                    })
-                                    return (<div className="col-md-4" key={index}>{loadComponent}</div>);
-                                }): (
-                                    <>Add Then Devices Here</>
-                                   )
-                            }
-                            </div>
-                            </div>
-                            <AddDeviceModal renderAddedDevice={this.renderDevice} dataType={`then`} setFieldValue={setFieldValue} values={values}/> 
-                        </div>
-                        <button type="submit" disabled={isSubmitting}>
-            Submit
-          </button>
-        </form>
-      )}
-                        </Formik>
-                    </>
+                                handleChange={(event) => {
+                                    console.log(event);
+                                }}
+                            >
+                                {({
+                                    values,
+                                    errors,
+                                    touched,
+                                    handleChange,
+                                    handleBlur,
+                                    setFieldValue,
+                                    handleSubmit,
+                                    isSubmitting,
+                                }) => (
+                                        <form onSubmit={handleSubmit}>
+                                            <div className="card card-shadow mt-3">
+                                                <div className="card-body">
+                                                    <div className="row">
+                                                        {console.log("rela")}
+                                                        {
+                                                            this.state.ifComponents.devices ?
+                                                                this.state.ifComponents.devices.map((device, index) => {
+                                                                    const Component = device.component;
+                                                                    const Data = device.data;
+                                                                    const indexMap = device.indexMap;
+                                                                    return (
+                                                                        <div className="col-md-4" key={index}>
+                                                                            <Component key={index} indexMap={indexMap} values={values} data={Data} handleChange={handleChange} dataType={`if`} setFieldValue={setFieldValue} deleteDefaultProperties={this.deleteDevice}/>
+                                                                        </div>
+                                                                    )
+                                                                }) : (
+                                                                    <>Add If Devices Here</>
+                                                                )
+                                                        }
 
-                )
-                
+                                                    </div>
+                                                </div>
+                                                <AddDeviceModal renderAddedDevice={this.addDevice} dataType={`if`} setFieldValue={setFieldValue} values={values} />
+                                            </div>
+                                            <div className="card card-shadow mt-3">
+                                                <div className="card-body">
+                                                    <div className="row">
+                                                        {
+                                                          
+                                                            this.state.andComponents.devices ?
+                                                                this.state.andComponents.devices.map((device, index) => {
+                                                                    const Component = device.component;
+                                                                    const Data = device.data;
+                                                                    const indexMap = device.indexMap;
+                                                                    console.log(Data)
+                                                                    return (
+                                                                        <div className="col-md-4" key={index}>
+                                                                            <Component key={index} indexMap={indexMap} values={values} data={Data} handleChange={handleChange} dataType={`and`} setFieldValue={setFieldValue} deleteDefaultProperties={this.deleteDevice} />
+                                                                        </div>
+                                                                    )
+                                                                }) : (
+                                                                    <>Add And Devices Here</>
+                                                                )
+                                                        }
+                                                    </div>
+                                                </div>
+                                                <AddDeviceModal renderAddedDevice={this.addDevice} dataType={`and`} setFieldValue={setFieldValue} values={values} />
+                                            </div>
+                                            <div className="card card-shadow mt-3">
+                                                <div className="card-body">
+                                                    <div className="row">
+                                                        {
+                                                            this.state.thenComponents.devices ?
+                                                                this.state.thenComponents.devices.map((device, index) => {
+                                                                    const Component = device.component;
+                                                                    const Data = device.data;
+                                                                    const indexMap = device.indexMap;
+                                                                    return (
+                                                                        <div className="col-md-4" key={index}>
+                                                                            <Component key={index} indexMap={indexMap} values={values} data={Data} handleChange={handleChange} dataType={`then`} setFieldValue={setFieldValue} deleteDefaultProperties={this.deleteDevice}/>
+                                                                        </div>
+                                                                    )
+                                                                }) : (
+                                                                    <>Add Then Devices Here</>
+                                                                )
+                                                        }
+                                                    </div>
+                                                </div>
+                                                <AddDeviceModal renderAddedDevice={this.addDevice} dataType={`then`} setFieldValue={setFieldValue} values={values} />
+                                            </div>
+                                            <button type="submit" disabled={isSubmitting}>
+                                                Submit
+                                            </button>
+                                        </form>
+                                    )}
+                            </Formik>
+                        </>
+                    )
                 }
-            </>)    
+            </>)
     }
 }
 

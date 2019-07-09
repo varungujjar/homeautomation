@@ -11,17 +11,17 @@ export class AddDeviceModal extends Component {
     this.state = {
       show:false,
       devices :[],
-      dataLoaded: true,
+      dataLoaded:false,
     };
   }
 
 
   componentDidMount() {
     this._isMounted = true;
+    if (this._isMounted) {
     fetch("/api/devices?type=0")
         .then(response => response.json())
         .then((result) => {
-            if (this._isMounted) {
                 result.map((item) => {
                     import(`../../components/${item.component}/${item.type}`)
                         .then(component => {
@@ -35,7 +35,8 @@ export class AddDeviceModal extends Component {
                                     ...this.state.devices,
                                     [item.id]: componentItem,
                                 },
-                                dataLoaded: true
+                                dataLoaded:true
+                                
                             })
 
                         }
@@ -43,20 +44,10 @@ export class AddDeviceModal extends Component {
                         )
                         .catch(error => {
                             console.error(`"${item.component} ${item.type}" not yet supported`);
-
                         });
                 })
-            }
-
-
-            result.map((item, index) => {
-                //Get all devices and check if it was already added to Main Provider Array If Not add it to the socket io stream once only.
-                
-
-            })
-               
-
         })
+      }
 }
 
 
@@ -76,25 +67,16 @@ export class AddDeviceModal extends Component {
 
 
   addDevice = (defaultProperties) => {
-    // if(this.props.dataType=="if"){
-    //   this.props.values.rule_if = type;
-    //   this.props.setFieldValue(this.props.values.rule_if)
-    // }
-    
     this.props.renderAddedDevice(defaultProperties,this.props.setFieldValue,this.props.values,this.props.dataType);
     this.handleHide();
   }
 
 
   render() {
-    // const ModalBody = this.state.modalDeviceRender;
-    // let deviceData = this.state.modalDeviceData;
-    const { devices } = this.state;
 
-    // console.log(devices);
 
     return (
-      this.state.dataLoaded == true &&
+      this.state.dataLoaded &&
       <>
         <button type="button" variant="primary" onClick={this.handleShow} className="show-device-props">
           <img src="assets/light/images/dots.svg" />
@@ -112,19 +94,19 @@ export class AddDeviceModal extends Component {
           <Modal.Body>
             <div className="p-all-less">
               <div className="row">
-            {
-                Object.keys(devices).map((key, index) => { 
-                    const Component = devices[key].deviceComponent;
-                    const Data = devices[key].deviceData;
-                   
-                    return(
-                        <div className="col-md-4 mb-3" key={index}>
-                             <Component key={index} data={Data} addDefaultProperties={this.addDevice} />
-                        </div>
-                    )
-                })
+              {
+                  Object.keys(this.state.devices).map((key, index) => { 
+                      const Component = this.state.devices[key].deviceComponent;
+                      const Data = this.state.devices[key].deviceData;
+                    
+                      return(
+                          <div className="col-md-4 mb-3" key={index}>
+                              <Component key={index} data={Data} addDefaultProperties={this.addDevice} dataType={this.props.dataType}/>
+                          </div>
+                      )
+                  })
 
-            }
+              }
             </div>
            
         </div>
