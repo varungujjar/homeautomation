@@ -124,7 +124,6 @@ export class ModuleList extends Component {
                         <div className="text-bold">{convertTime(this.deviceData.properties.time)}</div>
                         <div>
                             <ul className="days">
-                                {this.props.indexMap}
                                 {
                                     this.deviceData.properties.day.length == 7 && (
                                         <li>All Weekdays</li>

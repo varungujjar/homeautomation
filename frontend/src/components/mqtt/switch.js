@@ -120,7 +120,6 @@ export class ModuleList extends Component {
     render(){
         return (
                 <div>
-                    {this.props.indexMap}
                     <div className={`card card-outline-default h-100 ${this.deviceData.online ? "" : "offline"}`}>
                         <div className="offline-icon text-danger"></div>
                         <div className="p-all-less">

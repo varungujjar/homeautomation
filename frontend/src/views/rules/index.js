@@ -193,25 +193,12 @@ export class RuleEdit extends Component {
             ruleData: [],
             dataLoaded: false,
         }
+        this.published = 0;
         this.initialValues = {
             "rule_if": [],
             "rule_and": [],
             "rule_then": [],
-            "published": 0
         }
-    }
-
-
-    // renderComponents = (type) => {
-
-
-    // }
-
-    uuidv4Key = () => {
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-        var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-        return v.toString(16);
-        })
     }
 
 
@@ -234,48 +221,34 @@ export class RuleEdit extends Component {
 
                                 const deviceData = {
                                     id: deviceDataMerged.id,
-                                    indexMap: index,
                                     data: deviceDataMerged,
+                                    indexMap:condition.indexMap,
                                     component: component.ModuleList,
-                                    // uniqueKey:Date.now() + Math.random(),
                                 }
 
                                 devicesList.push(deviceData);
 
                                 if (type == "if") {
-                                    const ifComponentData = {
-                                        devices: devicesList
-                                    }
                                     this.setState({
-                                        // ...this.state.ifComponents.devices,
-                                        ifComponents: ifComponentData,
+                                        // ...this.state.ifComponents,
+                                        ifComponents:devicesList,
                                         dataLoaded: true
                                     })
                                 }
-
                                 if (type == "and") {
-                                    const andComponentData = {
-                                        devices: devicesList
-                                    }
                                     this.setState({
-                                        // ...this.state.andComponents.devices,
-                                        andComponents: andComponentData,
+                                        // ...this.state.andComponents,
+                                        andComponents: devicesList.sort((a, b) => a.indexMap - b.indexMap),
                                         dataLoaded: true
                                     })
                                 }
-
                                 if (type == "then") {
-                                    const thenComponentData = {
-                                        devices: devicesList
-                                    }
                                     this.setState({
-                                        // ...this.state.thenComponents.devices,
-                                        thenComponents: thenComponentData,
+                                        // ...this.state.thenComponents,
+                                        thenComponents: devicesList.sort((a, b) => a.indexMap - b.indexMap),
                                         dataLoaded: true
                                     })
                                 }
-
-
                             })
                             .catch(error => {
                                 console.error(`"${data.type}" not yet supported`);
@@ -310,59 +283,89 @@ export class RuleEdit extends Component {
     }
 
 
+    removeIndex = (array, value) => {
+        let ar = [];
+        array.map((item,index) => {
+            if (item.indexMap != value) {
+                 ar[index] = item    
+            }
+        })
+        return ar;
+    }
+  
+
     deleteDevice = (indexMap, setFieldValue, values, dataType) => {
             if (dataType == "if") {
-                const rule_if = this.initialValues.rule_if.splice(indexMap,1);
-                this.setState({
-                    ruleIf:rule_if
-                })
+                //
+                this.initialValues.rule_if = this.removeIndex(this.initialValues.rule_if,indexMap)
                 this.refreshComponent(this.initialValues.rule_if,dataType);
             }
             if (dataType == "and") {
-                const rule_and = this.initialValues.rule_and.splice(indexMap,1);
+                const rule_and = this.removeIndex(this.state.andComponents,indexMap)
                 this.setState({
-                    ruleAnd:rule_and
-                })
+                    andComponents:rule_and
+                })   
+                this.initialValues.rule_and = this.removeIndex(this.initialValues.rule_and,indexMap);
                 this.refreshComponent(this.initialValues.rule_and,dataType);
             }
             if (dataType == "then") {
-                const rule_then = this.initialValues.rule_then.splice(indexMap,1);
+                const rule_then = this.removeIndex(this.state.thenComponents,indexMap)
                 this.setState({
-                    ruleAnd:rule_then
-                })
+                    thenComponents:rule_then
+                })  
+                this.initialValues.rule_then = this.removeIndex(this.initialValues.rule_then,indexMap);
                 this.refreshComponent(this.initialValues.rule_then,dataType);
             }
-
     }
 
-    shouldComponentUpdate(){
-        return true;
-    } 
+    // shouldComponentUpdate(){
+    //     return true;
+    // } 
+
+    combineArray = (parentArray,newArray) => {
+        let result = [];
+        const arrayCountHelper = parentArray.length;
+        var mergeJSON = require("merge-json");        
+        parentArray.map((arrayItem, index)=>{
+            const addIndex = {"indexMap":index}
+            var dataMerged = mergeJSON.merge(addIndex, arrayItem);
+            result[index]= dataMerged;
+        })
+        const addIndexNew = {"indexMap":arrayCountHelper}
+        var dataMergedNew = mergeJSON.merge(addIndexNew, newArray);
+        result[arrayCountHelper] = dataMergedNew;
+        return result;
+    }
+
 
     addDevice = (defaultProperties, setFieldValue, values, dataType) => {
             if (dataType == "if") {
-                this.initialValues.rule_if = [defaultProperties];
-                this.setState({
-                    ruleIf:this.initialValues.rule_if
-                })
+                this.initialValues.rule_if = [];
+                this.initialValues.rule_if = this.combineArray(this.initialValues.rule_if,defaultProperties);
                 this.refreshComponent(this.initialValues.rule_if,dataType);
             }
             if (dataType == "and") {
-                this.initialValues.rule_and = this.initialValues.rule_and.concat(defaultProperties);
-                this.setState({
-                    ruleAnd:this.initialValues.rule_and
-                })
+                this.initialValues.rule_and = this.combineArray(this.initialValues.rule_and,defaultProperties);
                 this.refreshComponent(this.initialValues.rule_and,dataType);
             }
             if (dataType == "then") {
-                this.initialValues.rule_then = this.initialValues.rule_then.concat(defaultProperties);
-                this.setState({
-                    ruleAnd:this.initialValues.rule_then
-                })
+                this.initialValues.rule_then = this.combineArray(this.initialValues.rule_then,defaultProperties);
                 this.refreshComponent(this.initialValues.rule_then,dataType);
-            }
-            
+            }  
     }
+
+
+    addIndexMap = (ruleCondition) => {
+        let result = [];
+        var mergeJSON = require("merge-json");               
+        ruleCondition.map((conditionItem, index)=>{
+            const addIndex = {"indexMap":index}
+            var dataMerged = mergeJSON.merge(addIndex, conditionItem);
+            result[index]= dataMerged
+        })
+        return result;
+    }
+    
 
     componentDidMount() {
         this._isMounted = true;
@@ -374,12 +377,12 @@ export class RuleEdit extends Component {
                             this.setState({
                                 ruleData: result,
                             })
-                            this.initialValues.rule_if = result.rule_if
-                            this.initialValues.rule_and = result.rule_and
-                            this.initialValues.rule_then = result.rule_then
-                            this.refreshComponent(result.rule_if,"if");
-                            this.refreshComponent(result.rule_and,"and");
-                            this.refreshComponent(result.rule_then,"then");               
+                            this.initialValues.rule_if = this.addIndexMap(result.rule_if);
+                            this.initialValues.rule_and = this.addIndexMap(result.rule_and);
+                            this.initialValues.rule_then = this.addIndexMap(result.rule_then);
+                            this.refreshComponent(this.initialValues.rule_if,"if");
+                            this.refreshComponent(this.initialValues.rule_and,"and");
+                            this.refreshComponent(this.initialValues.rule_then,"then");               
                     })
                     .catch((error) => {
                         console.error(error)
@@ -416,7 +419,15 @@ export class RuleEdit extends Component {
             })
     }
 
-
+    
+    cleanFormData = (formValues) => {
+        let result = {}
+        Object.keys(formValues).map((conditionItem,index) => {
+            result[conditionItem] = formValues[conditionItem].filter(Boolean)
+        })
+        result["published"] = this.published; 
+        return result;
+    }
 
 
     render() {
@@ -427,12 +438,13 @@ export class RuleEdit extends Component {
                     (
                         <>
                             <Formik
-                                enableReinitialize
+                                // enableReinitialize
                                 initialValues={this.initialValues}
                                 // validate={}
                                 onSubmit={(values, { setSubmitting }) => {
+                                    const getCleanFormData = this.cleanFormData(values);
                                     // this.saveFormData(values);
-                                    console.log(values);
+                                    console.log(getCleanFormData);
                                     setSubmitting(false);
                                 }}
 
@@ -454,10 +466,9 @@ export class RuleEdit extends Component {
                                             <div className="card card-shadow mt-3">
                                                 <div className="card-body">
                                                     <div className="row">
-                                                        {console.log("rela")}
                                                         {
-                                                            this.state.ifComponents.devices ?
-                                                                this.state.ifComponents.devices.map((device, index) => {
+                                                            this.state.ifComponents.length > 0 ?
+                                                                this.state.ifComponents.map((device, index) => {
                                                                     const Component = device.component;
                                                                     const Data = device.data;
                                                                     const indexMap = device.indexMap;
@@ -479,16 +490,14 @@ export class RuleEdit extends Component {
                                                 <div className="card-body">
                                                     <div className="row">
                                                         {
-                                                          
-                                                            this.state.andComponents.devices ?
-                                                                this.state.andComponents.devices.map((device, index) => {
+                                                            this.state.andComponents.length > 0 ? 
+                                                                this.state.andComponents.map((device, index) => {
                                                                     const Component = device.component;
                                                                     const Data = device.data;
                                                                     const indexMap = device.indexMap;
-                                                                    console.log(Data)
                                                                     return (
-                                                                        <div className="col-md-4" key={index}>
-                                                                            <Component key={index} indexMap={indexMap} values={values} data={Data} handleChange={handleChange} dataType={`and`} setFieldValue={setFieldValue} deleteDefaultProperties={this.deleteDevice} />
+                                                                        <div className="col-md-4" key={indexMap}>
+                                                                            <Component key={indexMap} indexMap={indexMap} values={values} data={Data} handleChange={handleChange} dataType={`and`} setFieldValue={setFieldValue} deleteDefaultProperties={this.deleteDevice} />
                                                                         </div>
                                                                     )
                                                                 }) : (
@@ -503,14 +512,14 @@ export class RuleEdit extends Component {
                                                 <div className="card-body">
                                                     <div className="row">
                                                         {
-                                                            this.state.thenComponents.devices ?
-                                                                this.state.thenComponents.devices.map((device, index) => {
+                                                            this.state.thenComponents.length > 0 ?
+                                                                this.state.thenComponents.map((device, index) => {
                                                                     const Component = device.component;
                                                                     const Data = device.data;
                                                                     const indexMap = device.indexMap;
                                                                     return (
-                                                                        <div className="col-md-4" key={index}>
-                                                                            <Component key={index} indexMap={indexMap} values={values} data={Data} handleChange={handleChange} dataType={`then`} setFieldValue={setFieldValue} deleteDefaultProperties={this.deleteDevice}/>
+                                                                        <div className="col-md-4" key={indexMap}>
+                                                                            <Component key={indexMap} indexMap={indexMap} values={values} data={Data} handleChange={handleChange} dataType={`then`} setFieldValue={setFieldValue} deleteDefaultProperties={this.deleteDevice}/>
                                                                         </div>
                                                                     )
                                                                 }) : (
