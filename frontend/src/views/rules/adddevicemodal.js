@@ -93,22 +93,29 @@ export class AddDeviceModal extends Component {
           </Modal.Header>
           <Modal.Body>
             <div className="p-all-less">
-              <div className="row">
+            <div className="row">
               {
                   Object.keys(this.state.devices).map((key, index) => { 
-                      const Component = this.state.devices[key].deviceComponent;
-                      const Data = this.state.devices[key].deviceData;
-                    
-                      return(
+                    const Component = this.state.devices[key].deviceComponent;
+                    const Data = this.state.devices[key].deviceData;  
+                    if (this.props.dataType == "then") {
+                      if (Object.keys(Data.actions).length > 0) {
+                        return (
                           <div className="col-md-4 mb-3" key={index}>
-                              <Component key={index} data={Data} addDefaultProperties={this.addDevice} dataType={this.props.dataType}/>
+                            <Component key={index} data={Data} addDefaultProperties={this.addDevice} dataType={this.props.dataType} />
                           </div>
+                        )
+                      }
+                    } else {
+                      return (
+                        <div className="col-md-4 mb-3" key={index}>
+                          <Component key={index} data={Data} addDefaultProperties={this.addDevice} dataType={this.props.dataType} />
+                        </div>
                       )
+                    }
                   })
-
               }
             </div>
-           
         </div>
           </Modal.Body>
         </Modal>
