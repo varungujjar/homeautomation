@@ -67,7 +67,7 @@ export class AddDeviceModal extends Component {
 
 
   addDevice = (defaultProperties) => {
-    this.props.renderAddedDevice(defaultProperties,this.props.setFieldValue,this.props.values,this.props.dataType);
+    this.props.renderAddedDevice(defaultProperties,this.props.dataType);
     this.handleHide();
   }
 

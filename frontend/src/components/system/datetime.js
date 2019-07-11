@@ -30,16 +30,8 @@ export class ModuleList extends Component {
         this.day = { 0: "Mon", 1: "Tue", 2: "Wed", 3: "Thu", 4: "Fri", 5: "Sat", 6: "Sun" };
         this.defaultIfAndProperties = {"type": "device", "condition": "=", "id": this.props.data.id, "properties": { 'day': [0,1,2,3,4,5,6], 'time': [12, 0]}}
         if(this.props.values){
-            let devicesValues = {}
-            if(this.props.dataType=="if"){
-                devicesValues = this.props.values.rule_if[this.props.indexMap];
-            }else if(this.props.dataType=="and"){
-                devicesValues = this.props.values.rule_and[this.props.indexMap];
-            }else if(this.props.dataType=="then"){
-                devicesValues = this.props.values.rule_then[this.props.indexMap];
-            }
-            this.deviceValues = devicesValues;
-        }   
+            this.deviceValues = this.props.values;
+        } 
         this.deviceData = this.props.data.properties.time ? this.props.data : this.defaultIfAndProperties;
         this.state = {
             displayTimepicker: false,
@@ -195,7 +187,7 @@ export class ModuleList extends Component {
                                     })
                                 }
                                
-                                <button type="button" variant="primary" onClick={() => {this.props.deleteDefaultProperties(this.props.indexMap, this.props.setFieldValue, this.props.values, this.props.dataType)}}>- Remove</button>
+                                <button type="button" variant="primary" onClick={() => {this.props.deleteDefaultProperties(this.props.indexMap, this.props.dataType)}}>- Remove</button>
                                 </>
                             
                             

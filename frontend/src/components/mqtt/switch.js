@@ -39,15 +39,7 @@ export class ModuleList extends Component {
         this.defaultIfAndProperties = {"type": "device", "condition": "=", "id": this.props.data.id, "properties": {'relay':{"0":0}}}
         this.defaultThenProperties = {"type": "device", "id": this.props.data.id, "properties": {'relay':{"0":0}}}
         if(this.props.values){
-            let devicesValues = {}
-            if(this.props.dataType=="if"){
-                devicesValues = this.props.values.rule_if[this.props.indexMap];
-            }else if(this.props.dataType=="and"){
-                devicesValues = this.props.values.rule_and[this.props.indexMap];
-            }else if(this.props.dataType=="then"){
-                devicesValues = this.props.values.rule_then[this.props.indexMap];
-            }
-            this.deviceValues = devicesValues;
+            this.deviceValues = this.props.values;
         }   
         this.deviceData = this.props.data;
         if(this.deviceValues){
@@ -221,7 +213,7 @@ export class ModuleList extends Component {
                             
                         {
                             this.deviceValues && (
-                                <button type="button" variant="primary" onClick={() => {this.props.deleteDefaultProperties(this.props.indexMap, this.props.setFieldValue, this.props.values, this.props.dataType)}}>- Remove</button>
+                                <button type="button" variant="primary" onClick={() => {this.props.deleteDefaultProperties(this.props.indexMap, this.props.dataType)}}>- Remove</button>
                             ) 
                         }
                     </div>
