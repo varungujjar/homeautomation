@@ -245,29 +245,33 @@ def dbPublished(tableName,id=None,published=None):
 
 
 def dbStoreRule(formData):
+	
 	if "id" in formData:
-		try:
-			db = sqlite3.connect(db_path)
-			cur = db.cursor()
-			cur.execute("UPDATE rules SET rule_if=?, rule_and=?,  rule_then=?, published=?, trigger=1, modified=datetime(CURRENT_TIMESTAMP, 'localtime') WHERE id=?", (str(formData["rule_if"]), str(formData["rule_and"]), str(formData["rule_then"]), int(formData["published"]), int(formData["id"]) ))
-			db.commit()
-			logger.info('Rule Saved Successfully')
-			showNotification("success","Success","Your data was saved successfully")	
-		except Exception as err:
-			logger.error('[DB] Save Rule Error: %s' % (str(err)))
-			showNotification("error","DB Store Error","There was an error saving your data")
-		finally:
-			db.close()
-	else:
-		try:
-			db = sqlite3.connect(db_path)
-			cur = db.cursor()
-			cur.execute("INSERT INTO devices(address, type, component, properties, actions, online, modified, created) VALUES(?,?,?,?,?,datetime(CURRENT_TIMESTAMP, 'localtime'),datetime(CURRENT_TIMESTAMP, 'localtime'))", (str(address), str(type), str(component),str(prop), str(actions), 1))
-			db.commit()
-		except Exception as err:
-			logger.error('[DB] Device Insert Sync Error: %s' % (str(err)))
-		finally:
-			db.close()
+		if formData["id"] != 0:
+			try:
+				db = sqlite3.connect(db_path)
+				cur = db.cursor()
+				cur.execute("UPDATE rules SET rule_if=?, rule_and=?,  rule_then=?, published=?, trigger=1, modified=datetime(CURRENT_TIMESTAMP, 'localtime') WHERE id=?", (str(formData["rule_if"]), str(formData["rule_and"]), str(formData["rule_then"]), int(formData["published"]), int(formData["id"]) ))
+				db.commit()
+				logger.info('Rule Saved Successfully')
+				showNotification("success","Success","Your data was saved successfully")	
+			except Exception as err:
+				logger.error('[DB] Save Rule Error: %s' % (str(err)))
+				showNotification("error","DB Store Error","There was an error saving your data")
+			finally:
+				db.close()
+		else:
+			try:
+				db = sqlite3.connect(db_path)
+				cur = db.cursor()
+				cur.execute("INSERT INTO rules(rule_if, rule_and, rule_then, published, modified, created) VALUES(?,?,?,?,datetime(CURRENT_TIMESTAMP, 'localtime'),datetime(CURRENT_TIMESTAMP, 'localtime'))", (str(formData["rule_if"]), str(formData["rule_and"]), str(formData["rule_then"]), int(formData["published"])))
+				db.commit()
+				showNotification("success","Success","Your data was saved successfully")	
+			except Exception as err:
+				logger.error('[DB] Device Insert Sync Error: %s' % (str(err)))
+				showNotification("error","DB Store Error","There was an error saving your data")
+			finally:
+				db.close()
 
 	return True
 
