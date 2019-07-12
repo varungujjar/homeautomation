@@ -5,14 +5,12 @@ import asyncio
 import time
 from helpers.logger import formatLogger
 import socketio
-from datetime import datetime, timedelta, tzinfo
 from helpers.db import *
 
 TIMER = 1
 
 
 logger = formatLogger(__name__)
-
 external_sio = socketio.RedisManager('redis://', write_only=True)
 
 
@@ -24,7 +22,7 @@ async def eventsHandlerTimer():
 
 
 def eventsHandler(id=None):
-    dbSyncDevice("datetime",{},{},"","system")
+    dbSyncDevice("datedaytime",{},{},"","system")
     if id:
         getDevice = dbGetDevice(None,None,None,id)
         external_sio.emit('message', str(getDevice["properties"]))
@@ -39,7 +37,6 @@ def eventsHandler(id=None):
         #     loop = asyncio.get_event_loop()
         #     loop.create_task(doThen(ruleData))
             
-    now = datetime.datetime.now()
     logger.debug("Rule Check Completed")
     
  
@@ -48,8 +45,7 @@ def validateIf(ruleData):
     ruleDataJson = ruleData["rule_if"]
     checkifActive = ruleData["trigger"]
     ruleID = ruleData["id"]
-    status = False
-    conditionStatus = False
+    ifValidStatus = False
     
     
     for deviceCondition in ruleDataJson:
@@ -76,11 +72,15 @@ def validateIf(ruleData):
                     deviceClass = importDeviceClass()
                     ifValidStatus = deviceClass.validateProperties(deviceId,conditionProperties,conditionType)
                     if ifValidStatus:
-                        logger.info("Properties Valid") 
+                        logger.info("----------Properties Valid") 
                 except ImportError as error:
                     logger.error("%s" % str(error)) 
                 except Exception as exception:
                     logger.error("%s" % str(exception))
+                    
+            else:
+                logger.error("Device with %s Not Found" % str(deviceId))
+                pass             
 
                 
 
@@ -112,17 +112,7 @@ def validateIf(ruleData):
         #                 elif ifType == "<":
         #                     if getDeviceProperty < getIfProperty:
         #                         conditionStatus = True
-                                
-        #     elif getDevice["type"]== "datetime":
-        #         getIfHours = ifProperties["time"][0]
-        #         getIfMinutes = ifProperties["time"][1]
-        #         now = datetime.datetime.now()
-        #         #reference now.year, now.month, now.day, now.hour, now.minute, now.second
-        #         if now.weekday() in ifProperties["day"]:
-        #             if getIfHours == now.hour and getIfMinutes == now.minute and now.second == 0:
-        #                 conditionStatus = True
-        #     else:
-        #         logger.warning("Device with %s Not Found" % str(ifDataJson["id"]))        
+                                     
 
 
         # else:
