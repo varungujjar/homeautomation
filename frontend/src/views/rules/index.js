@@ -389,6 +389,7 @@ export class RuleEdit extends Component {
                                 ruleData: result,
                             })
                             this.id = result.id;
+                            this.published = result.published;
                             this.initialValues.rule_if = this.addIndexMap(result.rule_if);
                             this.initialValues.rule_and = this.addIndexMap(result.rule_and);
                             this.initialValues.rule_then = this.addIndexMap(result.rule_then);
