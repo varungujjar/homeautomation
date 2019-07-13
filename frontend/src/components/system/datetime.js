@@ -74,7 +74,7 @@ export class ModuleList extends Component {
             if (this.deviceValues) {
                 if (this.deviceValues.properties.time) {
                     this.time = this.createTime(this.deviceValues.properties.time[0], this.deviceValues.properties.time[1])
-                    // this.setState({ timeChange: this.time })
+                    this.setState({ timeChange: this.time })
                 } else {
                     this.deviceValues.properties = this.defaultIfAndProperties;
                     this.props.setFieldValue(this.deviceValues.properties)
