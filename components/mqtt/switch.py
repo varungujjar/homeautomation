@@ -45,7 +45,21 @@ class switch(object):
         loop = asyncio.get_event_loop()
         loop.create_task(publish(topic, value))
         
+
+    def validateProperties(self,deviceId,conditionProperties,conditionType):
+
+        if deviceId:
+            getDevice = dbGetDevice(None,None,None,deviceId)
+
         
+        print("-------------------")
+        print(deviceId)
+        print(conditionProperties)
+        print(conditionType)
+        print("-------------------")
+        status = False
+        return status
+
     def triggerAction(self,actions,deviceId):
         triggered = False
         if "relay" in actions:

@@ -16,6 +16,7 @@ from system.status import *
 
 from system.system import *
 from system.api import *
+from components.system.horizon import *
 
 COMPONENTS_DIR = "components"
 
@@ -59,6 +60,7 @@ class RunServer:
                     importModule = __import__(buildComponentPath, fromlist="*")
                     functionCall = getattr(importModule, "%sHandler" % component)()
                     app.loop.create_task(functionCall)
+        app.loop.create_task(horizonHandlerTimer())            
         app.loop.create_task(eventsHandlerTimer())
         app.loop.create_task(statusHandler())
         
