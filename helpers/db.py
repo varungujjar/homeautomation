@@ -245,7 +245,6 @@ def dbPublished(tableName,id=None,published=None):
 
 
 def dbStoreRule(formData):
-	
 	if "id" in formData:
 		if formData["id"] != 0:
 			try:

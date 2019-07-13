@@ -46,26 +46,43 @@ class switch(object):
         loop.create_task(publish(topic, value))
         
 
-    def validateProperties(self,deviceId,conditionProperties,conditionType):
+    def validateProperties(self,getDevice,conditionProperties,conditionType):
+        validStatus = False
+        getDeviceProperties = getDevice["properties"]
+        getDevicePropertiesKeys = []
+        for key, value in getDeviceProperties.items():
+            getDevicePropertiesKeys.append(key)    
+        for key, value in conditionProperties.items():
+            if key in getDevicePropertiesKeys:
+                if isinstance(value,dict):
+                    for k, v in value.items():
+                        getDeviceProperty= getDeviceProperties[key][k]
+                        getIfProperty = conditionProperties[key][k]
+                else:
+                    getDeviceProperty = getDeviceProperties[key]
+                    getIfProperty = conditionProperties[key]
+                    
+                if conditionType == "=":
+                    if getDeviceProperty == getIfProperty:
+                        validStatus = True
 
-        if deviceId:
-            getDevice = dbGetDevice(None,None,None,deviceId)
+                elif conditionType == ">":
+                    if getDeviceProperty > getIfProperty:
+                        validStatus = True
 
+                elif conditionType == "<":
+                    if getDeviceProperty < getIfProperty:
+                        validStatus = True
+        return validStatus
         
-        print("-------------------")
-        print(deviceId)
-        print(conditionProperties)
-        print(conditionType)
-        print("-------------------")
-        status = False
-        return status
+    
 
-    def triggerAction(self,actions,deviceId):
+    def triggerAction(self,getDevice,conditionProperties):
         triggered = False
-        if "relay" in actions:
-            relays = actions["relay"]
+        if "relay" in conditionProperties:
+            relays = conditionProperties["relay"]
             for relayId, state in relays.items():
-                self.stateToggleChange(int(deviceId),int(relayId),int(state))
+                self.stateToggleChange(int(getDevice["id"]),int(relayId),int(state))
                 triggered = True
         else:
             logger.error("The Device does not support this action")    
