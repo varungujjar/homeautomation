@@ -244,6 +244,20 @@ def dbPublished(tableName,id=None,published=None):
 	return True
 
 
+def dbDelete(tableName,id=None):
+	if "id":
+		try:
+			db = sqlite3.connect(db_path)
+			cur = db.cursor()
+			cur.execute("DELETE FROM %s WHERE id=%s" % (tableName, int(id)))
+			db.commit()
+		except Exception as err:
+			logger.error('[DB] Record Delete Error: %s' % (str(err)))
+		finally:
+			db.close()
+	return True
+
+
 def dbStoreRule(formData):
 	if "id" in formData:
 		if formData["id"] != 0:
@@ -271,7 +285,6 @@ def dbStoreRule(formData):
 				showNotification("error","DB Store Error","There was an error saving your data")
 			finally:
 				db.close()
-
 	return True
 
 

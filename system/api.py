@@ -18,6 +18,9 @@ class Api:
             if "published" in request.query:
                 published = int(request.query["published"])
                 dbPublished("rules",id,published)
+            if "delete" in request.query:
+                delete = int(request.query["delete"])
+                dbDelete("rules",id)    
             rules = dbGetTable("rules",id)
         else:           
             rules = dbGetTable("rules",None)
