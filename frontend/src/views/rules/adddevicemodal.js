@@ -78,9 +78,13 @@ export class AddDeviceModal extends Component {
     return (
       this.state.dataLoaded &&
       <>
-        <button type="button" variant="primary" onClick={this.handleShow} className="show-device-props">
-          <img src="assets/light/images/dots.svg" />
-        </button>
+        <div className="col-md-4 v-center text-center mb-3" >
+          <div className="empty-device" onClick={this.handleShow}> 
+          <span className="text-lg icon-bg-light icon-1x icon-add icon-shadow">
+          </span>
+          </div>
+        </div>
+
         <Modal
           show={this.state.show}
           onHide={this.handleHide}
@@ -92,7 +96,7 @@ export class AddDeviceModal extends Component {
             <h2 className="text-bold">Devices List</h2>
           </Modal.Header>
           <Modal.Body>
-            <div className="p-all-less">
+            <div className="p-all-less-lg bg-light">
             <div className="row">
               {
                   Object.keys(this.state.devices).map((key, index) => { 

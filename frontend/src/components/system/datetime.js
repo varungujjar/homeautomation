@@ -35,7 +35,21 @@ export class ModuleList extends Component {
         this.deviceData = this.props.data.properties.time ? this.props.data : this.defaultIfAndProperties;
         this.state = {
             displayTimepicker: false,
-            timeChange:""
+            timeChange:"",
+            edit:false
+        }
+        this.config={
+            TIMEPICKER_BACKGROUND: 'white',
+            CLOCK_WRAPPER_BACKGROUND : '#fafafa',
+            FONT_FAMILY: '"Open Sans", sans-serif',
+            DONE_BUTTON_BORDER_COLOR : '#FFF',
+            DROPDOWN_SELECTED_COLOR : '#efefef',
+            CLOCK_WRAPPER_MERIDIEM_BACKGROUND_COLOR_SELECTED :'#333',
+            CLOCK_WRAPPER_MERIDIEM_TEXT_COLOR_SELECTED : '#ffffff',
+            CLOCK_HAND_ARM: '#CCC',
+            CLOCK_HAND_CIRCLE_BACKGROUND: '#efefef',
+            CLOCK_HAND_INTERMEDIATE_CIRCLE_BACKGROUND: '#666',
+            TIME_SELECTED_COLOR :'#222'
         }
     }
 
@@ -107,93 +121,95 @@ export class ModuleList extends Component {
 
 
     render() {
-        // console.log(this.day);
         return (
             <div>
-                <div className="card card-outline-default  h-100">
-                    <div className="p-all-less">
-                        <span className="icon-1x icon-clock icon-left btn-info"></span>
-                        <div className="text-bold">{convertTime(this.deviceData.properties.time)}</div>
-                        <div>
-                            <ul className="days">
-                                {
-                                    this.deviceData.properties.day.length == 7 && (
-                                        <li>All Weekdays</li>
-                                    )
-
-                                }
-                                {
-                                    this.deviceData.properties.day.length < 7 && this.deviceData.properties.day.length > 0 &&
-                                    this.deviceData.properties.day.map((number, index) => {
-                                        return (
-                                            <li key={index}>{Object.values(this.day)[number]}&nbsp;&nbsp;</li>
-                                        )
-                                    })
-
-                                }
-                                {
-                                    this.deviceData.properties.day.length == 0 && (
-                                        <li>Weekdays</li>
-                                    )
-
-                                }
-                            </ul>
-                        </div>
-                        <div className="clearfix"></div>
-                            {
-                                this.props.addDefaultProperties && ( this.props.dataType == "if" || this.props.dataType == "and" )&& (
-                                    <button type="button" variant="primary" onClick={() => {this.props.addDefaultProperties(this.defaultIfAndProperties)}}>+ ADD If AND</button>
-                                )
-                            }
-
-
-                   
-                    {
-                        this.deviceValues && (
-                                
-                                <>    
-                                <input className="form-control" type="hidden" value={this.deviceValues.type} name={`${this.props.dataType}[type]`} onChange={this.props.handleChange} />
-                                <input className="form-control" type="hidden" value={this.deviceValues.condition} name={`${this.props.dataType}[condition]`} onChange={this.props.handleChange}/>
-                                <button type="button" className="btn btn-default" onClick={() => this.toggleTimekeeper(true)}>select time</button>
-
-                                {this.state.displayTimepicker ?
-                                    <div className="time-keeper-box">
-                                        <TimeKeeper
-                                            time={this.state.timeChange}
-                                            onChange={this.onTimeChange}
-                                            switchToMinuteOnHourSelect={true}
-                                            onDoneClick={() => {
-                                                this.toggleTimekeeper(false)
-                                            }}
-                                        />
-                                    </div>
-                                    :
-                                    false
-                                }
-                                {
-                                    Object.keys(this.day).map((number, index) => {
-                                        let checked = false;
-                                        this.deviceValues.properties.day.map((value) => {
-                                            if (value == number) {
-                                                checked = true;
-                                            }
-                                        })
-                                        return (
-                                            <div className="form-check form-check-inline" key={index}>
-                                                <input className="form-check-input" type="checkbox" id={number} name={`${this.props.dataType}[properties][day][${number}]`} onChange={this.handleDayChange} checked={checked} />
-                                                <label className="form-check-label">{Object.values(this.day)[number]}</label>
-                                            </div>
-                                        )
-                                    })
-                                }
-                               
-                                <button type="button" variant="primary" onClick={() => {this.props.deleteDefaultProperties(this.props.indexMap, this.props.dataType)}}>- Remove</button>
-                                </>
-                            
-                            
-                            )
-                    }
+                <div className={`card card-outline-default h-100 ${this.deviceValues && !this.state.edit ? "has-edit-hover" : ""}`}>
+                    <div className="edit-overlay v-center" onClick={() => this.setState({ edit: true })}>
+                        <span className="text-lg icon-1x icon-edit"></span>
                     </div>
+                    {
+                        
+                            <>
+                                <div className="p-all-less">
+                                    <span className="icon-1x icon-clock icon-left btn-info"></span>
+                                    <div className="text-bold">{convertTime(this.deviceData.properties.time)}</div>
+                                    <ul className="days">
+                                        {
+                                            this.deviceData.properties.day.length == 7 && (
+                                                <li>All Weekdays</li>
+                                            )
+                                        }
+                                        {
+                                            this.deviceData.properties.day.length < 7 && this.deviceData.properties.day.length > 0 &&
+                                            this.deviceData.properties.day.map((number, index) => {
+                                                return (
+                                                    <li key={index}>{Object.values(this.day)[number]}&nbsp;&nbsp;</li>
+                                                )
+                                            })
+                                        }
+                                        {
+                                            this.deviceData.properties.day.length == 0 && (
+                                                <li>Weekdays</li>
+                                            )
+                                        }
+                                    </ul>
+                                </div>
+                            </>
+                       
+                    }
+                    {
+                        this.deviceValues && this.state.edit && (
+                            <>
+                                <div className="p-all-less">
+                                    <input className="form-control" type="hidden" value={this.deviceValues.type} name={`${this.props.dataType}[type]`} onChange={this.props.handleChange} />
+                                    <input className="form-control" type="hidden" value={this.deviceValues.condition} name={`${this.props.dataType}[condition]`} onChange={this.props.handleChange} />
+                                    <button type="button" className="btn btn-default btn-sm" onClick={() => this.toggleTimekeeper(true)}>select time</button>
+                                    {this.state.displayTimepicker ?
+                                        <div className="time-keeper-box">
+                                            <TimeKeeper
+                                                time={this.state.timeChange}
+                                                config={this.config}
+                                                onChange={this.onTimeChange}
+                                                switchToMinuteOnHourSelect={true}
+                                                closeOnMinuteSelect={true}
+                                                onDoneClick={() => {
+                                                    this.toggleTimekeeper(false)
+                                                }}
+                                            />
+                                        </div>
+                                        :
+                                        false
+                                    }
+                                    {
+                                        Object.keys(this.day).map((number, index) => {
+                                            let checked = false;
+                                            this.deviceValues.properties.day.map((value) => {
+                                                if (value == number) {
+                                                    checked = true;
+                                                }
+                                            })
+                                            return (
+                                                <div className="form-check mt-2" key={index}>
+                                                    <input className="form-check-input" type="checkbox" id={number} name={`${this.props.dataType}[properties][day][${number}]`} onChange={this.handleDayChange} checked={checked} />
+                                                    <label className="form-check-label">{Object.values(this.day)[number]}</label>
+                                                </div>
+                                            )
+                                        })
+                                    }
+                                </div>
+                                <span className="link w-100 b-t" onClick={() => this.setState({ edit: false })}>Done</span>
+                            </>
+                        )
+                    }
+                    {
+                        this.props.addDefaultProperties && (this.props.dataType == "if" || this.props.dataType == "and") && (
+                            <button className="text-lg icon-bg-light icon-1x icon-add float-right icon-shadow" type="button" variant="primary" onClick={() => { this.props.addDefaultProperties(this.defaultIfAndProperties) }}></button>
+                        )
+                    }
+                    {this.deviceValues && !this.state.edit && (
+                        <button className="text-lg icon-bg-light icon-1x icon-remove float-right icon-shadow" type="button" variant="primary" onClick={() => { this.props.deleteDefaultProperties(this.props.indexMap, this.props.dataType) }}></button>
+                    )
+                    }
                 </div>
             </div>
         )

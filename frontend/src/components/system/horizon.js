@@ -10,6 +10,9 @@ export class ModuleList extends Component {
         this.defaultIfAndProperties = {"type": "device", "condition": "=", "id": this.props.data.id, "properties": {'astral':{"above_horizon":this.props.data.properties.astral.above_horizon}}};
         if(this.props.values){
             this.deviceValues = this.props.values;
+        }
+        this.state = {
+            edit:false
         }   
         this.deviceData = this.props.data;
         if(this.deviceValues){
@@ -39,50 +42,56 @@ export class ModuleList extends Component {
         this._isMounted = false;
     }
 
+
     render(){
         return (
-                <div>
-                     <div className="card card-outline-default">
-                        <div className="p-all-less">
-                        <span className={`icon-1x icon-left ${this.deviceData.properties.astral.above_horizon == "true" ? "icon-bg-warning icon-sunrise " : "icon-bg-dark icon-moon"}`}></span>
-                            <div className="text-bold">{this.deviceData.properties.astral.above_horizon == "true" ? ("Sun Above Horizon") : ("Sun Below Horizon")}</div>
-                            <div className="text-secondary">
-                            {this.deviceData.properties.astral.above_horizon == "true" ? ("On Sunrise") : ("On Sunset")}
+            <div>
+                <div className={`card card-outline-default h-100 ${this.deviceValues && !this.state.edit ? "has-edit-hover" : ""}`}>
+                    <div className="edit-overlay v-center" onClick={() => this.setState({ edit: true })}>
+                        <span className="text-lg icon-1x icon-edit"></span>
+                    </div>
+                    {
+                        
+                            <div className="p-all-less">
+                                <span className={`icon-1x icon-left ${this.deviceData.properties.astral.above_horizon == "true" ? "icon-bg-warning icon-sunrise " : "icon-bg-dark icon-moon"}`}></span>
+                                <div className="text-bold">{this.deviceData.properties.astral.above_horizon == "true" ? ("Sun Above Horizon") : ("Sun Below Horizon")}</div>
+                                <div className="text-secondary">
+                                    {this.deviceData.properties.astral.above_horizon == "true" ? ("On Sunrise") : ("On Sunset")}
+                                </div>
                             </div>
-                            <div className="clearfix"></div>
-                            {
-                                this.props.addDefaultProperties && ( this.props.dataType == "if" || this.props.dataType == "and" )&& (
-                                    <button type="button" variant="primary" onClick={() => {this.props.addDefaultProperties(this.defaultIfAndProperties)}}>+ ADD If AND</button>
-                                )
-                            }
-                           
-                            {
-                            this.deviceValues &&
-                            (() => {
+                    }
+                    {
+                        this.deviceValues && this.state.edit &&
+                        (() => {
                             if (this.props.dataType == "if" || this.props.dataType == "and") {
                                 return (
-                                        <>
-                                        <input type="hidden" name={`${this.props.dataType}[condition]`} value={this.deviceValues.condition} onChange={this.props.handleChange}/>
-                                            
-                                        <select name="" value={this.state.selectedProperty} onChange={this.onSelectProperty}>
-                                           <option value="false">On Sunset</option>
-                                           <option value="true">On Sunrise</option>
-                                        </select>
-                                        </>
-                                    
+                                    <>
+                                        <div className="p-all-less">
+                                            <input type="hidden" name={`${this.props.dataType}[condition]`} value={this.deviceValues.condition} onChange={this.props.handleChange} />
+                                            <select name="" value={this.state.selectedProperty} onChange={this.onSelectProperty} className="form-control">
+                                                <option value="false">On Sunset</option>
+                                                <option value="true">On Sunrise</option>
+                                            </select>
+                                        </div>
+                                        <span className="link w-100 b-t" onClick={() => this.setState({ edit: false })}>Done</span>
+                                    </>
                                 )
                             }
                         })()
-                        }
-                        {
-                             this.deviceValues && (
-                                <button type="button" variant="primary" onClick={() => {this.props.deleteDefaultProperties(this.props.indexMap, this.props.dataType)}}>- Remove</button>
-                             ) 
-                        }
-                        </div>
-                    </div>
+                    }
+                    {
+                        this.props.addDefaultProperties && (this.props.dataType == "if" || this.props.dataType == "and") && (
+                            <button type="button" className="text-lg icon-bg-light icon-shadow icon-1x icon-add float-right" variant="primary" onClick={() => { this.props.addDefaultProperties(this.defaultIfAndProperties) }}></button>
+                        )
+                    }
+                    {
+                        this.deviceValues && !this.state.edit && (
+                            <button type="button" className="text-lg icon-bg-light icon-shadow icon-1x icon-remove float-right" variant="primary" onClick={() => { this.props.deleteDefaultProperties(this.props.indexMap, this.props.dataType) }}></button>
+                        )
+                    }
                 </div>
-            )
+            </div>
+        )
     }
 }
 
