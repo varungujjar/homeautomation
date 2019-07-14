@@ -138,7 +138,6 @@ async def doThen(ruleData):
     ruleDataJson = ruleData["rule_then"]
     checkifActive = ruleData["trigger"]
     ruleID = ruleData["id"]
-
     for deviceCondition in ruleDataJson:
         conditionProperties = deviceCondition["properties"]
         deviceType = deviceCondition["type"]
@@ -162,16 +161,16 @@ async def doThen(ruleData):
                     triggerStatus = deviceClass.triggerAction(getDevice,conditionProperties)
                     if triggerStatus:
                         logger.info("Rule %s Triggered" % ruleID)
-                        dbInsertHistory("info","system",None,"Rule "+str(ruleID),"Triggered",1)     
+                             
                 except ImportError as error:
                     logger.error("%s" % str(error)) 
                 except Exception as exception:
-                    logger.error("%s" % str(exception))
-                    
+                    logger.error("%s" % str(exception)) 
             else:
                 logger.error("Device with %s Not Found" % str(deviceId))
                 pass             
-
         else:
             logger.warning("No Valid Handlers Found for Rule")
+    dbInsertHistory("info","system",None,"Rule "+str(ruleID),"Triggered",1)
+
 
