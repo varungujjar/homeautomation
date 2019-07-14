@@ -11,20 +11,25 @@ class Api:
 
 
     async def getRules(self,request):
-        id = None
-        active = None
+        id = 0
         if "id" in request.query:
             id = int(request.query["id"])
             if "published" in request.query:
                 published = int(request.query["published"])
-                dbPublished("rules",id,published)
-            if "delete" in request.query:
-                delete = int(request.query["delete"])
-                dbDelete("rules",id)    
-            rules = dbGetTable("rules",id)
+                if dbPublished("rules",id,published)==True:
+                    response = dbGetTable("rules",id)
+                else:
+                    response = {"status":"error"}
+            elif "delete" in request.query:
+                if dbDelete("rules",id)==True:
+                    response = dbGetTable("rules")
+                else:
+                    response = {"status":"error"}
+            else:        
+                response = dbGetTable("rules",id)       
         else:           
-            rules = dbGetTable("rules",None)
-        return web.json_response(rules)
+            response = dbGetTable("rules")
+        return web.json_response(response)
 
 
     async def getRulesSave(self,request):
@@ -38,7 +43,7 @@ class Api:
         if "action" in request.query:
             action = request.query["action"]
             if action == "clear":
-                dbDeleteRecordsTable("notifications")
+                dbDelete("notifications",None)
         notifications = dbGetTable("notifications",None,None,"created")
         return web.json_response(notifications)
 

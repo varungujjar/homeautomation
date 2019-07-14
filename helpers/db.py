@@ -175,22 +175,6 @@ def dbGetWeatherSensor():
 
 
 
-def dbDeleteRecordsTable(tableName):
-	try:
-		db = sqlite3.connect(db_path)
-		db.row_factory = lambda c, r: dict([(col[0], r[idx]) for idx, col in enumerate(c.description)])
-		cur = db.cursor()
-		if tableName:
-			cur.execute('DELETE FROM %s' % (tableName))		
-			db.commit()
-	except Exception as err:
-		logger.error('[DB] Delete Records Error: %s' % (str(err)))
-	finally:
-		db.close()
-
-
-
-
 
 def dbGetTable(tableName,id=None,published=None,order=None):
 	try:
@@ -230,32 +214,47 @@ def dbGetTable(tableName,id=None,published=None,order=None):
 			return tableFormat
 
 
-
 def dbPublished(tableName,id=None,published=None):
 	try:
 		db = sqlite3.connect(db_path)
 		cur = db.cursor()
 		cur.execute("UPDATE %s SET published=%s, modified=datetime(CURRENT_TIMESTAMP, 'localtime') WHERE id=%s" % (tableName,int(published),int(id)))
 		db.commit()
+		response = True
 	except Exception as err:
-		logger.error('[DB] Set Published Error: %s' % (str(err)))
+		response = False
+		logger.error('Set Published Error: %s' % (str(err)))
 	finally:
 		db.close()
-	return True
+	return response
 
 
 def dbDelete(tableName,id=None):
-	if "id":
+	if id:
 		try:
 			db = sqlite3.connect(db_path)
 			cur = db.cursor()
 			cur.execute("DELETE FROM %s WHERE id=%s" % (tableName, int(id)))
 			db.commit()
+			response = True
 		except Exception as err:
-			logger.error('[DB] Record Delete Error: %s' % (str(err)))
+			response = False
+			logger.error('Record Delete Error: %s' % (str(err)))
 		finally:
 			db.close()
-	return True
+	else:
+		try:
+			db = sqlite3.connect(db_path)
+			cur = db.cursor()
+			cur.execute("DELETE FROM %s" % (tableName))
+			db.commit()
+			response = True
+		except Exception as err:
+			response = False
+			logger.error('Record Delete Error: %s' % (str(err)))
+		finally:
+			db.close()
+	return response
 
 
 def dbStoreRule(formData):
