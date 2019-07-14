@@ -19,7 +19,7 @@ ZERO = timedelta(0)
 
 COMPONENT = "system"
 TYPE = "horizon"
-UPDATE_EVERY = 1
+
 
 def sun_horizon(sunrise,sunset): #if 1 above horizon if 0 below horzion
 	now_utc = datetime.now()
@@ -82,3 +82,27 @@ async def horizonHandlerTimer():
 		await asyncio.sleep(60)
 
 
+class  horizon(object):
+	def __init__(self):
+		pass
+        
+	def validateProperties(self,getDevice,conditionProperties,conditionType):
+		validStatus = False
+		getDeviceProperties = getDevice["properties"]
+		getDevicePropertiesKeys = []
+		for key, value in getDeviceProperties.items():
+			getDevicePropertiesKeys.append(key)    
+		for key, value in conditionProperties.items():
+			if key in getDevicePropertiesKeys:
+				if isinstance(value,dict):
+					for k, v in value.items():
+						getDeviceProperty= getDeviceProperties[key][k]
+						getIfProperty = conditionProperties[key][k]
+				else:
+					getDeviceProperty = getDeviceProperties[key]
+					getIfProperty = conditionProperties[key]
+					
+				if conditionType == "=":
+					if getDeviceProperty == getIfProperty:
+						validStatus = True
+		return validStatus

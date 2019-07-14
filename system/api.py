@@ -95,7 +95,7 @@ class Api:
                 importModule = __import__(buildComponentPath, fromlist=getDeviceModule)
                 importDeviceClass = getattr(importModule, getDeviceClass)
                 deviceClass = importDeviceClass()
-                status = deviceClass.triggerAction(deviceAction,getDevice["id"])
+                status = deviceClass.triggerAction(getDevice, deviceAction)
                 if status:
                     logger.info("Action Triggered") 
                     response_obj = { 'status' : 'success' }
