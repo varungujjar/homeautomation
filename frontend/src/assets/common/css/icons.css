@@ -15,21 +15,56 @@
     height: 44px;
     border-radius: 100%;
     display: inline-block;
-    font-size: 20px;
+    font-size: 15px;
     font-weight: 200;
     text-align: center;
     vertical-align: middle;
     line-height: 45px;
+    transition: 0.3s;
 }
 .icon-2x {
   border-radius: 100%;
   display: inline-block;
-  font-size: 30px;
+  font-size: 20px;
   font-weight: 200;
   text-align: center;
   vertical-align: middle;
   line-height: 45px;
 }
+
+.icon-shadow{
+    box-shadow: 0 9px 30.5px 1.5px rgba(0,0,0,.1)!important;
+}
+
+.icon-edit::before {
+  font-family: "Font Awesome 5 Pro";
+  content: "\f303";
+}
+
+.icon-publish::before {
+  font-family: "Font Awesome 5 Pro";
+  content: "\f058";
+}
+.icon-unpublish::before {
+  font-family: "Font Awesome 5 Pro";
+  content: "\f057";
+}
+
+
+.icon-add::before {
+  font-family: "Font Awesome 5 Pro";
+  content: "\f067";
+}
+.icon-remove::before {
+  font-family: "Font Awesome 5 Pro";
+  content: "\f068";
+}
+
+.icon-trash::before {
+  font-family: "Font Awesome 5 Pro";
+  content: "\f1f8";
+}
+
 
 .icon-humidity::before {
     font-family: "Font Awesome 5 Pro";
@@ -148,6 +183,17 @@
   content: "\f06a";
 }
 
+.icon-bg-light {
+  background-color: #fff;
+  color: #333;
+}
+
+.icon-bg-light:hover{
+  background-color: #fff;
+  color: #ccc!important;
+  box-shadow: 0 9px 30.5px 1.5px rgba(0,0,0,.1)!important;
+}
+
 .icon-bg-default {
   background-color: #efefef;
   color: #666;
@@ -171,4 +217,8 @@
 .icon-bg-success {
     background-color: #D7F6E0;
     color: #51D679;
+}
+
+.icon-shadow{
+  box-shadow: 0 9px 30.5px 1.5px rgba(0,0,0,.1)!important;
 }

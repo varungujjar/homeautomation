@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { Header } from "../common/header";
-import { Link } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
 import { GetDevice } from "../dashboard/devices";
 import { AddDeviceModal } from "./adddevicemodal";
 import { Formik } from 'formik';
@@ -118,29 +118,28 @@ export class Rules extends Component {
     }
 
 
+   
+
+
 
     render() {
-
-        console.log(this.state)
-
         return (
-            <>
+                <>
                 <Header name={this.props.name} icon={this.props.icon}></Header>
                 <Link to={{ pathname: `/rules/0`, data: null }} className="btn btn-info mb-2"><i className="fas fa-plus-circle"></i> Create New Rule</Link>
                 <div className="card card-shadow mt-3">
                     {this.state.dataLoaded && (
                         this.state.ruleData.map((item, index) => {
-                            return (
-                                <div key={index} className="list-item">
-                                    <div className="p-all-less">
-                                        <div className="row">
+                            return (     
+                                    <div className="p-all-less list-item" key={index}>
+                                        <div className="row">          
                                             <div className="col-md-1 text-center text-lg text-bold v-center">
                                                 <div className="content-v-center">
                                                     <span className="icon-1x icon-bg-info text-bold ">if</span>
 
                                                 </div>
                                             </div>
-                                            <div className="col-md-5">
+                                            <div className="col-md-4">
                                             {  
                                                this.state.ifComponents.length > 0 ?
                                                this.state.ifComponents.map((conditionDevice,index)=>{
@@ -163,23 +162,31 @@ export class Rules extends Component {
                                             <div className="col-md-3 text-right v-center">
                                                 <span className="badge-1x icon-bg-info text-bold">then</span>
                                             </div>
-                                            <div className="col-md-2 text-right v-center">
-                                                <Link to={{ pathname: `/rules/${item.id}`, data: item }} className="btn "><img src="assets/light/images/dots.svg" /></Link>
-                                            </div>
-                                            <div className="col-md-1 text-right v-center text-xl">
+                                            <div className="col-md-4 text-right v-center">
+                                            <div className="action-buttons">
+                                            <Link to={{ pathname: `/rules/${item.id}`, data: null }} className="btn-action icon-1x icon-bg-default icon-edit text-bold"></Link>
+
+                                            <span className={`btn-action icon-1x icon-bg-default text-bold ${item.published ? "icon-publish text-success" :"icon-unpublish text-muted"}`} onClick={() => this.togglePublished(item.id, item.published)}>
                                                 {
-                                                    item.published ?
-                                                        (
-                                                            <><i className=" text-lg text-success fas fa-check-circle" onClick={() => this.togglePublished(item.id, item.published)}></i></>
-                                                        ) :
-                                                        (
-                                                            <><i className="text-lg text-lg text-muted fas fa-times-circle" onClick={() => this.togglePublished(item.id, item.published)}></i></>
-                                                        )
+                                                    // item.published ?
+                                                    //     (
+                                                    //         <i className="btn-action "></i>
+                                                    //     ) :
+                                                    //     (
+                                                    //         <i className="btn-action icon-1x icon-bg-default icon-publish text-bold"></i>
+                                                    //     )
                                                 }
+                                            </span>
+
+                                            <span className="btn-action icon-1x icon-bg-default icon-trash text-bold">
+                                                       
+                                            </span> 
+                                            </div>    
                                             </div>
                                         </div>
                                     </div>
-                                </div>)
+                                    
+                                )
                         })
                     )
                     }
@@ -489,8 +496,16 @@ export class RuleEdit extends Component {
                                     isSubmitting,
                                 }) => (
                                         <form onSubmit={handleSubmit}>
+
+<button type="submit" disabled={isSubmitting} className="btn btn-info mb-2">
+                                               <i className="fas fa-check-circle"></i> Save Rule
+                                            </button>
+
                                             <div className="card card-shadow mt-3">
                                                 <div className="card-body">
+
+                                                    <span className="icon-1x icon-bg-info text-bold mb-3">if</span>
+
                                                     <div className="row">
                                                         {
                                                             this.state.ifComponents.length > 0 ?
@@ -500,21 +515,28 @@ export class RuleEdit extends Component {
                                                                     const indexMap = device.indexMap;
                                                                     let deviceValues = device.values;
                                                                     return (
-                                                                        <div className="col-md-4" key={index}>
+                                                                        <div className="col-md-4 mb-3" key={index}>
                                                                             <Component key={index} indexMap={indexMap} values={deviceValues} data={Data} handleChange={handleChange} dataType={`if`} setFieldValue={setFieldValue} deleteDefaultProperties={this.deleteDevice}/>
                                                                         </div>
                                                                     )
-                                                                }) : (
-                                                                    <>Add If Devices Here</>
-                                                                )
+                                                                }) : null
+                                                        } 
+                                                        {
+                                                            this.state.ifComponents.length != 1 && (
+                                                                <AddDeviceModal renderAddedDevice={this.addDevice} dataType={`if`} setFieldValue={setFieldValue} values={values} />
+                                                            )
+
                                                         }
+
 
                                                     </div>
                                                 </div>
-                                                <AddDeviceModal renderAddedDevice={this.addDevice} dataType={`if`} setFieldValue={setFieldValue} values={values} />
                                             </div>
                                             <div className="card card-shadow mt-3">
                                                 <div className="card-body">
+
+                                                <span className="badge-1x icon-bg-info text-bold mb-3 ">and</span>    
+
                                                     <div className="row">
                                                         {
                                                             this.state.andComponents.length > 0 ? 
@@ -524,20 +546,21 @@ export class RuleEdit extends Component {
                                                                     const indexMap = device.indexMap;
                                                                     let deviceValues = device.values;
                                                                     return (
-                                                                        <div className="col-md-4" key={indexMap}>
+                                                                        <div className="col-md-4 mb-3" key={indexMap}>
                                                                             <Component key={indexMap} indexMap={indexMap} values={deviceValues} data={Data} handleChange={handleChange} dataType={`and`} setFieldValue={setFieldValue} deleteDefaultProperties={this.deleteDevice} />
                                                                         </div>
                                                                     )
-                                                                }) : (
-                                                                    <>Add And Devices Here</>
-                                                                )
+                                                                }) :  null
                                                         }
+
+                                                                <AddDeviceModal renderAddedDevice={this.addDevice} dataType={`and`} setFieldValue={setFieldValue} values={values} />
                                                     </div>
                                                 </div>
-                                                <AddDeviceModal renderAddedDevice={this.addDevice} dataType={`and`} setFieldValue={setFieldValue} values={values} />
                                             </div>
-                                            <div className="card card-shadow mt-3">
+                                            <div className="card card-shadow mt-3 ">
                                                 <div className="card-body">
+
+                                                <span className="badge-1x icon-bg-info text-bold mb-3 ">then</span>
                                                     <div className="row">
                                                         {
                                                             this.state.thenComponents.length > 0 ?
@@ -547,21 +570,18 @@ export class RuleEdit extends Component {
                                                                     const indexMap = device.indexMap;
                                                                     let deviceValues = device.values;     
                                                                     return (
-                                                                        <div className="col-md-4" key={indexMap}>
+                                                                        <div className="col-md-4 mb-3" key={indexMap}>
                                                                             <Component key={indexMap} indexMap={indexMap} values={deviceValues} data={Data} handleChange={handleChange} dataType={`then`} setFieldValue={setFieldValue} deleteDefaultProperties={this.deleteDevice}/>
                                                                         </div>
                                                                     )
-                                                                }) : (
-                                                                    <>Add Then Devices Here</>
-                                                                )
+                                                                }) : null
                                                         }
+                                                            <AddDeviceModal renderAddedDevice={this.addDevice} dataType={`then`} setFieldValue={setFieldValue} values={values} />
+
                                                     </div>
                                                 </div>
-                                                <AddDeviceModal renderAddedDevice={this.addDevice} dataType={`then`} setFieldValue={setFieldValue} values={values} />
                                             </div>
-                                            <button type="submit" disabled={isSubmitting}>
-                                                Submit
-                                            </button>
+                                           
                                         </form>
                                     )}
                             </Formik>
