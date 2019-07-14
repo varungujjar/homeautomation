@@ -110,7 +110,7 @@ export class AddDeviceModal extends Component {
                           </div>
                         )
                       }
-                    } else {
+                    } else if(Object.keys(Data.properties).length > 0) {
                       return (
                         <div className="col-md-4 mb-3" key={index}>
                           <Component key={index} data={Data} addDefaultProperties={this.addDevice} dataType={this.props.dataType} />

@@ -4,6 +4,8 @@ import { Link, Redirect } from 'react-router-dom';
 import { GetDevice } from "../dashboard/devices";
 import { AddDeviceModal } from "./adddevicemodal";
 import { Formik } from 'formik';
+import { Notification } from "../../system/notifications";
+
 
 export class Rules extends Component {
     constructor(props) {
@@ -78,20 +80,25 @@ export class Rules extends Component {
         })
         }
     
+        
+
+    getRules = () => {
+        fetch("/api/rules")
+        .then(response => response.json())
+        .then((result) => {
+            this.setState({ruleData:result.sort((a, b) => a.id - b.id), dataLoaded:true});
+            this.renderResult(result)
+        })
+       
+        .catch((error) => {
+            console.error(error)
+        })
+    }    
 
     componentDidMount() {
         this._isMounted = true;
         if (this._isMounted) {
-        fetch("/api/rules")
-            .then(response => response.json())
-            .then((result) => {
-                this.setState({ruleData:result.sort((a, b) => a.id - b.id), dataLoaded:true});
-                this.renderResult(result)
-            })
-           
-            .catch((error) => {
-                console.error(error)
-            })
+                this.getRules();
         }   
     }
 
@@ -101,10 +108,43 @@ export class Rules extends Component {
         fetch(`/api/rules?id=${ruleId}&published=${publishState ? 0 : 1}`)
             .then(response => response.json())
             .then((result) => {
-                    const list = this.state.ruleData.filter(item => item.id!= result.id).concat(result).sort((a, b) => a.id - b.id);
+                        if(!result.status){  
+                            const list = this.state.ruleData.filter(item => item.id!= result.id).concat(result).sort((a, b) => a.id - b.id);
+                            this.setState({
+                                ruleData:list
+                            })
+                            Notification(`${publishState ? "default" : "success"}`,`${publishState ? "Unpublished" : "Published"}`,`${publishState ? "Rule Unpublished Successfully" : "Rule Published Successfully"}`)
+                        }else{
+                            if(result.status=="error"){
+                                Notification("error","Published","There was an error publishing")
+                            }
+                        }
+            })
+            .catch((error) => {
+                console.error(error)
+            })
+        }
+    }
+
+    deleteRule = (ruleId) => {
+        if (this._isMounted) {
+        fetch(`/api/rules?id=${ruleId}&delete`)
+            .then(response => response.json())
+            .then((result) => {
+                if(!result.status){
                     this.setState({
-                        ruleData:list
+                        ifComponents:[],
                     })
+                    this.setState({ruleData:result.sort((a, b) => a.id - b.id), dataLoaded:true});  
+                    this.renderResult(result)
+                    Notification("default","Delete","Rule Deleted Successfully")
+                }else{
+                    if(result.status=="error"){
+                        Notification("error","Delete","There was an error deleting")
+                    }
+                }
+
+                
             })
             .catch((error) => {
                 console.error(error)
@@ -116,10 +156,6 @@ export class Rules extends Component {
     componentWillUnmount() {
         this._isMounted = false;
     }
-
-
-   
-
 
 
     render() {
@@ -167,18 +203,9 @@ export class Rules extends Component {
                                             <Link to={{ pathname: `/rules/${item.id}`, data: null }} className="btn-action icon-1x icon-bg-default icon-edit text-bold"></Link>
 
                                             <span className={`btn-action icon-1x icon-bg-default text-bold ${item.published ? "icon-publish text-success" :"icon-unpublish text-muted"}`} onClick={() => this.togglePublished(item.id, item.published)}>
-                                                {
-                                                    // item.published ?
-                                                    //     (
-                                                    //         <i className="btn-action "></i>
-                                                    //     ) :
-                                                    //     (
-                                                    //         <i className="btn-action icon-1x icon-bg-default icon-publish text-bold"></i>
-                                                    //     )
-                                                }
                                             </span>
 
-                                            <span className="btn-action icon-1x icon-bg-default icon-trash text-bold">
+                                            <span className="btn-action icon-1x icon-bg-default icon-trash text-bold" onClick={() => this.deleteRule(item.id)}>
                                                        
                                             </span> 
                                             </div>    

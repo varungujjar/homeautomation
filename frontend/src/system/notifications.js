@@ -2,7 +2,64 @@ import React, {Component} from "react";
 import {sio} from "../system/socketio";
 import iziToast from "izitoast";
 
-export class Notification extends Component {
+export const Notification = (type,title,message) => {
+    iziToast.settings({
+        image: '',
+        imageWidth: 50,
+        progressBar: false,
+        position: 'bottomRight',
+        transitionIn: 'fadeIn',
+        transitionOut: 'fadeOut',
+        animateInside: false,
+        icon:"",
+        maxWidth:"300px",
+        layout:2,
+        balloon:true,
+        iconColor:"",
+        messageSize:12,
+        messageLineHeight:20,
+        timeout: 5000,
+        theme: 'dark'
+    })
+
+            if(type=="default"){
+                iziToast.show({
+                    title: title,
+                    message: message
+                })
+            }
+        
+            if(type=="success"){
+                iziToast.success({
+                    title: title,
+                    message: message
+                })
+            }
+        
+            if(type=="warning"){
+                iziToast.warning({
+                    title: title,
+                    message: message
+                })
+            }
+            if(type=="error"){
+                iziToast.error({
+                    title: title,
+                    message: message
+                })
+            }
+        
+            if(type=="info"){
+                iziToast.info({
+                    title: title,
+                    message: message
+                })
+            }
+
+}
+
+
+export class NotificationSio extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -12,7 +69,6 @@ export class Notification extends Component {
      } 
 
      componentDidMount() {
-
         iziToast.settings({
             image: '',
             imageWidth: 50,
@@ -45,9 +101,7 @@ export class Notification extends Component {
     render(){
         const Notification = (props) => {
         const type = props.type;
-        
-           
-        
+
             if(type=="default"){
                 iziToast.show({
                     title: props.title,

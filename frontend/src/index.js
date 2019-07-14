@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import ReactDOM from "react-dom";
-import { Notification } from "./system/notifications";
+import { Notification, NotificationSio } from "./system/notifications";
 import { Views } from "./views";
 import { Provider } from "./system/provider";
 import { Switch, Route, BrowserRouter as Router } from 'react-router-dom';
@@ -27,7 +27,7 @@ class App extends Component {
            <Router>
             <div className="App">
               <Views></Views>
-              <Notification/>
+              <NotificationSio/>
               
             </div>
           </Router>
