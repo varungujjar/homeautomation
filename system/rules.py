@@ -52,12 +52,16 @@ def eventsHandler(id=None):
     
 
 def validateConditions(ruleDataJson):
+    
     ValidStatusArray = []
     for deviceCondition in ruleDataJson:
         conditionProperties = deviceCondition["properties"]
         conditionType = deviceCondition["condition"]
         deviceType = deviceCondition["type"]
         deviceId = deviceCondition["id"]
+
+       
+
         if deviceType == "device":
             getDevice = dbGetDevice(None,None,None,deviceId)
             if getDevice:
@@ -91,7 +95,8 @@ def validateConditions(ruleDataJson):
                     importModule = __import__(buildComponentPath, fromlist=getSystemComponent)
                     importDeviceClass = getattr(importModule,getSystemComponent)
                     deviceClass = importDeviceClass()
-                    ValidStatus = deviceClass.validateProperties(getComponent,conditionProperties,conditionType)
+                    deviceConditionStatus = deviceClass.validateProperties(getComponent,conditionProperties,conditionType)
+                    ValidStatusArray.append(deviceConditionStatus)
                 except ImportError as error:
                     logger.error("%s" % str(error)) 
                 except Exception as exception:
@@ -141,12 +146,10 @@ async def doThen(ruleData):
 
         if deviceType == "device":
             getDevice = dbGetDevice(None,None,None,deviceId)
-
             if getDevice:
                 getDeviceModule = str(getDevice["type"])
                 getDeviceClass = str(getDevice["type"])
                 getDeviceComponent = str(getDevice["component"])
-
                 try:
                     buildComponentPath = "components."+getDeviceComponent+"."+getDeviceModule
                     addSystemPath = "../components/"+getDeviceComponent
@@ -156,8 +159,7 @@ async def doThen(ruleData):
                     deviceClass = importDeviceClass()
                     triggerStatus = deviceClass.triggerAction(getDevice,conditionProperties)
                     if triggerStatus:
-                        logger.info("Rule %s Triggered" % ruleID)
-                             
+                        logger.info("Rule %s Triggered" % ruleID)            
                 except ImportError as error:
                     logger.error("%s" % str(error)) 
                 except Exception as exception:
@@ -165,6 +167,27 @@ async def doThen(ruleData):
             else:
                 logger.error("Device with %s Not Found" % str(deviceId))
                 pass             
+        elif deviceType == "component":
+            getComponent = dbGetDevice(None,None,None,deviceId)
+            if getComponent:
+                getSystemComponent = str(getComponent["component"])
+                try:
+                    buildComponentPath = "components."+getSystemComponent
+                    addSystemPath = "../components/"+getSystemComponent
+                    sys.path.append(addSystemPath) 
+                    importModule = __import__(buildComponentPath, fromlist=getSystemComponent)
+                    importDeviceClass = getattr(importModule, getSystemComponent)
+                    deviceClass = importDeviceClass()
+                    triggerStatus = deviceClass.triggerAction(getComponent,conditionProperties)
+                    if triggerStatus:
+                        logger.info("Rule %s Triggered" % ruleID)            
+                except ImportError as error:
+                    logger.error("%s" % str(error)) 
+                except Exception as exception:
+                    logger.error("%s" % str(exception)) 
+            else:
+                logger.error("Component with %s Not Found" % str(deviceId))
+                pass 
         else:
             logger.warning("No Valid Handlers Found for Rule")
     dbInsertHistory("info","system",None,"Rule "+str(ruleID),"Triggered",1)
