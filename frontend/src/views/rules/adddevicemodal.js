@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import Modal from 'react-bootstrap/Modal'
-import { GetDevice } from "../dashboard/devices";
 
 export class AddDeviceModal extends Component {
   constructor(props) {
@@ -84,7 +83,9 @@ export class AddDeviceModal extends Component {
 
   handleShow() {
     this._isMounted = true;
-    this.setState({ show: true });
+    if(this._isMounted){
+      this.setState({ show: true });
+    }
   }
 
   handleHide = () => {
@@ -100,8 +101,6 @@ export class AddDeviceModal extends Component {
 
 
   render() {
-
-
     return (
       this.state.dataLoaded &&
       <>

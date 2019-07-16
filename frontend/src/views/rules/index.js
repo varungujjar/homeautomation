@@ -264,6 +264,7 @@ export class RuleEdit extends Component {
             thenComponents: [],
             ruleData: [],
             dataLoaded: false,
+            allLoaded:false
         }
         this.id = 0; 
         this.published = 0;
@@ -364,7 +365,8 @@ export class RuleEdit extends Component {
                                     this.setState({
                                         // ...this.state.thenComponents,
                                         thenComponents: devicesList.sort((a, b) => a.indexMap - b.indexMap),
-                                        dataLoaded: true
+                                        dataLoaded: true,
+                                        allLoaded:true
                                     })
                                 }
                             })
@@ -521,7 +523,7 @@ export class RuleEdit extends Component {
 
 
     saveFormData = (data) => {
-        console.log(data);
+        // console.log(data);
         fetch(`/api/rules`, {
             method: 'POST',
             headers: {
@@ -596,7 +598,7 @@ export class RuleEdit extends Component {
                                 }) => (
                                         <form onSubmit={handleSubmit}>
 
-<button type="submit" disabled={isSubmitting} className="btn btn-info mb-2">
+                                            <button type="submit" disabled={isSubmitting} className="btn btn-info mb-2">
                                                <i className="fas fa-check-circle"></i> Save Rule
                                             </button>
 
@@ -621,13 +623,11 @@ export class RuleEdit extends Component {
                                                                 }) : null
                                                         } 
                                                         {
-                                                            this.state.ifComponents.length != 1 && (
+                                                            this.state.allLoaded ? 
+                                                                this.state.ifComponents.length == 0 && (
                                                                 <AddDeviceModal renderAddedDevice={this.addDevice} dataType={`if`} setFieldValue={setFieldValue} values={values} />
-                                                            )
-
+                                                            ) : null
                                                         }
-
-
                                                     </div>
                                                 </div>
                                             </div>
