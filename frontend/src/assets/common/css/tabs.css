@@ -2,11 +2,10 @@
     transition: 0.3s;
     cursor: pointer;
     margin-right: 20px;
+    font-weight: 700;
 
 }
-.nav-tabs .nav-item i{
-   color: #ccc;
-}
+
 .nav-tabs .nav-item i:hover{
     color: #333;
 }
@@ -29,7 +28,7 @@
 
 .nav-link.active{
     border:none!important;
-    border-bottom: 2px solid #4949BE!important;
+    border-bottom: 3px solid #4949BE!important;
     background-color: transparent!important;
     color: #333!important;
 }

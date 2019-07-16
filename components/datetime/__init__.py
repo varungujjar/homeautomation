@@ -16,7 +16,7 @@ CLASS_HEADER = "class"
 
 async def datetimeHandlerTimer():
     while True:
-        dbSyncDevice("datetime",{},{},"","system")
+        # dbSyncDevice("datetime",{},{},"","system")
         await asyncio.sleep(1)
 
 

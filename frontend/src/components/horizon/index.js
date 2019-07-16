@@ -7,7 +7,7 @@ export class ModuleList extends Component {
     constructor(props) {
         super(props);
         this._isMounted = false;
-        this.defaultIfAndProperties = {"type": "device", "condition": "=", "id": this.props.data.id, "properties": {'astral':{"above_horizon":this.props.data.properties.astral.above_horizon}}};
+        this.defaultIfAndProperties = {"type": "component", "condition": "=", "id": this.props.data.identifier, "properties": {'astral':{"above_horizon":this.props.data.properties.astral.above_horizon}}};
         if(this.props.values){
             this.deviceValues = this.props.values;
         }
@@ -144,7 +144,7 @@ export class Horizon extends Component {
 
     componentDidMount() {
         this._isMounted = true;
-        fetch("/api/horizon")
+        fetch("/api/components?id=horizon")
             .then(response => response.json())
             .then((result) => {
                 if (this._isMounted) {      

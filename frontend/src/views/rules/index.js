@@ -3,6 +3,7 @@ import { Header } from "../common/header";
 import { Link, Redirect } from 'react-router-dom';
 import { GetDevice } from "../dashboard/devices";
 import { AddDeviceModal } from "./adddevicemodal";
+import { GetComponent } from "../../system/socketio"
 import { Formik } from 'formik';
 import { Notification } from "../../system/notifications";
 
@@ -65,6 +66,33 @@ export class Rules extends Component {
                     })
                 }
 
+                else if (DataType == "component") {
+                    GetComponent(condition["id"], data => {
+                        import(`../../components/${data.identifier}`)
+                            .then(component => {
+                                var mergeJSON = require("merge-json");
+                                var devicePropertiesMerged = { "properties": mergeJSON.merge(data.properties, condition.properties) };
+                                var deviceDataMerged = mergeJSON.merge(data, devicePropertiesMerged);
+                                const deviceData = {
+                                    data: deviceDataMerged,
+                                    component: component.ModuleList,
+                                }
+                                devicesList.push(deviceData);
+                                const ifComponentData = {
+                                    id: item.id,
+                                    devices: devicesList
+                                }
+                                this.setState({
+                                    ifComponents:this.state.ifComponents.concat(ifComponentData),
+                                    dataLoaded:true
+                                })
+                            })
+                            .catch(error => {
+                                console.error(`"${data.identifier}" not yet supported`);
+                            });
+                    })
+                }
+
             })
 
     }
@@ -86,7 +114,7 @@ export class Rules extends Component {
         fetch("/api/rules")
         .then(response => response.json())
         .then((result) => {
-            this.setState({ruleData:result.sort((a, b) => a.id - b.id), dataLoaded:true});
+            this.setState({ruleData:result.sort((a, b) => b.id - a.id), dataLoaded:true});
             this.renderResult(result)
         })
        
@@ -109,7 +137,7 @@ export class Rules extends Component {
             .then(response => response.json())
             .then((result) => {
                         if(!result.status){  
-                            const list = this.state.ruleData.filter(item => item.id!= result.id).concat(result).sort((a, b) => a.id - b.id);
+                            const list = this.state.ruleData.filter(item => item.id!= result.id).concat(result).sort((a, b) => b.id - a.id);
                             this.setState({
                                 ruleData:list
                             })
@@ -135,7 +163,7 @@ export class Rules extends Component {
                     this.setState({
                         ifComponents:[],
                     })
-                    this.setState({ruleData:result.sort((a, b) => a.id - b.id), dataLoaded:true});  
+                    this.setState({ruleData:result.sort((a, b) => b.id - a.id), dataLoaded:true});  
                     this.renderResult(result)
                     Notification("default","Delete","Rule Deleted Successfully")
                 }else{
@@ -162,7 +190,7 @@ export class Rules extends Component {
         return (
                 <>
                 <Header name={this.props.name} icon={this.props.icon}></Header>
-                <Link to={{ pathname: `/rules/0`, data: null }} className="btn btn-info mb-2"><i className="fas fa-plus-circle"></i> Create New Rule</Link>
+                <Link to={{ pathname: `/rules/0`, data: null }} className="btn btn-info mb-2"><i className="fas fa-plus"></i> Create Rule</Link>
                 <div className="card card-shadow mt-3">
                     {this.state.dataLoaded && (
                         this.state.ruleData.map((item, index) => {
@@ -300,6 +328,50 @@ export class RuleEdit extends Component {
                             });
                     })
 
+                }
+                else if (DataType == "component") {
+                    GetComponent(condition["id"], data => {
+                        import(`../../components/${data.identifier}`)
+                            .then(component => {
+                                var mergeJSON = require("merge-json");
+                                var devicePropertiesMerged = { "properties": mergeJSON.merge(data.properties, condition.properties) };
+                                var deviceDataMerged = mergeJSON.merge(data, devicePropertiesMerged);
+
+                                const deviceData = {
+                                    data: deviceDataMerged,
+                                    indexMap:condition.indexMap,
+                                    component: component.ModuleList,
+                                    values:condition
+                                }
+
+                                devicesList.push(deviceData);
+
+                                if (type == "if") {
+                                    this.setState({
+                                        // ...this.state.ifComponents,
+                                        ifComponents:devicesList,
+                                        dataLoaded: true
+                                    })
+                                }
+                                if (type == "and") {
+                                    this.setState({
+                                        // ...this.state.andComponents,
+                                        andComponents: devicesList.sort((a, b) => a.indexMap - b.indexMap),
+                                        dataLoaded: true
+                                    })
+                                }
+                                if (type == "then") {
+                                    this.setState({
+                                        // ...this.state.thenComponents,
+                                        thenComponents: devicesList.sort((a, b) => a.indexMap - b.indexMap),
+                                        dataLoaded: true
+                                    })
+                                }
+                            })
+                            .catch(error => {
+                                console.error(`"${data.identifier}" not yet supported`);
+                            });
+                    })
                 }
             })
         }else{
@@ -450,7 +522,7 @@ export class RuleEdit extends Component {
 
     saveFormData = (data) => {
         console.log(data);
-        fetch(`/api/rules/save`, {
+        fetch(`/api/rules`, {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',

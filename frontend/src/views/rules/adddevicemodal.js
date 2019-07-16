@@ -11,6 +11,7 @@ export class AddDeviceModal extends Component {
     this.state = {
       show:false,
       devices :[],
+      components :[],
       dataLoaded:false,
     };
   }
@@ -19,7 +20,7 @@ export class AddDeviceModal extends Component {
   componentDidMount() {
     this._isMounted = true;
     if (this._isMounted) {
-    fetch("/api/devices?type=0")
+    fetch("/api/devices")
         .then(response => response.json())
         .then((result) => {
                 result.map((item) => {
@@ -35,8 +36,7 @@ export class AddDeviceModal extends Component {
                                     ...this.state.devices,
                                     [item.id]: componentItem,
                                 },
-                                dataLoaded:true
-                                
+                                dataLoaded:true                     
                             })
 
                         }
@@ -47,6 +47,33 @@ export class AddDeviceModal extends Component {
                         });
                 })
         })
+        fetch("/api/components?system=0")
+        .then(response => response.json())
+        .then((result) => {
+                result.map((item) => {
+                    import(`../../components/${item.identifier}`)
+                        .then(component => {
+                            const componentItem = {
+                                deviceComponent: component.ModuleList,
+                                deviceData: item,
+                            };
+
+                            this.setState({
+                                components : { 
+                                    ...this.state.components,
+                                    [item.identifier]: componentItem,
+                                },
+                                dataLoaded:true                     
+                            })
+
+                        }
+
+                        )
+                        .catch(error => {
+                            console.error(`"${item.identifier}" not yet supported`);
+                        });
+                })
+        })  
       }
 }
 
@@ -97,7 +124,35 @@ export class AddDeviceModal extends Component {
           </Modal.Header>
           <Modal.Body>
             <div className="p-all-less-lg bg-light">
+              <h2 className="mb-3">Components</h2>
+              <div className="row mb-3">
+              {
+                  Object.keys(this.state.components).map((key, index) => { 
+                    const Component = this.state.components[key].deviceComponent;
+                    const Data = this.state.components[key].deviceData;  
+                    if (this.props.dataType == "then") {
+                      if (Object.keys(Data.actions).length > 0) {
+                        return (
+                          <div className="col-md-4 mb-3" key={index}>
+                            <Component key={index} data={Data} addDefaultProperties={this.addDevice} dataType={this.props.dataType} />
+                          </div>
+                        )
+                      }
+                    } else if(Object.keys(Data.properties).length > 0) {
+                      return (
+                        <div className="col-md-4 mb-3" key={index}>
+                          <Component key={index} data={Data} addDefaultProperties={this.addDevice} dataType={this.props.dataType} />
+                        </div>
+                      )
+                    }
+                  })
+              }
+            </div>
+              <div className="clearfix"></div>
+
+             <h2 className="mb-3">Devices</h2>  
             <div className="row">
+             
               {
                   Object.keys(this.state.devices).map((key, index) => { 
                     const Component = this.state.devices[key].deviceComponent;

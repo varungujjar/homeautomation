@@ -11,7 +11,6 @@ class Api:
 
 
     async def getRules(self,request):
-        id = 0
         if "id" in request.query:
             id = int(request.query["id"])
             if "published" in request.query:
@@ -25,6 +24,11 @@ class Api:
                     response = dbGetTable("rules")
                 else:
                     response = {"status":"error"}
+            elif "save" in request.query:
+                if dbDelete("rules",id)==True:
+                    response = dbGetTable("rules")
+                else:
+                    response = {"status":"error"}        
             else:        
                 response = dbGetTable("rules",id)       
         else:           
@@ -32,10 +36,12 @@ class Api:
         return web.json_response(response)
 
 
-    async def getRulesSave(self,request):
+
+    async def postRules(self,request):
         formData = await request.json()
         dbStoreRule(formData)
         return web.json_response({})
+
 
 
     async def getNotifications(self,request):
@@ -49,37 +55,34 @@ class Api:
 
 
     async def getComponents(self,request):
-        components = dbGetTable("components",None)
-        return web.json_response(components) 
-
+        if "id" in request.query:
+            id = str(request.query["id"])
+            response = dbGetComponent(id)
+        elif "system" in request.query:
+            system = int(request.query["system"])
+            response = dbGetTable("components",None,None,None,system)          
+        else:           
+            response = dbGetTable("components")
+        return web.json_response(response)
+        
 
     async def getRooms(self,request):
-        id = None
         if "id" in request.query:
             id = int(request.query["id"])
-        rooms = dbGetTable("rooms",id)
-        return web.json_response(rooms)
+            response = dbGetTable("rooms",id)
+        else:
+            response = dbGetTable("rooms")
+        return web.json_response(response)
 
 
     async def getDevices(self,request):
-        id = None
         if "id" in request.query:
             id = int(request.query["id"])
             devices = dbGetDevice(None,None,None,id)
         else:
-            type = int(request.query["type"])    
-            devices = dbGetAllDevices(type)
+            devices = dbGetDevices()
         return web.json_response(devices)
     
-
-    async def getWeather(self,request):
-        sensors = dbGetWeatherSensor()
-        return web.json_response(sensors)
-
-
-    async def getHorizon(self,request):
-        horizon = dbGetDevice("system","horizon","")
-        return web.json_response(horizon)
 
 
     async def getSystem(self,request):
@@ -119,14 +122,13 @@ class Api:
     def Routers(self,app):
         app.router.add_get('/api/rooms', self.getRooms)
         app.router.add_get('/api/devices', self.getDevices)
-        app.router.add_get('/api/weather', self.getWeather)
-        app.router.add_get('/api/horizon', self.getHorizon)
+
         app.router.add_get('/api/system', self.getSystem)
         app.router.add_post('/api/device', self.setDevice)
 
         app.router.add_get('/api/rules', self.getRules)
-        app.router.add_post('/api/rules/save', self.getRulesSave)
+        app.router.add_post('/api/rules', self.postRules)
 
         app.router.add_get('/api/notifications', self.getNotifications)
-        app.router.add_get('/api/components', self.getDevices)
+        app.router.add_get('/api/components', self.getComponents)
 

@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { Formik } from 'formik';
 import { Header } from "../common/header";
 import { System } from "./system";
+import { Components } from "./components";
 import PropTypes from 'prop-types'
 import SelectTimezone, { getTimezoneProps } from 'react-select-timezone'
 
@@ -113,27 +114,32 @@ export class Settings extends Component {
                       
                         <ul className="nav nav-tabs" id="myTab" role="tablist">
                             <li className="nav-item">
-                                <a className="nav-link" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="false">Settings</a>
+                                <a className="nav-link   active" id="components-tab" data-toggle="tab" href="#components" role="tab" aria-controls="components" aria-selected="true"><i className="fal fa-box-open"></i> Components</a>
                             </li>
                             <li className="nav-item">
-                                <a className="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">Components</a>
+                                <a className="nav-link" id="rooms-tab" data-toggle="tab" href="#rooms" role="tab" aria-controls="rooms" aria-selected="false"><i className="fal fa-person-booth"></i> Rooms</a>
                             </li>
                             <li className="nav-item">
-                                <a className="nav-link" id="contact-tab" data-toggle="tab" href="#contact" role="tab" aria-controls="contact" aria-selected="false">Wifi</a>
+                                <a className="nav-link" id="devices-tab" data-toggle="tab" href="#devices" role="tab" aria-controls="devices" aria-selected="false"><i className="fal fa-toggle-off"></i> Devices</a>
+                            </li>
+                            <li className="nav-item">
+                                <a className="nav-link" id="network-tab" data-toggle="tab" href="#network" role="tab" aria-controls="network" aria-selected="false"><i className="fal fa-network-wired"></i> Network</a>
                             </li>
                          
                             <li className="nav-item">
-                                <a className="nav-link  active" id="system-info-tab" data-toggle="tab" href="#system-info" role="tab" aria-controls="system-info" aria-selected="true">System Information</a>
+                                <a className="nav-link" id="system-info-tab" data-toggle="tab" href="#system-info" role="tab" aria-controls="system-info" aria-selected="false"><i className="fal fa-cog"></i> System Information</a>
                             </li>
 
                         </ul>
                         <div className="tab-content" id="myTabContent">
-                            <div className="tab-pane fade" id="home" role="tabpanel" aria-labelledby="home-tab">
-                                <SettingsForm></SettingsForm>
+                            <div className="tab-pane fade show active" id="components" role="tabpanel" aria-labelledby="components-tab">
+                                <div className="mt-4"><Components/></div>
                             </div>
-                            <div className="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">profile.</div>
-                            <div className="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">contact</div>
-                            <div className="tab-pane fade show active" id="system-info" role="tabpanel" aria-labelledby="system-info-tab">
+
+                            <div className="tab-pane fade " id="rooms" role="tabpanel" aria-labelledby="rooms-tab">rooms.</div>
+                            <div className="tab-pane fade" id="devices" role="tabpanel" aria-labelledby="devices-tab">devices</div>
+                            <div className="tab-pane fade" id="network" role="tabpanel" aria-labelledby="network-tab">network</div>
+                            <div className="tab-pane fade" id="system-info" role="tabpanel" aria-labelledby="system-info-tab">
                             <System></System>
                             
                             </div>

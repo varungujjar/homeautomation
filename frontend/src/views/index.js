@@ -3,8 +3,9 @@ import { SideNav, MobileNav } from "./common/nav";
 import { Switch, Route, BrowserRouter as Router } from 'react-router-dom';
 import { Dashboard } from "./dashboard";
 import { Rules, RuleEdit } from "./rules";
+import { Components, ComponentsEdit } from "./settings/components";
 import { Settings } from "./settings";
-import { Horizon } from "../components/system/horizon";
+import { Horizon } from "../components/horizon";
 import { Weather } from "./dashboard/weather";
 import { Home } from "./dashboard/home";
 import { Timeline } from "./timeline";
@@ -39,6 +40,7 @@ export const Views = () => {
               <Route exact path="/rules" render={() => <Rules name={"Rules"} icon="list-alt" />} />
               <Route exact path="/timeline" render={() => <Timeline name={"Timeline"} icon="list-alt" />} />
               <Route exact path="/rules/:id" render={(props) => <RuleEdit {...props} name={"Rule Edit"} icon="list-alt" />} />
+              <Route exact path="/components/:id" render={(props) => <ComponentsEdit {...props} name={"Component Edit"} icon="list-alt" />} />
               <Route path="/settings" render={() => <Settings name={"Settings"} icon="cog" />} />
               <Route component={NoMatch} />
             </Switch>

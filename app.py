@@ -16,8 +16,8 @@ from system.status import *
 
 from system.system import *
 from system.api import *
-from components.system.horizon import *
-from components.system.datetime import *
+from components.horizon import *
+from components.datetime import *
 
 COMPONENTS_DIR = "components"
 

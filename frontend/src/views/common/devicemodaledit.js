@@ -59,9 +59,6 @@ export class DeviceModalEdit extends Component {
   };
 
   render() {
-    const ModalBody = this.state.modalDeviceRender;
-    let deviceData = this.state.modalDeviceData;
-
     return (
       // this.state.dataLoaded == true &&
       <>

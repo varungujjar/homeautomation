@@ -50,47 +50,8 @@ def eventsHandler(id=None):
             loop.create_task(doThen(ruleData))    
     logger.debug("Rule Check Completed")
     
- 
-def validateIf(ruleData):
-    ruleDataJson = ruleData["rule_if"]
-    ruleID = ruleData["id"]
-    ValidStatus = False
-    for deviceCondition in ruleDataJson:
-        conditionProperties = deviceCondition["properties"]
-        conditionType = deviceCondition["condition"]
-        deviceType = deviceCondition["type"]
-        deviceId = deviceCondition["id"]
-        if deviceType == "device":
-            getDevice = dbGetDevice(None,None,None,deviceId)
-            if getDevice:
-                getDeviceModule = str(getDevice["type"])
-                getDeviceClass = str(getDevice["type"])
-                getDeviceComponent = str(getDevice["component"])
-                try:
-                    buildComponentPath = "components."+getDeviceComponent+"."+getDeviceModule
-                    addSystemPath = "../components/"+getDeviceComponent
-                    sys.path.append(addSystemPath) 
-                    importModule = __import__(buildComponentPath, fromlist=getDeviceModule)
-                    importDeviceClass = getattr(importModule, getDeviceClass)
-                    deviceClass = importDeviceClass()
-                    ValidStatus = deviceClass.validateProperties(getDevice,conditionProperties,conditionType)
-                except ImportError as error:
-                    logger.error("%s" % str(error)) 
-                except Exception as exception:
-                    logger.error("%s" % str(exception))    
-            else:
-                logger.error("Device with %s Not Found" % str(deviceId))
-                pass             
-        else:
-            logger.warning("No Valid Handlers Found for Rule")
-    logger.debug("Rule If Condition %d %s" % (ruleID, str(ValidStatus)))
-    return ValidStatus    
 
-
-def validateAnd(ruleData):
-    ruleDataJson = ruleData["rule_and"]
-    ruleID = ruleData["id"]
-    ValidStatus = False
+def validateConditions(ruleDataJson):
     ValidStatusArray = []
     for deviceCondition in ruleDataJson:
         conditionProperties = deviceCondition["properties"]
@@ -119,6 +80,25 @@ def validateAnd(ruleData):
             else:
                 logger.error("Device with %s Not Found" % str(deviceId))
                 pass             
+        elif deviceType == "component":
+            getComponent = dbGetComponent(deviceId)
+            if getComponent:
+                getSystemComponent = str(getComponent["identifier"])
+                try:
+                    buildComponentPath = "components."+getSystemComponent
+                    addSystemPath = "../components/"+getSystemComponent
+                    sys.path.append(addSystemPath) 
+                    importModule = __import__(buildComponentPath, fromlist=getSystemComponent)
+                    importDeviceClass = getattr(importModule,getSystemComponent)
+                    deviceClass = importDeviceClass()
+                    ValidStatus = deviceClass.validateProperties(getComponent,conditionProperties,conditionType)
+                except ImportError as error:
+                    logger.error("%s" % str(error)) 
+                except Exception as exception:
+                    logger.error("%s" % str(exception))    
+            else:
+                logger.error("Component with %s Not Found" % str(deviceId))
+                pass  
         else:
             logger.warning("No Valid Handlers Found for Rule")
 
@@ -129,7 +109,23 @@ def validateAnd(ruleData):
             ValidStatus = all(x == ValidStatusArray[0] for x in ValidStatusArray)
     else:
         ValidStatus = True
+    return ValidStatus     
 
+
+def validateIf(ruleData):
+    ruleDataJson = ruleData["rule_if"]
+    ruleID = ruleData["id"]
+    ValidStatus = False
+    ValidStatus = validateConditions(ruleDataJson)
+    logger.debug("Rule If Condition %d %s" % (ruleID, str(ValidStatus)))
+    return ValidStatus    
+
+
+def validateAnd(ruleData):
+    ruleDataJson = ruleData["rule_and"]
+    ruleID = ruleData["id"]
+    ValidStatus = False
+    ValidStatus = validateConditions(ruleDataJson)
     logger.debug("Rule And Condition %d %s" % (ruleID, str(ValidStatus)))
     return ValidStatus
 

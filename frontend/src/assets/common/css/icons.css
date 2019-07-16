@@ -43,11 +43,11 @@
 
 .icon-publish::before {
   font-family: "Font Awesome 5 Pro";
-  content: "\f058";
+  content: "\f00c";
 }
 .icon-unpublish::before {
   font-family: "Font Awesome 5 Pro";
-  content: "\f057";
+  content: "\f00d";
 }
 
 
