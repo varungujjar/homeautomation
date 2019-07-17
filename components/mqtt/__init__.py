@@ -65,16 +65,4 @@ def mqttHandler():
         logger.error("Connection exception: %s" % ce)    
 
 
-@asyncio.coroutine
-def publish(topic, value):
-    print("------------Publishing-----------")
-    try:
-        yield from C.connect('mqtt://user:password@0.0.0.0:1883')
-        yield from C.publish(topic, bytes(str(value),"UTF-8"), qos=0x01)
-        logger.info("Message Published")
-        yield from C.disconnect()
-    except ConnectException as ce:
-        logger.error("Connection exception: %s" % ce)       
-
-
     
