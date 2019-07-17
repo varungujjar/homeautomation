@@ -11,11 +11,14 @@ import sys
 import signal
 import functools
 import threading
+
 from system.rules import *
 from system.status import *
-
 from system.system import *
 from system.api import *
+
+from components.mqtt import *
+from components.zigbee import *
 from components.horizon import *
 from components.datetime import *
 
@@ -55,14 +58,16 @@ class RunServer:
             componentsList = self.getList(path)
             for component in componentsList:
                 fileList = os.listdir(path+"/"+component)
-                if "server.py" in fileList:
-                    buildComponentPath = COMPONENTS_DIR+"."+component+".server"
-                    sys.path.append(path+"/"+component)
-                    importModule = __import__(buildComponentPath, fromlist="*")
-                    functionCall = getattr(importModule, "%sHandler" % component)()
-                    app.loop.create_task(functionCall)
-        app.loop.create_task(horizonHandlerTimer())
-        app.loop.create_task(datetimeHandlerTimer())            
+                # if "server.py" in fileList:
+                #     buildComponentPath = COMPONENTS_DIR+"."+component+".server"
+                #     sys.path.append(path+"/"+component)
+                #     importModule = __import__(buildComponentPath, fromlist="*")
+                #     functionCall = getattr(importModule, "%sHandler" % component)()
+                #     app.loop.create_task(functionCall)
+        app.loop.create_task(mqttHandler())
+        app.loop.create_task(zigbeeHandler())              
+        app.loop.create_task(horizonHandler())
+        app.loop.create_task(datetimeHandler())            
         app.loop.create_task(eventsHandlerTimer())
         app.loop.create_task(statusHandler())
         
@@ -71,7 +76,7 @@ class RunServer:
         mode = self.mode
         if mode is not 1:
             logger.info("Closing Serial Connection")
-            from components.zigbee.server import closeSerialConnection
+            from components.zigbee import closeSerialConnection
             closeSerialConnection()
         logger.info("Cancelling All Tasks")
         pending = asyncio.Task.all_tasks()

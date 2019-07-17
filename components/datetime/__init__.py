@@ -14,7 +14,7 @@ TYPE = "datetime"
 CLASS_HEADER = "class"
 
 
-async def datetimeHandlerTimer():
+async def datetimeHandler():
     while True:
         # dbSyncDevice("datetime",{},{},"","system")
         await asyncio.sleep(1)
