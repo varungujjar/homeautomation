@@ -146,6 +146,11 @@
   content: "\f4ca";
 }
 
+.icon-plug::before{
+  font-family: "Font Awesome 5 Pro";
+  content: "\f1e6";
+}
+
 .icon-sensor::before{
   font-family: "Font Awesome 5 Pro";
   content: "\f76a";

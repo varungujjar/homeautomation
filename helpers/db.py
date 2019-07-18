@@ -10,8 +10,8 @@ import socketio
 logger = formatLogger(__name__)
 
 global db_path
-db_path = '/home/pi/db/db'
-# db_path = '/Volumes/Work/homeautomation/db/db'
+# db_path = '/home/pi/db/db'
+db_path = '/Volumes/Work/homeautomation/db/db'
 
 
 def sioConnect():
@@ -109,72 +109,66 @@ def dbSyncDevice(type,prop,actions,address,component):
 	return thisDevice
 
 
-def dbGetComponent(id=None):
-	if id:
+
+def dbGetDevice(component=None,type=None,address=None,id=None):
+	response = False
+	try:
 		db = sqlite3.connect(db_path)
 		db.row_factory = lambda c, r: dict([(col[0], r[idx]) for idx, col in enumerate(c.description)])
 		cur = db.cursor()
-		cur.execute('SELECT * FROM components WHERE identifier=?', (str(id),))
-		component = cur.fetchone()
+		if id is None:
+			cur.execute('SELECT devices.*, rooms.id as room_id, rooms.name as room_name FROM devices LEFT JOIN rooms on room_id = rooms.id WHERE component=? AND type=? AND address=?',(component,type,address))
+			response = cur.fetchone()
+		else:
+			cur.execute('SELECT devices.*, rooms.id as room_id, rooms.name as room_name FROM devices LEFT JOIN rooms on room_id = rooms.id WHERE devices.id=?',(id,))
+			response = cur.fetchone()
 		db.commit()
-	if component is None:
-		return {}
+	except Exception as err:
+		response = False
+		logger.error('[DB] Get All Devices Error: %s' % (str(err)))
+	finally:
+		db.close()
+	if response is None:
+		response = False
+		return response
 	else:
-		component = formatData(component)
-	return component
-
-
-
-#needs to be combined with bottom dbgetall devices
-def dbGetDevice(component=None,type=None,address=None,id=None):
-	db = sqlite3.connect(db_path)
-	db.row_factory = lambda c, r: dict([(col[0], r[idx]) for idx, col in enumerate(c.description)])
-	cur = db.cursor()
-	if id is None:
-		cur.execute('SELECT devices.*, rooms.id as room_id, rooms.name as room_name FROM devices LEFT JOIN rooms on room_id = rooms.id WHERE component=? AND type=? AND address=?',(component,type,address))
-		device = cur.fetchone()
-	else:
-		cur.execute('SELECT devices.*, rooms.id as room_id, rooms.name as room_name FROM devices LEFT JOIN rooms on room_id = rooms.id WHERE devices.id=?',(id,))
-		device = cur.fetchone()
-	db.commit()
-	if device is None:
-		return {}
-	else:
-		device = formatData(device)			
-	return device
-
+		response = formatData(response)	
+	return response
 
 
 def dbGetDevices():
+	response = False
 	try:
 		db = sqlite3.connect(db_path)
 		db.row_factory = lambda c, r: dict([(col[0], r[idx]) for idx, col in enumerate(c.description)])
 		cur = db.cursor()
 		cur.execute("SELECT devices.*, rooms.id as room_id, rooms.name as room_name FROM devices LEFT JOIN rooms on room_id = rooms.id ORDER BY 'order' ASC")
-		devices = cur.fetchall()
+		response = cur.fetchall()
 		db.commit()
 	except Exception as err:
+		response = False
 		logger.error('[DB] Get All Devices Error: %s' % (str(err)))
 	finally:
 		db.close()
-	if devices is None:
-		return {}	
+	if response is None:
+		response = False
+		return response	
 	else:
 		jsonDevices = []
-		for device in devices:
+		for device in response:
 			jsonDevices.append(formatData(device))
 	return jsonDevices
 
 
 
-
 def dbGetTable(tableName,id=None,published=None,order=None,system=None):
+	table = None
 	try:
 		db = sqlite3.connect(db_path)
 		db.row_factory = lambda c, r: dict([(col[0], r[idx]) for idx, col in enumerate(c.description)])
 		cur = db.cursor()
 		if id:
-			cur.execute("SELECT * FROM %s WHERE id=%s" % (tableName,int(id)))		
+			cur.execute("SELECT * FROM %s WHERE id=?" % (tableName), (id,))		
 			table = cur.fetchone()		
 		elif published:
 			cur.execute("SELECT * FROM %s WHERE published=%s" % (tableName,int(published)))
@@ -194,14 +188,14 @@ def dbGetTable(tableName,id=None,published=None,order=None,system=None):
 	finally:
 		db.close()
 	if id:	
-		if table is None:
-			return {}
+		if not table:
+			return False
 		else:
 			table = formatData(table)
 			return table
 	else:
-		if table is None:
-			return {}
+		if not table:
+			return False
 		else:	
 			tableFormat = []
 			for tableItem in table:
@@ -210,21 +204,24 @@ def dbGetTable(tableName,id=None,published=None,order=None,system=None):
 
 
 def dbPublished(tableName,id=None,published=None):
-	try:
-		db = sqlite3.connect(db_path)
-		cur = db.cursor()
-		cur.execute("UPDATE %s SET published=%s, modified=datetime(CURRENT_TIMESTAMP, 'localtime') WHERE id=%s" % (tableName,int(published),int(id)))
-		db.commit()
-		response = True
-	except Exception as err:
-		response = False
-		logger.error('Set Published Error: %s' % (str(err)))
-	finally:
-		db.close()
+	response = False
+	if id:
+		try:
+			db = sqlite3.connect(db_path)
+			cur = db.cursor()
+			cur.execute("UPDATE %s SET published=%s, modified=datetime(CURRENT_TIMESTAMP, 'localtime') WHERE id=%s" % (tableName,int(published),int(id)))
+			db.commit()
+			response = True
+		except Exception as err:
+			response = False
+			logger.error('Set Published Error: %s' % (str(err)))
+		finally:
+			db.close()
 	return response
 
 
 def dbDelete(tableName,id=None):
+	response = False
 	if id:
 		try:
 			db = sqlite3.connect(db_path)
@@ -253,6 +250,7 @@ def dbDelete(tableName,id=None):
 
 
 def dbStoreRule(formData):
+	response = False
 	if "id" in formData:
 		if formData["id"] != 0:
 			try:
@@ -260,11 +258,11 @@ def dbStoreRule(formData):
 				cur = db.cursor()
 				cur.execute("UPDATE rules SET rule_if=?, rule_and=?,  rule_then=?, published=?, trigger=1, modified=datetime(CURRENT_TIMESTAMP, 'localtime') WHERE id=?", (str(formData["rule_if"]), str(formData["rule_and"]), str(formData["rule_then"]), int(formData["published"]), int(formData["id"]) ))
 				db.commit()
+				response = True
 				logger.info('Rule Saved Successfully')
-				showNotification("success","Success","Your data was saved successfully")	
 			except Exception as err:
+				response = False
 				logger.error('[DB] Save Rule Error: %s' % (str(err)))
-				showNotification("error","DB Store Error","There was an error saving your data")
 			finally:
 				db.close()
 		else:
@@ -273,27 +271,27 @@ def dbStoreRule(formData):
 				cur = db.cursor()
 				cur.execute("INSERT INTO rules(rule_if, rule_and, rule_then, published, modified, created) VALUES(?,?,?,?,datetime(CURRENT_TIMESTAMP, 'localtime'),datetime(CURRENT_TIMESTAMP, 'localtime'))", (str(formData["rule_if"]), str(formData["rule_and"]), str(formData["rule_then"]), int(formData["published"])))
 				db.commit()
-				showNotification("success","Success","Your data was saved successfully")	
+				response = True
 			except Exception as err:
+				response = False
 				logger.error('[DB] Device Insert Sync Error: %s' % (str(err)))
-				showNotification("error","DB Store Error","There was an error saving your data")
 			finally:
 				db.close()
-	return True
+	return response
 
 
-def showNotification(type,title,message):
-	data = {}
-	data["type"] = type
-	data["title"] = title
-	data["message"] = message
-	# if(type=="success"):
-	# 	logger.success(str(data))
-	# elif(type=="error"):
-	# 	logger.error(str(data))
-	# elif(type=="warning"):
-	# 	logger.warning(str(data))			
-	sioConnect().emit('notification', data)		
+# def showNotification(type,title,message):
+# 	data = {}
+# 	data["type"] = type
+# 	data["title"] = title
+# 	data["message"] = message
+# 	# if(type=="success"):
+# 	# 	logger.success(str(data))
+# 	# elif(type=="error"):
+# 	# 	logger.error(str(data))
+# 	# elif(type=="warning"):
+# 	# 	logger.warning(str(data))			
+# 	sioConnect().emit('notification', data)		
 
 
 

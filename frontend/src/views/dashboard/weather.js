@@ -16,7 +16,7 @@ export class Weather extends Component {
 
     componentDidMount() {
         this._isMounted = true;
-        fetch("/api/devices?id=5")
+        fetch("/api/devices/5")
             .then(response => response.json())
             .then((result) => {
                 if (this._isMounted) {

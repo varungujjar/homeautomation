@@ -68,7 +68,7 @@ export class Rules extends Component {
 
                 else if (DataType == "component") {
                     GetComponent(condition["id"], data => {
-                        import(`../../components/${data.identifier}`)
+                        import(`../../components/${data.id}`)
                             .then(component => {
                                 var mergeJSON = require("merge-json");
                                 var devicePropertiesMerged = { "properties": mergeJSON.merge(data.properties, condition.properties) };
@@ -88,7 +88,7 @@ export class Rules extends Component {
                                 })
                             })
                             .catch(error => {
-                                console.error(`"${data.identifier}" not yet supported`);
+                                console.error(`"${data.id}" not yet supported`);
                             });
                     })
                 }
@@ -133,19 +133,17 @@ export class Rules extends Component {
 
     togglePublished = (ruleId, publishState) => {
         if (this._isMounted) {
-        fetch(`/api/rules?id=${ruleId}&published=${publishState ? 0 : 1}`)
+        fetch(`/api/rules/${ruleId}/published/${publishState ? 0 : 1}`,{method: 'POST'})
             .then(response => response.json())
             .then((result) => {
-                        if(!result.status){  
+                        if(result!=="False"){  
                             const list = this.state.ruleData.filter(item => item.id!= result.id).concat(result).sort((a, b) => b.id - a.id);
                             this.setState({
                                 ruleData:list
                             })
                             Notification(`${publishState ? "default" : "success"}`,`${publishState ? "Unpublished" : "Published"}`,`${publishState ? "Rule Unpublished Successfully" : "Rule Published Successfully"}`)
                         }else{
-                            if(result.status=="error"){
                                 Notification("error","Published","There was an error publishing")
-                            }
                         }
             })
             .catch((error) => {
@@ -156,10 +154,10 @@ export class Rules extends Component {
 
     deleteRule = (ruleId) => {
         if (this._isMounted) {
-        fetch(`/api/rules?id=${ruleId}&delete`)
+        fetch(`/api/rules/${ruleId}/delete/1`, {method: 'POST'})
             .then(response => response.json())
             .then((result) => {
-                if(!result.status){
+                if(result!=="False"){
                     this.setState({
                         ifComponents:[],
                     })
@@ -167,9 +165,7 @@ export class Rules extends Component {
                     this.renderResult(result)
                     Notification("default","Delete","Rule Deleted Successfully")
                 }else{
-                    if(result.status=="error"){
-                        Notification("error","Delete","There was an error deleting")
-                    }
+                    Notification("error","Delete","There was an error deleting")
                 }
 
                 
@@ -332,7 +328,7 @@ export class RuleEdit extends Component {
                 }
                 else if (DataType == "component") {
                     GetComponent(condition["id"], data => {
-                        import(`../../components/${data.identifier}`)
+                        import(`../../components/${data.id}`)
                             .then(component => {
                                 var mergeJSON = require("merge-json");
                                 var devicePropertiesMerged = { "properties": mergeJSON.merge(data.properties, condition.properties) };
@@ -351,7 +347,8 @@ export class RuleEdit extends Component {
                                     this.setState({
                                         // ...this.state.ifComponents,
                                         ifComponents:devicesList,
-                                        dataLoaded: true
+                                        dataLoaded: true,
+                                        allLoaded:true
                                     })
                                 }
                                 if (type == "and") {
@@ -366,12 +363,12 @@ export class RuleEdit extends Component {
                                         // ...this.state.thenComponents,
                                         thenComponents: devicesList.sort((a, b) => a.indexMap - b.indexMap),
                                         dataLoaded: true,
-                                        allLoaded:true
+                                        
                                     })
                                 }
                             })
                             .catch(error => {
-                                console.error(`"${data.identifier}" not yet supported`);
+                                console.error(`"${data.id}" not yet supported`);
                             });
                     })
                 }
@@ -380,7 +377,8 @@ export class RuleEdit extends Component {
             if (type == "if") {
                 this.setState({
                     ifComponents:[],
-                    dataLoaded: true
+                    dataLoaded: true,
+                    allLoaded:true
                 })
             }
 
@@ -394,7 +392,8 @@ export class RuleEdit extends Component {
             if (type == "then") {
                 this.setState({
                     thenComponents: [],
-                    dataLoaded: true
+                    dataLoaded: true,
+                    
                 })
             }
         }
@@ -490,7 +489,7 @@ export class RuleEdit extends Component {
         this._isMounted = true;
         if (this._isMounted) {
             if (this.props.match.params.id != 0) {
-                fetch(`/api/rules?id=${this.props.match.params.id}`)
+                fetch(`/api/rules/${this.props.match.params.id}`)
                     .then(response => response.json())
                     .then((result) => {
                             this.setState({
@@ -510,7 +509,8 @@ export class RuleEdit extends Component {
                     })
             } else {
                 this.setState({
-                    dataLoaded: true
+                    dataLoaded: true,
+                    allLoaded:true
                 })
             }
         }
@@ -524,7 +524,7 @@ export class RuleEdit extends Component {
 
     saveFormData = (data) => {
         // console.log(data);
-        fetch(`/api/rules`, {
+        fetch(`/api/rules/${this.id}/save`, {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -534,7 +534,11 @@ export class RuleEdit extends Component {
         })
             .then(response => response.json())
             .then((result) => {
-                // console.log(result);
+                if(result!=="False"){
+                    Notification("success","Saved","Rule Saved Successfully")
+                }else{
+                    Notification("error","Error","There was an error saving")
+                }
             })
             .catch((error) => {
                 console.error(error)

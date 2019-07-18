@@ -15,7 +15,7 @@ export const sio = (type, callback) => {
 
 
 export const GetComponent = (id,resultData) => {
-  fetch(`/api/components?id=${id}`)
+  fetch(`/api/components/${id}`)
           .then(response => response.json())
           .then((result) => {
               resultData(result);  

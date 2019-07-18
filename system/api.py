@@ -10,87 +10,102 @@ class Api:
         self.loop = asyncio.get_event_loop()
 
 
-    async def getRules(self,request):
-        if "id" in request.query:
-            id = int(request.query["id"])
-            if "published" in request.query:
-                published = int(request.query["published"])
-                if dbPublished("rules",id,published)==True:
-                    response = dbGetTable("rules",id)
-                else:
-                    response = {"status":"error"}
-            elif "delete" in request.query:
-                if dbDelete("rules",id)==True:
-                    response = dbGetTable("rules")
-                else:
-                    response = {"status":"error"}
-            elif "save" in request.query:
-                if dbDelete("rules",id)==True:
-                    response = dbGetTable("rules")
-                else:
-                    response = {"status":"error"}        
-            else:        
-                response = dbGetTable("rules",id)       
-        else:           
-            response = dbGetTable("rules")
+    async def apiRules(self,request):
+        response = False
+        if(request.method=="GET"):
+            if "id" in request.match_info:
+                if request.match_info['id']:
+                    response = dbGetTable("rules",int(request.match_info['id']))
+            else:           
+                response = dbGetTable("rules")
+        elif(request.method=="POST"):
+            if "id" in request.match_info:
+                if "command" in request.match_info:
+                    if request.match_info["command"] == "published":
+                        if dbPublished("rules",int(request.match_info["id"]),request.match_info["data"]):
+                            response = dbGetTable("rules",int(request.match_info["id"]))
+                    elif request.match_info["command"] == "delete":
+                        if int(request.match_info["data"]) == 1:
+                            if dbDelete("rules",int(request.match_info["id"])):
+                                response = dbGetTable("rules")
+                    elif request.match_info["command"] == "save":
+                        formData = await request.json()
+                        if dbStoreRule(formData):
+                            response = True
         return web.json_response(response)
 
 
 
-    async def postRules(self,request):
-        formData = await request.json()
-        dbStoreRule(formData)
-        return web.json_response({})
+    async def apiDevices(self,request):
+        response = False
+        if(request.method=="GET"):
+            if "id" in request.match_info:
+                if request.match_info['id']:
+                    response = dbGetDevice(None,None,None,int(request.match_info['id']))
+            else:           
+                response = dbGetDevices()
+        elif(request.method=="POST"):
+            if "id" in request.match_info:
+                if "command" in request.match_info:
+                    if request.match_info["command"] == "published":
+                        if dbPublished("rules",int(request.match_info["id"]),request.match_info["data"]):
+                            response = dbGetTable("rules",int(request.match_info["id"]))
+                    elif request.match_info["command"] == "delete":
+                        if int(request.match_info["data"]) == 1:
+                            if dbDelete("rules",int(request.match_info["id"])):
+                                response = dbGetTable("rules")
+                    elif request.match_info["command"] == "save":
+                        formData = await request.json()
+                        if dbStoreRule(formData):
+                            response = True
+        return web.json_response(response)
 
 
 
-    async def getNotifications(self,request):
-        action = None
-        if "action" in request.query:
-            action = request.query["action"]
-            if action == "clear":
-                dbDelete("notifications",None)
-        notifications = dbGetTable("notifications",None,None,"created")
-        return web.json_response(notifications)
+    async def apiNotifications(self,request):
+        response = False
+        if "command" in request.match_info:
+            if request.match_info['command'] == "delete":
+                data = int(request.match_info['data'])
+                if data == 1:
+                    response = dbDelete("notifications")
+        else:           
+            response = dbGetTable("notifications",None,None,"created")
+        return web.json_response(response)
 
 
-    async def getComponents(self,request):
-        if "id" in request.query:
-            id = str(request.query["id"])
-            response = dbGetComponent(id)
-        elif "system" in request.query:
-            system = int(request.query["system"])
-            response = dbGetTable("components",None,None,None,system)          
+
+    async def apiComponents(self,request):
+        response = False
+        if "command" in request.match_info:
+            if request.match_info['command'] == "system":
+                id = int(request.match_info['data'])
+                response = dbGetTable("components",None,None,None,int(id))
+        elif "id" in request.match_info:
+            response = dbGetTable("components",str(request.match_info['id']))        
         else:           
             response = dbGetTable("components")
         return web.json_response(response)
         
 
-    async def getRooms(self,request):
+
+    async def apiRooms(self,request):
         if "id" in request.query:
             id = int(request.query["id"])
-            response = dbGetTable("rooms",id)
+            response = dbGetTable("rooms",int(id))
         else:
             response = dbGetTable("rooms")
         return web.json_response(response)
 
 
-    async def getDevices(self,request):
-        if "id" in request.query:
-            id = int(request.query["id"])
-            devices = dbGetDevice(None,None,None,id)
-        else:
-            devices = dbGetDevices()
-        return web.json_response(devices)
-    
 
-
-    async def getSystem(self,request):
+    async def apiSystem(self,request):
         system = systemHandler()
         return web.json_response(system)
 
 
-    async def setDevice(self,request):
+
+    async def apiDevice(self,request):
         requestParams = await request.json()
         deviceId = requestParams["device"]
         deviceAction = requestParams["actions"] 
@@ -119,16 +134,35 @@ class Api:
                 return web.json_response(str(exception))
 
 
+
     def Routers(self,app):
-        app.router.add_get('/api/rooms', self.getRooms)
-        app.router.add_get('/api/devices', self.getDevices)
+        #Rooms API
+        app.router.add_get('/api/rooms', self.apiRooms)
+        app.router.add_get('/api/rooms/{command}/{data}', self.apiRooms)
+        
+        #System Info API
+        app.router.add_get('/api/system', self.apiSystem)
 
-        app.router.add_get('/api/system', self.getSystem)
-        app.router.add_post('/api/device', self.setDevice)
-
-        app.router.add_get('/api/rules', self.getRules)
-        app.router.add_post('/api/rules', self.postRules)
-
-        app.router.add_get('/api/notifications', self.getNotifications)
-        app.router.add_get('/api/components', self.getComponents)
+        #Devices API
+        app.router.add_get('/api/devices', self.apiDevices)
+        app.router.add_get('/api/devices/{id}', self.apiDevices)
+        # app.router.add_get('/api/devices/{id}/{command}/{data}', self.apiDevices)  #eg. 89/properties/current
+        app.router.add_get('/api/devices/{command}/{data}', self.apiDevices)   #eg. 89/online/1
+        app.router.add_post('/api/device/{id}/{command}/{data}', self.apiDevices)  #eg. 89/brightness/100
+            
+        #Notifications API
+        app.router.add_get('/api/notifications', self.apiNotifications)
+        app.router.add_get('/api/notifications/{command}/{data}', self.apiNotifications)
+        
+        #Rules API
+        app.router.add_get('/api/rules', self.apiRules)    
+        app.router.add_get('/api/rules/{id}', self.apiRules)
+        app.router.add_post('/api/rules/{id}/{command}', self.apiRules)  #eg. 90/save
+        app.router.add_post('/api/rules/{id}/{command}/{data}', self.apiRules)  # eg. 90/published/0
+        
+        #Component API
+        app.router.add_get('/api/components', self.apiComponents)
+        app.router.add_get('/api/components/{id}', self.apiComponents)
+        app.router.add_get('/api/components/{command}/{data}', self.apiComponents)  # eg. components/system/0
+        
 

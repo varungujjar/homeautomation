@@ -6,7 +6,7 @@ import { ContextData } from "../../system/provider";
 
 
 export const GetDevice = (id,resultData) => {
-    fetch(`/api/devices?id=${id}`)
+    fetch(`/api/devices/${id}`)
             .then(response => response.json())
             .then((result) => {
                 resultData(result);  
@@ -55,7 +55,7 @@ export class Devices extends Component {
 
     componentDidMount() {
         this._isMounted = true;
-        fetch("/api/devices?type=1")
+        fetch("/api/devices")
             .then(response => response.json())
             .then((result) => {
                 if (this._isMounted) {

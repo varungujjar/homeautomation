@@ -28,7 +28,7 @@ export class ModuleList extends Component {
         super(props);
         this._isMounted = false;
         this.day = { 0: "Mon", 1: "Tue", 2: "Wed", 3: "Thu", 4: "Fri", 5: "Sat", 6: "Sun" };
-        this.defaultIfAndProperties = {"type": "component", "condition": "=", "id": this.props.data.identifier, "properties": { 'day': [0,1,2,3,4,5,6], 'time': [12, 0]}}
+        this.defaultIfAndProperties = {"type": "component", "condition": "=", "id": this.props.data.id, "properties": { 'day': [0,1,2,3,4,5,6], 'time': [12, 0]}}
         if(this.props.values){
             this.deviceValues = this.props.values;
         } 

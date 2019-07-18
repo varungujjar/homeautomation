@@ -123,7 +123,7 @@ export class ModuleList extends Component {
                     {
                         
                             <div className="p-all-less">
-                            <span className={`icon-left icon-1x icon-lamp ${this.deviceData.properties.relay[0] ? "icon-bg-success" : "icon-bg-default"}`}></span>
+                            <span className={`icon-left icon-1x icon-${this.deviceData.icon ?  this.deviceData.icon : ""} ${this.deviceData.properties.relay[0] ? "icon-bg-success" : "icon-bg-default"}`}></span>
                             <div className="text-bold mt-1">{this.deviceData.name ? this.deviceData.name : "..."}</div>
                             <div className="text-secondary text-md">{this.deviceData.room_name}</div>
                             </div>
@@ -368,7 +368,7 @@ export const Module = (props) => {
                                 <div key={index} className={relays[index] ? ("on") : ("")} >
                                     <DeviceModal data={device}/>  
                                     <div onClick={() => { toggleState(device.id, index, relays[index]) }}>
-                                    <span className={`icon-1x icon-lamp ${relays[index] ? "icon-bg-success" : "icon-bg-default"}`} ></span>
+                                    <span className={`icon-1x icon-${device.icon ?  device.icon : ""} ${relays[index] ? "icon-bg-success" : "icon-bg-default"}`} ></span>
                                     <div className="text-status">
                                         {
                                             relays[index] ? ("On") : ("Off")

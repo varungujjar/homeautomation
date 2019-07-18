@@ -107,7 +107,7 @@ export class Timeline extends Component {
                                 }
                             }
                             return (
-                                <div key={index} className="card card-shadow mt-3">
+                                <div key={index} className="card card-shadow mt-3 overflow-hidden">
                                     <div className={`bg-${item.type ? item.type : "info"}  p-all-less float-left`}>
                                         <span className={`icon-1x text-light ${icon}`}></span>
                                     </div>

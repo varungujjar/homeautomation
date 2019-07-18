@@ -7,7 +7,7 @@ export class ModuleList extends Component {
     constructor(props) {
         super(props);
         this._isMounted = false;
-        this.defaultThenProperties = {"type": "component", "id": this.props.data.identifier, "properties": {"notification":{"title":"","message":""}}}
+        this.defaultThenProperties = {"type": "component", "id": this.props.data.id, "properties": {"notification":{"title":"","message":""}}}
         if(this.props.values){
             this.deviceValues = this.props.values;
         }

@@ -17,8 +17,8 @@ from system.status import *
 from system.system import *
 from system.api import *
 
-from components.mqtt import *
-from components.zigbee import *
+# from components.mqtt import *
+# from components.zigbee import *
 from components.horizon import *
 from components.datetime import *
 
@@ -64,8 +64,8 @@ class RunServer:
                 #     importModule = __import__(buildComponentPath, fromlist="*")
                 #     functionCall = getattr(importModule, "%sHandler" % component)()
                 #     app.loop.create_task(functionCall)
-        app.loop.create_task(mqttHandler())
-        app.loop.create_task(zigbeeHandler())              
+        # app.loop.create_task(mqttHandler())
+        # app.loop.create_task(zigbeeHandler())              
         app.loop.create_task(horizonHandler())
         app.loop.create_task(datetimeHandler())            
         app.loop.create_task(eventsHandlerTimer())

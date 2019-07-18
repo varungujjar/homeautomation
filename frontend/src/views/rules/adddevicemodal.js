@@ -46,11 +46,11 @@ export class AddDeviceModal extends Component {
                         });
                 })
         })
-        fetch("/api/components?system=0")
+        fetch("/api/components/system/0")
         .then(response => response.json())
         .then((result) => {
                 result.map((item) => {
-                    import(`../../components/${item.identifier}`)
+                    import(`../../components/${item.id}`)
                         .then(component => {
                             const componentItem = {
                                 deviceComponent: component.ModuleList,
@@ -60,7 +60,7 @@ export class AddDeviceModal extends Component {
                             this.setState({
                                 components : { 
                                     ...this.state.components,
-                                    [item.identifier]: componentItem,
+                                    [item.id]: componentItem,
                                 },
                                 dataLoaded:true                     
                             })
@@ -69,7 +69,7 @@ export class AddDeviceModal extends Component {
 
                         )
                         .catch(error => {
-                            console.error(`"${item.identifier}" not yet supported`);
+                            console.error(`"${item.id}" not yet supported`);
                         });
                 })
         })  

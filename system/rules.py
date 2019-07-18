@@ -85,9 +85,9 @@ def validateConditions(ruleDataJson):
                 logger.error("Device with %s Not Found" % str(deviceId))
                 pass             
         elif deviceType == "component":
-            getComponent = dbGetComponent(deviceId)
+            getComponent = dbGetTable("components",str(deviceId))
             if getComponent:
-                getSystemComponent = str(getComponent["identifier"])
+                getSystemComponent = str(getComponent["id"])
                 try:
                     buildComponentPath = "components."+getSystemComponent
                     addSystemPath = "../components/"+getSystemComponent
