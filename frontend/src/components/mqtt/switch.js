@@ -16,16 +16,13 @@ const toggleState = (deviceId, relayIndex, relayState) => {
     const relay = {
         "relay": { "0": setRelaystate }
     }
-    fetch('/api/device', {
+    fetch(`/api/devices/${deviceId}/action`, {
         method: 'POST',
         headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-            device: deviceId,
-            actions: relay,
-        })
+        body: JSON.stringify(relay)
     })
 
 }

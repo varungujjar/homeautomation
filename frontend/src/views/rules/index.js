@@ -133,7 +133,14 @@ export class Rules extends Component {
 
     togglePublished = (ruleId, publishState) => {
         if (this._isMounted) {
-        fetch(`/api/rules/${ruleId}/published/${publishState ? 0 : 1}`,{method: 'POST'})
+        fetch(`/api/rules/${ruleId}/published`,{
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(publishState ? 0 : 1)
+            })
             .then(response => response.json())
             .then((result) => {
                         if(result!=="False"){  
@@ -154,7 +161,14 @@ export class Rules extends Component {
 
     deleteRule = (ruleId) => {
         if (this._isMounted) {
-        fetch(`/api/rules/${ruleId}/delete/1`, {method: 'POST'})
+        fetch(`/api/rules/${ruleId}/delete`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(1)
+            })
             .then(response => response.json())
             .then((result) => {
                 if(result!=="False"){

@@ -45,19 +45,31 @@ export class Timeline extends Component {
 
     clearAll = () => {
         this._isMounted = true;
-        fetch("/api/notifications?action=clear")
-            .then(response => response.json())
-            .then((result) => {
-                if (this._isMounted) {
-                    this.setState({
-                        list: result,
-                        dataLoaded: true
-                    });
-                }
+        if (this._isMounted) {
+            fetch("/api/notifications/delete", {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(1)
             })
-            .catch((error) => {
-                console.error(error)
-            })
+                .then(response => response.json())
+                .then((result) => {
+                    if(result!=="False"){
+                        Notification("default","Deleted","Notifications Deleted Successfully")
+                    }else{
+                        Notification("error","Error","There was an error saving")
+                    }
+                        this.setState({
+                            list: result,
+                            dataLoaded: true
+                        });
+                })
+                .catch((error) => {
+                    console.error(error)
+                })
+            }
     }
 
     componentDidMount() {

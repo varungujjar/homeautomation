@@ -162,7 +162,7 @@ def dbGetDevices():
 
 
 def dbGetTable(tableName,id=None,published=None,order=None,system=None):
-	table = None
+	table = None		
 	try:
 		db = sqlite3.connect(db_path)
 		db.row_factory = lambda c, r: dict([(col[0], r[idx]) for idx, col in enumerate(c.description)])
