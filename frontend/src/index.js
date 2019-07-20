@@ -22,7 +22,6 @@ import "./assets/light/css/app.css"
 class App extends Component {
    render() {
       return (
-       
         <Provider>
            <Router>
             <div className="App">
@@ -32,7 +31,6 @@ class App extends Component {
             </div>
           </Router>
         </Provider>
-       
       );
     }
 }

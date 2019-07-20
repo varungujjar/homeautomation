@@ -7,7 +7,6 @@ import asyncio
 import binascii
 from helpers.logger import formatLogger
 from helpers.db import *
-from system.rules import *
 
 logger = formatLogger(__name__)
 
@@ -52,7 +51,6 @@ class sensor(object):
             pass
         logger.info("%s" % str(deviceProperties))
         dbSyncDevice(deviceClass,deviceProperties,deviceActions,deviceAddress,COMPONENT)
-        eventsHandler()
         
 
             

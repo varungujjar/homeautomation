@@ -12,16 +12,11 @@ logger = formatLogger(__name__)
 global db_path
 # db_path = '/home/pi/db/db'
 db_path = '/Volumes/Work/homeautomation/db/db'
-
+typeIntCols = ["published","trigger","system","enable","service","online","weather","order","room_id"]
 
 def sioConnect():
 	sio = socketio.RedisManager('redis://', write_only=True)
 	return sio
-
-
-def Merge(oldProps, newProps): 
-    result = {**oldProps, **newProps} 
-    return result 
 
 
 def formatData(data):
@@ -49,37 +44,6 @@ def dbGetConfig():
 	return config
 
 
-def dbInsertHistory(type,identifier,params=None,title=None,message=None,store=None):
-	if store == 1:
-		try:
-			db = sqlite3.connect(db_path)
-			cur = db.cursor()
-			cur.execute("INSERT INTO notifications(type, identifier, params, title, message, read, created) VALUES(?,?,?,?,?,?,datetime(CURRENT_TIMESTAMP, 'localtime'))", (str(type), str(identifier),str(params),str(title),str(message),1))
-			db.commit()
-		except Exception as err:
-			logger.error('[DB] Notification Error: %s' % (str(err)))
-		finally:
-			db.close()
-	data = {}
-	data["type"] = type
-	data["title"] = title
-	data["message"] = message
-	logger.info(str(data))
-	sioConnect().emit('notification', data)		
-
-
-def dbSetDeviceStatus(id,status):
-	try:
-		db = sqlite3.connect(db_path)
-		cur = db.cursor()
-		cur.execute("UPDATE devices SET online=?, modified=datetime(CURRENT_TIMESTAMP, 'localtime') WHERE id=?",(int(status),int(id)))
-		db.commit()
-	except Exception as err:
-		logger.error('[DB] Device Update Status Error: %s' % (str(err)))
-	finally:
-		db.close()
-
-
 def dbSyncDevice(type,prop,actions,address,component):
 	getDevice = dbGetDevice(component,type,address)
 	if not getDevice:
@@ -105,7 +69,7 @@ def dbSyncDevice(type,prop,actions,address,component):
 		finally:
 			db.close()
 	thisDevice = dbGetDevice(component,type,address)
-	sioConnect().emit(thisDevice["id"], thisDevice)
+	sioConnect().emit(thisDevice["id"], thisDevice) #very important since this updates the device state instantly on the frontend
 	return thisDevice
 
 
@@ -203,22 +167,6 @@ def dbGetTable(tableName,id=None,published=None,order=None,system=None):
 			return tableFormat
 
 
-def dbPublished(tableName,id=None,published=None):
-	response = False
-	if id:
-		try:
-			db = sqlite3.connect(db_path)
-			cur = db.cursor()
-			cur.execute("UPDATE %s SET published=%s, modified=datetime(CURRENT_TIMESTAMP, 'localtime') WHERE id=%s" % (tableName,int(published),int(id)))
-			db.commit()
-			response = True
-		except Exception as err:
-			response = False
-			logger.error('Set Published Error: %s' % (str(err)))
-		finally:
-			db.close()
-	return response
-
 
 def dbDelete(tableName,id=None):
 	response = False
@@ -249,62 +197,60 @@ def dbDelete(tableName,id=None):
 	return response
 
 
-def dbStoreRule(formData):
+
+def dbStore(tableName, formData):
 	response = False
 	if "id" in formData:
 		if formData["id"] != 0:
+			createUpdate = []
+			for col in formData:
+				if col != "id":
+					if col in typeIntCols:
+						colData = formData[col]	
+					else:
+						colData = str('"%s"' % formData[col])
+					createUpdate.append("%s=%s" % (col, colData))
+			joinUpdate = ",".join(createUpdate)
 			try:
 				db = sqlite3.connect(db_path)
 				cur = db.cursor()
-				cur.execute("UPDATE rules SET rule_if=?, rule_and=?,  rule_then=?, published=?, trigger=1, modified=datetime(CURRENT_TIMESTAMP, 'localtime') WHERE id=?", (str(formData["rule_if"]), str(formData["rule_and"]), str(formData["rule_then"]), int(formData["published"]), int(formData["id"]) ))
+				cur.execute("UPDATE %s SET %s, modified=datetime(CURRENT_TIMESTAMP, 'localtime') WHERE id=?" % (tableName,joinUpdate), (formData["id"], ))
 				db.commit()
 				response = True
-				logger.info('Rule Saved Successfully')
+				logger.info('%s Store Successfully' % (tableName))
 			except Exception as err:
 				response = False
-				logger.error('[DB] Save Rule Error: %s' % (str(err)))
+				logger.error('%s Store Error: %s' % (tableName,str(err)))
 			finally:
 				db.close()
 		else:
+			createInsertCols = []
+			createInsertValuesMark = []
+			createInsertValues = []
+			for col in formData:
+				if col != "id":
+					if col in typeIntCols:
+						colValue = str(formData[col])	
+					else:
+						colValue = str('"%s"' % formData[col])
+					createInsertCols.append("%s" % (col))
+					createInsertValuesMark.append("?")
+					createInsertValues.append(colValue)
+			joinInsertCols = ",".join(createInsertCols)
+			joinInsertMarks = ",".join(createInsertValuesMark)
+			joinInsertValues = ",".join(createInsertValues)
 			try:
 				db = sqlite3.connect(db_path)
 				cur = db.cursor()
-				cur.execute("INSERT INTO rules(rule_if, rule_and, rule_then, published, modified, created) VALUES(?,?,?,?,datetime(CURRENT_TIMESTAMP, 'localtime'),datetime(CURRENT_TIMESTAMP, 'localtime'))", (str(formData["rule_if"]), str(formData["rule_and"]), str(formData["rule_then"]), int(formData["published"])))
+				cur.execute("INSERT INTO %s(%s, created) VALUES(%s,datetime(CURRENT_TIMESTAMP, 'localtime'))" % (tableName,joinInsertCols,joinInsertValues))
 				db.commit()
 				response = True
+				logger.info('%s Inserted Successfully' % (tableName))
 			except Exception as err:
 				response = False
-				logger.error('[DB] Device Insert Sync Error: %s' % (str(err)))
+				logger.error('%s Insert Error: %s' % (tableName,str(err)))
 			finally:
 				db.close()
 	return response
-
-
-# def showNotification(type,title,message):
-# 	data = {}
-# 	data["type"] = type
-# 	data["title"] = title
-# 	data["message"] = message
-# 	# if(type=="success"):
-# 	# 	logger.success(str(data))
-# 	# elif(type=="error"):
-# 	# 	logger.error(str(data))
-# 	# elif(type=="warning"):
-# 	# 	logger.warning(str(data))			
-# 	sioConnect().emit('notification', data)		
-
-
-
-def setRuleTriggerStatus(id,status):
-	try:
-		db = sqlite3.connect(db_path)
-		cur = db.cursor()
-		cur.execute("UPDATE rules SET trigger=?, modified=datetime(CURRENT_TIMESTAMP, 'localtime') WHERE id=?",(int(status), int(id)))
-		db.commit()
-	except Exception as err:
-		logger.error('[DB] Rule Set Active Error: %s' % (str(err)))
-	finally:
-		db.close()
-	return True
 
 

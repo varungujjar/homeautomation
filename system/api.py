@@ -24,7 +24,7 @@ class Api:
             if "id" in request.match_info:
                 if "command" in request.match_info:
                     if request.match_info["command"] == "published":
-                        if dbPublished("rules",int(request.match_info["id"]),await request.json()):
+                        if dbStore("rules",{"id":int(request.match_info["id"]),"published":await request.json()}):
                             response = dbGetTable("rules",int(request.match_info["id"]))
                     elif request.match_info["command"] == "delete":
                         if int(await request.json()) == 1:
@@ -32,7 +32,7 @@ class Api:
                                 response = dbGetTable("rules")
                     elif request.match_info["command"] == "save":
                         formData = await request.json()
-                        response = dbStoreRule(formData)
+                        response = dbStore("rules",formData)
         return web.json_response(response)
 
 
@@ -48,10 +48,7 @@ class Api:
         elif(request.method=="POST"):
             if "id" in request.match_info:
                 if "command" in request.match_info:
-                    if request.match_info["command"] == "published":
-                        if dbPublished("devices",int(request.match_info["id"]),request.match_info["data"]):
-                            response = dbGetTable("devices",int(request.match_info["id"]))
-                    elif request.match_info["command"] == "delete":
+                    if request.match_info["command"] == "delete":
                         if int(request.match_info["data"]) == 1:
                             if dbDelete("devices",int(request.match_info["id"])):
                                 response = dbGetTable("devices")
@@ -130,7 +127,7 @@ class Api:
                                 response = dbGetTable("rooms")
                     elif request.match_info["command"] == "save":
                         formData = await request.json()
-                        response = dbStoreRoom(formData)
+                        response = dbStore("rooms",formData)
         return web.json_response(response)
 
 

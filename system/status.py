@@ -15,11 +15,11 @@ logger = formatLogger(__name__)
 
 def deviceCheckIncoming(device):
     if device["online"] == 0:
+        importNotificationModule = __import__("system.notifications", fromlist="notifications")        
+        importNotificationModule.storeNotification("success","device",device["room_name"] or device["component"],"Device "+device["name"]+" is now Online",True)
         importDbModule = __import__("helpers.db", fromlist="db")
-        importDbModule.dbSetDeviceStatus(device["id"],1)
-        importDbModule.dbInsertHistory("success","device",None,device["room_name"] or device["component"],"Device "+device["name"]+" is now Online",1)
+        importDbModule.dbStore("devices",{"id":int(device["id"]),"online":1})
         logger.info("Device(%d) %s is online" % (device["id"],device["name"]))
-        pass
 
 
 async def statusHandler():
@@ -31,6 +31,7 @@ async def statusHandler():
 
 def statusCheck():
     importDbModule = __import__("helpers.db", fromlist="db")
+    importNotificationModule = __import__("system.notifications", fromlist="notifications") 
     devices = importDbModule.dbGetDevices()
     for device in devices:
         now = datetime.now()
@@ -39,10 +40,10 @@ def statusCheck():
         seconds = delta.seconds
         if seconds > CHECK_THRESHOLD:
             logger.error("Device(%d) %s is offline" % (device["id"],device["name"]))
-            importDbModule.dbInsertHistory("error","device",None,device["room_name"] or device["component"],"Device "+device["name"]+" went Offline")
+            importNotificationModule.pushNotification("error","device",device["room_name"] or device["component"],"Device "+device["name"]+" went Offline")
             if device["online"] == 1:
-                importDbModule.dbInsertHistory("error","device",None,device["room_name"] or device["component"],"Device "+device["name"]+" went Offline",1)
-                importDbModule.dbSetDeviceStatus(device["id"],0)
+                importNotificationModule.storeNotification("error","device",device["room_name"] or device["component"],"Device "+device["name"]+" went Offline",True)
+                importDbModule.dbStore("devices",{"id":int(device["id"]),"online":0})
 
 
 

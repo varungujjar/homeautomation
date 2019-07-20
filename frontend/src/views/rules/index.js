@@ -537,7 +537,7 @@ export class RuleEdit extends Component {
 
 
     saveFormData = (data) => {
-        // console.log(data);
+        console.log(data);
         fetch(`/api/rules/${this.id}/save`, {
             method: 'POST',
             headers: {
@@ -548,7 +548,7 @@ export class RuleEdit extends Component {
         })
             .then(response => response.json())
             .then((result) => {
-                if(result!=="False"){
+                if(result!==false){
                     Notification("success","Saved","Rule Saved Successfully")
                 }else{
                     Notification("error","Error","There was an error saving")
@@ -578,6 +578,7 @@ export class RuleEdit extends Component {
                     result[conditionItem] = devices;
         })
         result["published"] = this.published;
+        result["trigger"] = 1;
         result["id"] = this.id;  
         return result;
     }

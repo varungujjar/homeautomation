@@ -535,6 +535,14 @@ button, button:active, button:focus{
     margin-left: 10px;
     transition: 0.3s;
 }
+
+.btn-action-disabled{
+    background: #efefef;
+    color: #999;
+    margin-left: 10px;
+    transition: 0.3s;
+}
+
 .btn-action:hover, .btn-action:active, .btn-action:focus{
     background: #fff;
     box-shadow: 0 9px 30.5px 1.5px rgba(0,0,0,.1)!important;

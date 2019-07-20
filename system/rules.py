@@ -8,11 +8,7 @@ import socketio
 from helpers.db import *
 
 TIMER = 1
-
-
 logger = formatLogger(__name__)
-external_sio = socketio.RedisManager('redis://', write_only=True)
-
 
 async def eventsHandlerTimer():
     while True:
@@ -21,14 +17,9 @@ async def eventsHandlerTimer():
         await asyncio.sleep(TIMER)
 
 
-def eventsHandler(id=None):
-    if id:
-        getDevice = dbGetDevice(None,None,None,id)
-        external_sio.emit('message', str(getDevice["properties"]))
-
+def eventsHandler():
     logger.debug("Rule Check Started")
     getRules = dbGetTable("rules",None,1)
-
     for ruleData in getRules:
         validateIfCondition = validateIf(ruleData)
         validateAndCondition = validateAnd(ruleData)
@@ -39,10 +30,10 @@ def eventsHandler(id=None):
         if validateIfCondition and validateAndCondition:
             ValidStatus = True
         if ValidStatus and checkifActive == 1:
-            setRuleTriggerStatus(ruleID,0)
+            dbStore("rules",{"id":int(ruleID),"trigger":0})
             triggerStatus = True
         elif not ValidStatus and checkifActive == 0:
-            setRuleTriggerStatus(ruleID,1)    
+            dbStore("rules",{"id":int(ruleID),"trigger":1})    
         else:
             pass    
         if triggerStatus:
@@ -51,17 +42,13 @@ def eventsHandler(id=None):
     logger.debug("Rule Check Completed")
     
 
-def validateConditions(ruleDataJson):
-    
+def validateConditions(ruleDataJson):  
     ValidStatusArray = []
     for deviceCondition in ruleDataJson:
         conditionProperties = deviceCondition["properties"]
         conditionType = deviceCondition["condition"]
         deviceType = deviceCondition["type"]
         deviceId = deviceCondition["id"]
-
-       
-
         if deviceType == "device":
             getDevice = dbGetDevice(None,None,None,deviceId)
             if getDevice:
@@ -190,6 +177,6 @@ async def doThen(ruleData):
                 pass 
         else:
             logger.warning("No Valid Handlers Found for Rule")
-    dbInsertHistory("info","system",None,"Rule "+str(ruleID),"Triggered",1)
-
+    importNotificationModule = __import__("system.notifications", fromlist="notifications")        
+    importNotificationModule.storeNotification("info","rule","Rule "+str(ruleID),"Triggered", True)
 

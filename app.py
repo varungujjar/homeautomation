@@ -13,6 +13,7 @@ import functools
 import threading
 
 from system.rules import *
+from system.notifications import *
 from system.status import *
 from system.system import *
 from system.api import *
@@ -70,7 +71,27 @@ class RunServer:
         app.loop.create_task(datetimeHandler())            
         app.loop.create_task(eventsHandlerTimer())
         app.loop.create_task(statusHandler())
-        
+
+
+    # async def cleanBackgroundProcesses(self, app):
+    #     logger.info("Cancelling All Tasks")
+    #     mode = self.mode
+    #     if mode is not 1:
+    #         logger.info("Closing Serial Connection")
+    #         from components.zigbee import closeSerialConnection
+    #         closeSerialConnection()
+    #     # sio.disconnect()
+    #     # await sio.disconnect()
+    #     pending = asyncio.Task.all_tasks()
+    #     for task in pending:
+    #         task.cancel()
+    #         await task
+    #     # self.close()
+    #     self.loop.remove_signal_handler(signal.SIGINT)
+    #     self.loop.remove_signal_handler(signal.SIGTERM)
+    #     self.loop.add_signal_handler(signal.SIGTERM,self.shutdownHandler)
+    #     os.kill(os.getpid(), signal.SIGTERM)
+       
 
     async def stopHandler(self):
         mode = self.mode
@@ -101,15 +122,16 @@ class RunServer:
         return app
 
 
-    @sio.on('connect')
-    async def connect(self, data):
-        dbInsertHistory("success","system",None,"Hi, there","I Am now connected.")
+    @sio.on('connect',namespace='/')
+    async def connect(self, sid):
+        pushNotification("success","system","Hi, there","I Am now connected.")
     
 
     def runApp(self):
         loop = self.loop
         app = loop.run_until_complete(self.createApp())
         app.on_startup.append(self.startBackgroundProcesses)
+        # app.on_cleanup.append(self.cleanBackgroundProcesses)
         for sig in (signal.SIGTERM, signal.SIGINT):
             loop.add_signal_handler(sig, lambda: asyncio.ensure_future(self.stopHandler()))
         web.run_app(app, host=self.host, port=self.port, handle_signals=False) 

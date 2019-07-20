@@ -116,6 +116,11 @@
   content: "\f819";
 }
 
+.icon-lock::before {
+  font-family: "Font Awesome 5 Pro";
+  content: "\f30d";
+}
+
 .icon-cpu::before {
   font-family: "Font Awesome 5 Pro";
   content: "\f2db";

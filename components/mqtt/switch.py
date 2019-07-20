@@ -4,6 +4,7 @@ import asyncio
 from helpers.logger import formatLogger
 from helpers.db import *
 from system.rules import *
+from system.notifications import *
 from components.mqtt.publish import *
 
 logger = formatLogger(__name__)
@@ -38,7 +39,7 @@ class switch(object):
                 stateType = "success"
             roomName = data["room_name"] or "None"
             message = data["name"] + " Switch Turned <b>"+stateText+"</b>"
-            dbInsertHistory(stateType,"device",None,roomName,message,1)
+            storeNotification(stateType,"device",roomName,message, True)
         
 
     def publish(self,topic,value):

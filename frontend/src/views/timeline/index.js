@@ -56,15 +56,16 @@ export class Timeline extends Component {
             })
                 .then(response => response.json())
                 .then((result) => {
-                    if(result!=="False"){
+                    if(result!==false){
                         Notification("default","Deleted","Notifications Deleted Successfully")
+                        this.setState({
+                            list:[],
+                            dataLoaded: true
+                        });
                     }else{
                         Notification("error","Error","There was an error saving")
                     }
-                        this.setState({
-                            list: result,
-                            dataLoaded: true
-                        });
+                        
                 })
                 .catch((error) => {
                     console.error(error)
@@ -105,22 +106,22 @@ export class Timeline extends Component {
                             {
                                 
                                 
-                                if (item.type == "success") {
+                                if (item.class == "success") {
                                     icon = "icon-check";
                                 }
-                                if (item.type == "error") {
+                                if (item.class == "error") {
                                     icon = "icon-error";
                                 }
-                                if (item.type == "info") {
+                                if (item.class == "info") {
                                     icon = "icon-info";
                                 }
-                                if (item.type == "default") {
+                                if (item.class == "default") {
                                     icon = "icon-check";
                                 }
                             }
                             return (
                                 <div key={index} className="card card-shadow mt-3 overflow-hidden">
-                                    <div className={`bg-${item.type ? item.type : "info"}  p-all-less float-left`}>
+                                    <div className={`bg-${item.class ? item.class : "info"}  p-all-less float-left`}>
                                         <span className={`icon-1x text-light ${icon}`}></span>
                                     </div>
                                     <div className="float-left p-all-less">
