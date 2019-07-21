@@ -49,7 +49,7 @@ export class System extends Component {
     render() {
         const system = this.state.systemData;
         return (
-            <div className={`tab-pane fade ${this.props.active ? "show active" : null}`} id="System" role="tabpanel" aria-labelledby="System-tab">
+            <div className={`tab-pane fade ${this.props.active ? "show active" : null}`} id="system" role="tabpanel" aria-labelledby="system-tab">
             <div className="mt-4">
                    
                             {this.state.dataLoaded ?

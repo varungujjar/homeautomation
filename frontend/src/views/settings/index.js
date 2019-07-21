@@ -11,7 +11,7 @@ import SelectTimezone, { getTimezoneProps } from 'react-select-timezone'
 
 
 export const TabHeads = (props) => {
-    const tabs = {"Components":"fa-box-open","Rooms":"fa-person-booth","Devices":"fa-toggle-off","Network":"fa-network-wired","System":"fa-cog"};
+    const tabs = {"components":"fa-box-open","rooms":"fa-person-booth","devices":"fa-toggle-off","network":"fa-network-wired","system":"fa-cog"};
     return(
              <ul className="nav nav-tabs" id="myTab" role="tablist">
                         {
@@ -29,15 +29,18 @@ export const TabHeads = (props) => {
 
 
 export const Settings = (props) => {
+
+        const category = props.match.params.category
+        console.log(props.match.params.category)
         return (
             <>   
                 <Header name={props.name} icon={props.icon}></Header>
-                <TabHeads active="Components" />
+                <TabHeads active={category} />
                 <div className="tab-content" id="myTabContent">
-                    <Components active="1"/>
-                    <Rooms/>
-                    <Devices/>
-                    <System/>
+                    <Components active={category == "components" ? 1 : 0}/>
+                    <Rooms active={category == "rooms" ? 1 : 0}/>
+                    <Devices active={category == "devices" ? 1 : 0}/>
+                    <System active={category == "system" ? 1 : 0}/>
                 </div>
             </>
            )

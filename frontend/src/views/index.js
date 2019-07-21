@@ -43,7 +43,7 @@ export const Views = () => {
               <Route exact path="/rules/:id" render={(props) => <RuleEdit {...props} name={"Rule Edit"} icon="list-alt" />} />
               <Route exact path="/settings/components/:id" render={(props) => <ComponentsEdit {...props} name={"Component Edit"} icon="list-alt" />} />
               <Route exact path="/settings/rooms/:id" render={(props) => <RoomsEdit {...props} name={"Rooms Edit"} icon="list-alt" />} />
-              <Route path="/settings" render={() => <Settings name={"Settings"} icon="cog" />} />
+              <Route path="/settings/:category" render={(props) => <Settings  {...props} name={"Settings"} icon="cog" />} />
               <Route component={NoMatch} />
             </Switch>
           </div>

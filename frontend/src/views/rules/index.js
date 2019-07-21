@@ -171,7 +171,7 @@ export class Rules extends Component {
             })
             .then(response => response.json())
             .then((result) => {
-                if(result!=="False"){
+                if(result!==false){
                     this.setState({
                         ifComponents:[],
                     })
@@ -537,7 +537,7 @@ export class RuleEdit extends Component {
 
 
     saveFormData = (data) => {
-        console.log(data);
+        // console.log(data);
         fetch(`/api/rules/${this.id}/save`, {
             method: 'POST',
             headers: {

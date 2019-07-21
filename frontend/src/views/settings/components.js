@@ -15,6 +15,33 @@ export class Components extends Component {
         }
     }
 
+    toggleEnable = (compId, enableState) => {
+        if (this._isMounted) {
+        fetch(`/api/components/${compId}/enable`,{
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(enableState ? 0 : 1)
+            })
+            .then(response => response.json())
+            .then((result) => {
+                        if(result!==false){  
+                            const list = this.state.list.filter(item => item.id!= result.id).concat(result).sort((a, b) => a.id.localeCompare(b.id));
+                            this.setState({
+                                list:list
+                            })
+                            Notification(`${enableState ? "default" : "success"}`,`${enableState ? "Deactivated" : "Activated"}`,`${enableState ? "Component deactivated successfully" : "Component activated successfully"}`)
+                        }else{
+                            Notification("error","Activation","There was an error activating or deactivating")
+                        }
+            })
+            .catch((error) => {
+                console.error(error)
+            })
+        }
+    }
 
 
     componentDidMount() {
@@ -25,7 +52,7 @@ export class Components extends Component {
                 .then((result) => {
                     if (this._isMounted) {
                         this.setState({
-                            list: result,
+                            list: result.sort((a, b) => a.id.localeCompare(b.id)),
                             dataLoaded: true
                         });
                     }
@@ -46,7 +73,7 @@ export class Components extends Component {
 
     render() {
         return (
-            <div className={`tab-pane fade ${this.props.active ? "show active" : null}`} id="Components" role="tabpanel" aria-labelledby="Components-tab">
+            <div className={`tab-pane fade ${this.props.active ? "show active" : null}`} id="components" role="tabpanel" aria-labelledby="components-tab">
                 <div className="mt-4">
                 {
                     this.state.dataLoaded ?
@@ -68,7 +95,7 @@ export class Components extends Component {
                                                     <div className="col-md-4 text-right v-center">
                                                         <div className="action-buttons">
                                                             <Link to={{ pathname: `/settings/components/${item.id}` }} className="btn-action icon-1x icon-bg-default icon-edit text-bold"></Link>
-                                                            <span className={`btn-action icon-1x icon-bg-default text-bold ${item.enable ? "icon-publish text-success" : "icon-unpublish text-muted"}`} onClick={() => this.togglePublished(item.id, item.published)}>
+                                                            <span className={`btn-action icon-1x icon-bg-default text-bold ${item.enable ? "icon-publish text-success" : "icon-unpublish text-muted"}`} onClick={() => this.toggleEnable(item.id, item.enable)}>
                                                             </span>
                                                             {
                                                                 item.locked ? (

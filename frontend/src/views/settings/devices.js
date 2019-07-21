@@ -43,7 +43,7 @@ export class Devices extends Component {
 
     render() {
        return(
-        <div className={`tab-pane fade ${this.props.active ? "show active" : null}`} id="Devices" role="tabpanel" aria-labelledby="Devices-tab">
+        <div className={`tab-pane fade ${this.props.active ? "show active" : null}`} id="devices" role="tabpanel" aria-labelledby="devices-tab">
         <div className="mt-4">
             <h2 className="mb-3">Discovered Devices</h2>
             <div className="text-muted mb-5">Any new devices will automatically show up here.</div>
