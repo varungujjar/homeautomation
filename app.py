@@ -103,6 +103,7 @@ class RunServer:
         pending = asyncio.Task.all_tasks()
         for task in pending:
             task.cancel()
+        await sio.disconnect(0)    
         self.loop.remove_signal_handler(signal.SIGINT)
         self.loop.remove_signal_handler(signal.SIGTERM)
         self.loop.add_signal_handler(signal.SIGTERM, self.shutdownHandler)

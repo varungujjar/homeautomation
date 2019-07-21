@@ -77,7 +77,7 @@ async def horizonHandler():
 				data["astral"]["next_time"] =  get_age(utc_aware_to_datetime(astral["sunrise"]))
 		deviceActions = {}
 		deviceProperties = data
-		# thisHorizon = dbSyncDevice(TYPE,deviceProperties,deviceActions,"",COMPONENT)
+		dbStore("components",{"id":"horizon","actions":deviceActions,"properties":deviceProperties})
 		logger.info("%s" % str(deviceProperties))
 		await asyncio.sleep(60)
 

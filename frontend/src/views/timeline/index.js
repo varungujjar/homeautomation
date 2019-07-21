@@ -3,6 +3,7 @@ import { Header } from "../common/header";
 import Moment from 'react-moment';
 import renderHTML from 'react-render-html';
 import {sio} from "../../system/socketio";
+import { Notification } from "../../system/notifications";
 
 
 const convertTime = (datetime) => {
@@ -27,19 +28,21 @@ export class Timeline extends Component {
 
 
     renderList = () => {
+        if (this._isMounted) {
         fetch("/api/notifications")
             .then(response => response.json())
             .then((result) => {
-                if (this._isMounted) {
+                
                     this.setState({
                         list: result,
                         dataLoaded: true
                     });
-                }
+                
             })
             .catch((error) => {
                 console.error(error)
             })
+        }
     }
 
 
@@ -54,7 +57,6 @@ export class Timeline extends Component {
                 },
                 body: JSON.stringify(1)
             })
-                .then(response => response.json())
                 .then((result) => {
                     if(result!==false){
                         Notification("default","Deleted","Notifications Deleted Successfully")
@@ -63,7 +65,7 @@ export class Timeline extends Component {
                             dataLoaded: true
                         });
                     }else{
-                        Notification("error","Error","There was an error saving")
+                        Notification("error","Error","There was an Error Deleting Notifications")
                     }
                         
                 })

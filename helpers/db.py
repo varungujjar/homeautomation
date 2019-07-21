@@ -22,7 +22,7 @@ def sioConnect():
 def formatData(data):
 	jsonItem = {}
 	for key, value in data.items():
-		if key in ["properties","actions","rule_if","rule_and","rule_then"]:
+		if key in ["properties","actions","rule_if","rule_and","rule_then","parameters"]:
 			jsonItem[key] = eval(value)
 		else:	
 			jsonItem[key] = value
@@ -125,46 +125,55 @@ def dbGetDevices():
 
 
 
-def dbGetTable(tableName,id=None,published=None,order=None,system=None):
-	table = None		
-	try:
-		db = sqlite3.connect(db_path)
-		db.row_factory = lambda c, r: dict([(col[0], r[idx]) for idx, col in enumerate(c.description)])
-		cur = db.cursor()
-		if id:
-			cur.execute("SELECT * FROM %s WHERE id=?" % (tableName), (id,))		
-			table = cur.fetchone()		
-		elif published:
-			cur.execute("SELECT * FROM %s WHERE published=%s" % (tableName,int(published)))
-			table = cur.fetchall()
-		elif system == 0 or system:
-			cur.execute("SELECT * FROM %s WHERE system=%s" % (tableName,int(system)))
-			table = cur.fetchall()	
-		else:
-			if order:
-				cur.execute("SELECT * FROM %s ORDER BY %s DESC" % (tableName, order))
+def dbGetTable(tableName,colQuery=None):
+	response = False
+	compileCols = []
+	if colQuery is not None:
+		for col in colQuery:
+			if col in typeIntCols:
+				colData = colQuery[col]	
 			else:
-				cur.execute("SELECT * FROM %s" % (tableName))
-			table = cur.fetchall()
-		db.commit()
-	except Exception as err:
-		logger.error("[DB] Get Rules Error: %s" % (str(err)))
-	finally:
-		db.close()
-	if id:	
-		if not table:
-			return False
-		else:
-			table = formatData(table)
-			return table
+				colData = str('"%s"' % colQuery[col])
+			compileCols.append("%s=%s" % (col, colData))
+		joinQuery = " AND ".join(compileCols)
+		try:
+			db = sqlite3.connect(db_path)
+			db.row_factory = lambda c, r: dict([(col[0], r[idx]) for idx, col in enumerate(c.description)])
+			cur = db.cursor()
+			cur.execute("SELECT * FROM %s WHERE %s" % (tableName,joinQuery))
+			if len(colQuery) > 1:
+				table = cur.fetchall()
+			else:
+				if "id" in colQuery:		
+					table = cur.fetchone()
+				else:
+					table = cur.fetchall()
+			db.commit()
+		except Exception as err:
+			logger.error("Table %s Error: %s" % (tableName, str(err)))
+		finally:
+			db.close()
 	else:
-		if not table:
-			return False
-		else:	
-			tableFormat = []
-			for tableItem in table:
-				tableFormat.append(formatData(tableItem))
-			return tableFormat
+		try:
+			db = sqlite3.connect(db_path)
+			db.row_factory = lambda c, r: dict([(col[0], r[idx]) for idx, col in enumerate(c.description)])
+			cur = db.cursor()
+			cur.execute("SELECT * FROM %s" % (tableName))		
+			table = cur.fetchall()
+			db.commit()
+		except Exception as err:
+			logger.error("Table %s Error: %s" % (tableName, str(err)))
+		finally:
+			db.close()
+	if isinstance(table,dict):
+		response = formatData(table)
+	elif isinstance(table,list):
+		tableFormat = []
+		for tableItem in table:
+			tableFormat.append(formatData(tableItem))
+		response = tableFormat	
+	return response	
+
 
 
 

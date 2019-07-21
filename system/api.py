@@ -17,7 +17,7 @@ class Api:
         if(request.method=="GET"):
             if "id" in request.match_info:
                 if request.match_info['id']:
-                    response = dbGetTable("rules",int(request.match_info['id']))
+                    response = dbGetTable("rules",{"id":int(request.match_info['id'])})
             else:           
                 response = dbGetTable("rules")
         elif(request.method=="POST"):
@@ -25,7 +25,7 @@ class Api:
                 if "command" in request.match_info:
                     if request.match_info["command"] == "published":
                         if dbStore("rules",{"id":int(request.match_info["id"]),"published":await request.json()}):
-                            response = dbGetTable("rules",int(request.match_info["id"]))
+                            response = dbGetTable("rules",{"id":int(request.match_info['id'])})
                     elif request.match_info["command"] == "delete":
                         if int(await request.json()) == 1:
                             if dbDelete("rules",int(request.match_info["id"])):
@@ -92,7 +92,7 @@ class Api:
                 if await request.json() == 1:
                     response = dbDelete("notifications")
         else:           
-            response = dbGetTable("notifications",None,None,"created")
+            response = dbGetTable("notifications")
         return web.json_response(response)
 
 
@@ -102,9 +102,9 @@ class Api:
         if "command" in request.match_info:
             if request.match_info['command'] == "system":
                 id = int(request.match_info['data'])
-                response = dbGetTable("components",None,None,None,int(id))
+                response = dbGetTable("components",{"system":0})
         elif "id" in request.match_info:
-            response = dbGetTable("components",str(request.match_info['id']))        
+            response = dbGetTable("components",{"id":str(request.match_info['id'])})        
         else:           
             response = dbGetTable("components")
         return web.json_response(response)
@@ -115,7 +115,7 @@ class Api:
         response = False
         if(request.method=="GET"):
             if "id" in request.match_info:
-                response = dbGetTable("rooms",int(request.match_info['id']))        
+                response = dbGetTable("rooms",{"id":str(request.match_info['id'])})        
             else:           
                 response = dbGetTable("rooms")
         elif(request.method=="POST"):

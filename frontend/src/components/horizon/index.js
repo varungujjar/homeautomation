@@ -144,10 +144,10 @@ export class Horizon extends Component {
 
     componentDidMount() {
         this._isMounted = true;
+        if (this._isMounted) {  
         fetch("/api/components/horizon")
             .then(response => response.json())
             .then((result) => {
-                if (this._isMounted) {      
                     this.setState({
                         deviceId:result.id,
                         aboveHorizon: result.properties.astral.above_horizon,
@@ -156,7 +156,7 @@ export class Horizon extends Component {
                         astralNext: result.properties.astral.next_astral,
                         dataLoaded: true
                     });
-                }     
+                   
                 socket.on(this.state.deviceId, data => {
                     // console.log(data);
                     if (this._isMounted) {
@@ -174,7 +174,7 @@ export class Horizon extends Component {
             .catch((error) => {
                 console.error(error)
             })
-
+        }      
     }
 
 

@@ -19,7 +19,7 @@ async def eventsHandlerTimer():
 
 def eventsHandler():
     logger.debug("Rule Check Started")
-    getRules = dbGetTable("rules",None,1)
+    getRules = dbGetTable("rules",{"published":1})
     for ruleData in getRules:
         validateIfCondition = validateIf(ruleData)
         validateAndCondition = validateAnd(ruleData)
@@ -72,7 +72,7 @@ def validateConditions(ruleDataJson):
                 logger.error("Device with %s Not Found" % str(deviceId))
                 pass             
         elif deviceType == "component":
-            getComponent = dbGetTable("components",str(deviceId))
+            getComponent = dbGetTable("components",{"id":str(deviceId)})
             if getComponent:
                 getSystemComponent = str(getComponent["id"])
                 try:

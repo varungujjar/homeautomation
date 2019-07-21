@@ -71,7 +71,7 @@ export class Components extends Component {
                                                             <span className={`btn-action icon-1x icon-bg-default text-bold ${item.enable ? "icon-publish text-success" : "icon-unpublish text-muted"}`} onClick={() => this.togglePublished(item.id, item.published)}>
                                                             </span>
                                                             {
-                                                                item.system ? (
+                                                                item.locked ? (
                                                                     <span className="btn-action-disabled icon-1x icon-bg-default icon-lock text-bold"></span>
                                                                 ) : (
                                                                         <span className="btn-action icon-1x icon-bg-default icon-trash text-bold" onClick={() => this.deleteRule(item.id)}></span>
