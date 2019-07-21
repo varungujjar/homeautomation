@@ -100,22 +100,21 @@ class Api:
     async def apiComponents(self,request):
         response = False
         if(request.method=="GET"):
-        if "command" in request.match_info:
-            if request.match_info['command'] == "system":
-                id = int(request.match_info['data'])
-                response = dbGetTable("components",{"system":0})
-            if request.match_info['command'] == "service":
-                response = dbGetTable("components",{"service":1})    
-        elif "id" in request.match_info:
-            response = dbGetTable("components",{"id":str(request.match_info['id'])})        
-        else:           
-            response = dbGetTable("components")
+            if "command" in request.match_info:
+                if request.match_info['command'] == "system":
+                    response = dbGetTable("components",{"system":int(request.match_info['data']),"enable":1})
+                if request.match_info['command'] == "service":
+                    response = dbGetTable("components",{"service":1})    
+            elif "id" in request.match_info:
+                response = dbGetTable("components",{"id":str(request.match_info['id'])})        
+            else:           
+                response = dbGetTable("components")
         elif(request.method=="POST"):
             if "id" in request.match_info:
                 if "command" in request.match_info:
                     if request.match_info["command"] == "enable":
-                        if dbStore("components",{"id":int(request.match_info["id"]),"enable":await request.json()}):
-                            response = dbGetTable("components",{"id":int(request.match_info['id'])})
+                        if dbStore("components",{"id":request.match_info["id"],"enable":await request.json()}):
+                            response = dbGetTable("components",{"id":request.match_info['id']})
                     elif request.match_info["command"] == "delete":
                         if int(await request.json()) == 1:
                             if dbDelete("rules",int(request.match_info["id"])):
@@ -160,7 +159,7 @@ class Api:
         #Rooms API
         app.router.add_get('/api/rooms', self.apiRooms)
         app.router.add_get('/api/rooms/{id}', self.apiRooms)
-        app.router.add_post('/api/rooms/{id}/{command}', self.apiRules)  #eg. rooms/90/save => accepts json
+        app.router.add_post('/api/rooms/{id}/{command}', self.apiRooms)  #eg. rooms/90/save => accepts json
         
         #System Info API
         app.router.add_get('/api/system', self.apiSystem)
@@ -183,5 +182,6 @@ class Api:
         app.router.add_get('/api/components', self.apiComponents)
         app.router.add_get('/api/components/{id}', self.apiComponents)
         app.router.add_get('/api/components/{command}/{data}', self.apiComponents)  # eg. components/system/0
+        app.router.add_post('/api/components/{id}/{command}', self.apiComponents)  # eg. components/system/0
         
 

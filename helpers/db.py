@@ -10,8 +10,8 @@ import socketio
 logger = formatLogger(__name__)
 
 global db_path
-# db_path = '/home/pi/db/db'
-db_path = '/Volumes/Work/homeautomation/db/db'
+db_path = '/home/pi/db/db'
+# db_path = '/Volumes/Work/homeautomation/db/db'
 typeIntCols = ["published","trigger","system","enable","service","online","weather","order","room_id"]
 
 def sioConnect():
@@ -130,7 +130,7 @@ def dbGetDevices():
 
 
 
-def dbGetTable(tableName,colQuery=None):
+def dbGetTable(tableName,colQuery=None, orderQuery=""):
 	response = False
 	compileCols = []
 	if colQuery is not None:
@@ -145,7 +145,7 @@ def dbGetTable(tableName,colQuery=None):
 			db = sqlite3.connect(db_path)
 			db.row_factory = lambda c, r: dict([(col[0], r[idx]) for idx, col in enumerate(c.description)])
 			cur = db.cursor()
-			cur.execute("SELECT * FROM %s WHERE %s" % (tableName,joinQuery))
+			cur.execute("SELECT * FROM %s WHERE %s %s" % (tableName,joinQuery,orderQuery))
 			if len(colQuery) > 1:
 				table = cur.fetchall()
 			else:
@@ -163,7 +163,7 @@ def dbGetTable(tableName,colQuery=None):
 			db = sqlite3.connect(db_path)
 			db.row_factory = lambda c, r: dict([(col[0], r[idx]) for idx, col in enumerate(c.description)])
 			cur = db.cursor()
-			cur.execute("SELECT * FROM %s" % (tableName))		
+			cur.execute("SELECT * FROM %s %s" % (tableName,orderQuery))		
 			table = cur.fetchall()
 			db.commit()
 		except Exception as err:
