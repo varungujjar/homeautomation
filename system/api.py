@@ -103,6 +103,8 @@ class Api:
             if request.match_info['command'] == "system":
                 id = int(request.match_info['data'])
                 response = dbGetTable("components",{"system":0})
+            if request.match_info['command'] == "service":
+                response = dbGetTable("components",{"service":1})    
         elif "id" in request.match_info:
             response = dbGetTable("components",{"id":str(request.match_info['id'])})        
         else:           

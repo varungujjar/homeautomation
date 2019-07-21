@@ -2,7 +2,6 @@ import os, sys, json
 from helpers.logger import formatLogger
 import asyncio
 
-COMPONENT = "mqtt" 
 SUPPORTED_HEADERS = {"class"}
 SUPPORTED_DEVICES = {"switch","light"}
 

@@ -12,14 +12,9 @@ from helpers.dt import *
 
 logger = formatLogger(__name__)
 
-DATE_STR_FORMAT = "%Y-%m-%d"
-UTC = DEFAULT_TIME_ZONE = pytz.utc
-
-ZERO = timedelta(0)
-
-COMPONENT = "system"
-TYPE = "horizon"
-
+# DATE_STR_FORMAT = "%Y-%m-%d"
+# UTC = DEFAULT_TIME_ZONE = pytz.utc
+# ZERO = timedelta(0)
 
 def sun_horizon(sunrise,sunset): #if 1 above horizon if 0 below horzion
 	now_utc = datetime.now()

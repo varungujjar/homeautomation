@@ -9,17 +9,6 @@ from helpers.db import *
 import datetime as today
 logger = formatLogger(__name__)
 
-COMPONENT = "system"
-TYPE = "datetime"
-CLASS_HEADER = "class"
-
-
-async def datetimeHandler():
-    while True:
-        # dbSyncDevice("datetime",{},{},"","system")
-        await asyncio.sleep(1)
-
-
 class  datetime(object):
     def __init__(self):
         pass
