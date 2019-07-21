@@ -99,6 +99,7 @@ class Api:
 
     async def apiComponents(self,request):
         response = False
+        if(request.method=="GET"):
         if "command" in request.match_info:
             if request.match_info['command'] == "system":
                 id = int(request.match_info['data'])
@@ -109,6 +110,21 @@ class Api:
             response = dbGetTable("components",{"id":str(request.match_info['id'])})        
         else:           
             response = dbGetTable("components")
+        elif(request.method=="POST"):
+            if "id" in request.match_info:
+                if "command" in request.match_info:
+                    if request.match_info["command"] == "enable":
+                        if dbStore("components",{"id":int(request.match_info["id"]),"enable":await request.json()}):
+                            response = dbGetTable("components",{"id":int(request.match_info['id'])})
+                    elif request.match_info["command"] == "delete":
+                        if int(await request.json()) == 1:
+                            if dbDelete("rules",int(request.match_info["id"])):
+                                response = dbGetTable("rules")
+                    elif request.match_info["command"] == "save":
+                        formData = await request.json()
+                        response = dbStore("rules",formData)
+
+
         return web.json_response(response)
         
 
