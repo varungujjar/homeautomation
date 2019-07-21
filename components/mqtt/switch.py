@@ -3,7 +3,6 @@ import json
 import asyncio
 from helpers.logger import formatLogger
 from helpers.db import *
-from system.rules import *
 from system.notifications import *
 from components.mqtt.publish import *
 
@@ -165,7 +164,6 @@ class switch(object):
 
         if dbSync and state:
             self.dispatchNotification(dbSync,"state")
-            eventsHandler(dbSync["id"])
             
             
 

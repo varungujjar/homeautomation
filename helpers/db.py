@@ -29,6 +29,11 @@ def formatData(data):
 	return jsonItem
 
 
+def Merge(oldProps, newProps): 
+    result = {**oldProps, **newProps} 
+    return result 
+
+
 def dbGetConfig():
 	try:
 		db = sqlite3.connect(db_path)
