@@ -34,7 +34,7 @@ export class Timeline extends Component {
             .then((result) => {
                 
                     this.setState({
-                        list: result,
+                        list: result.sort((a, b) => b.id - a.id),
                         dataLoaded: true
                     });
                 

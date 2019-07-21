@@ -49,11 +49,12 @@ export class System extends Component {
     render() {
         const system = this.state.systemData;
         return (
-                   <> 
+            <div className={`tab-pane fade ${this.props.active ? "show active" : null}`} id="System" role="tabpanel" aria-labelledby="System-tab">
+            <div className="mt-4">
                    
                             {this.state.dataLoaded ?
                         (<><div className="row">
-                            <div className="col-md-6"><div className="card card-shadow  mt-4">
+                            <div className="col-md-6"><div className="card card-shadow">
                                 <div className="card-body">
                                     <span className="icon-1x icon-bg-info icon-clock icon-left"></span>
                                     <h4 className="text-bold">{system.process.description} </h4>
@@ -65,7 +66,7 @@ export class System extends Component {
                                 </div>
                             </div></div>
                             <div className="col-md-6">
-                                <div className="card card-shadow  mt-4">
+                                <div className="card card-shadow">
                                     <div className="card-body">
                                         <span className="icon-1x icon-bg-info icon-cpu icon-left"></span>
                                         <h4 className="text-bold">{system.cpu.percent}% Load</h4>
@@ -143,7 +144,8 @@ export class System extends Component {
 
             }
 
-            </>
+</div>
+                        </div>
         )
         
         
