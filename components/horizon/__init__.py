@@ -25,13 +25,13 @@ def sun_horizon(sunrise,sunset): #if 1 above horizon if 0 below horzion
 	return horizon
 			
 
-def local_astral_event(config_data):
+def local_astral_event():
 	a = Astral()
-	latitude = float(config_data["latitude"])
-	longitude = float(config_data["longitude"])
-	location = Location(info = (config_data["city"], config_data["state"], latitude, longitude, config_data["timezone"], 100))
+	latitude = float(getParmeters("horizon","lat"))
+	longitude = float(getParmeters("horizon","lon"))
+	location = Location(info = (getParmeters("horizon","city"), getParmeters("horizon","state"), latitude, longitude, getParmeters("horizon","timezone"), 100))
 	a.solar_depression = "civil"
-	timezone = config_data["timezone"]
+	timezone = getParmeters("horizon","timezone")
 	#location.timezone = config_data["timezone"]
 	sun = location.sun(date=datetime.today(), local=True)
 	data = {}
@@ -43,19 +43,17 @@ def local_astral_event(config_data):
 
 async def horizonHandler():
 	while True:
-		config_db = dbGetConfig()
-		config_data = json.loads(config_db["config"])
-		astral = local_astral_event(config_data)
+		astral = local_astral_event()
 		time_now = datetime.now()
 		sun_horizon_position = sun_horizon(utc_aware_to_datetime(astral["sunrise"]), utc_aware_to_datetime(astral["sunset"]))
 		data = {}
 		data["location"] = {}
 		data["astral"] = {}
 		data["astral"]["next_time"] = {}
-		data["location"]["city"] = config_data["city"]			
-		data["location"]["state"] = config_data["state"]			
-		data["location"]["latitude"] = config_data["latitude"]			
-		data["location"]["longitude"] = config_data["longitude"]	
+		data["location"]["city"] = getParmeters("horizon","city")		
+		data["location"]["state"] = getParmeters("horizon","state")			
+		data["location"]["latitude"] = getParmeters("horizon","lat")			
+		data["location"]["longitude"] = getParmeters("horizon","lon")	
 		data["location"]["timezone"] = str(astral["timezone"])
 		data["astral"]["sunrise"] = str(utc_aware_to_datetime(astral["sunrise"]))
 		data["astral"]["sunset"] = str(utc_aware_to_datetime(astral["sunset"]))

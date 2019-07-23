@@ -4,11 +4,12 @@ from helpers.logger import formatLogger
 import asyncio
 from xbee import XBee
 from serial import Serial, SerialException
+from helpers.db import *
 
 logger = formatLogger(__name__)
 
-SERIALPORT = "/dev/ttyUSB0" 
-BAUDRATE = 9600
+SERIALPORT = getParmeters("zigbee","serialport") 
+BAUDRATE = getParmeters("zigbee","baudrate")
 
 try:
     ser = Serial(SERIALPORT, BAUDRATE)

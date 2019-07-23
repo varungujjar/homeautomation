@@ -1,5 +1,6 @@
 import os, sys, json
 from helpers.logger import formatLogger
+from helpers.db import *
 import asyncio
 
 SUPPORTED_HEADERS = {"class"}
@@ -10,14 +11,15 @@ from hbmqtt.mqtt.constants import QOS_1
 
 logger = formatLogger(__name__)
 
+
 config = {
-    'keep_alive': 30,
+    'keep_alive': int(getParmeters("mqtt","keepalive")),
     'ping_delay': 2,
-    'default_qos': 1,
+    'default_qos': int(getParmeters("mqtt","qos")),
     'default_retain': False,
-    'auto_reconnect': True,
-    'reconnect_max_interval': 2,
-    'reconnect_retries': 1800
+    'auto_reconnect': getParmeters("mqtt","autoreconnect"),
+    'reconnect_max_interval':int(getParmeters("mqtt","reconnectinterval")),
+    'reconnect_retries': int(getParmeters("mqtt","reconnectretries"))
 }
 
 C = MQTTClient(config=config)
@@ -25,9 +27,10 @@ C = MQTTClient(config=config)
 
 @asyncio.coroutine
 def mqttHandler():
-    yield from C.connect('mqtt://user:password@0.0.0.0:1883')
+    yield from C.connect('mqtt://'+getParmeters("mqtt","username")+':'+getParmeters("mqtt","password")+'@'+getParmeters("mqtt","host")+':'+str(getParmeters("mqtt","port")))
     yield from C.subscribe([('#', QOS_1)])
     logger.info("Subscribed to #")
+    
     try:
         while True:
             message = yield from C.deliver_message()

@@ -10,13 +10,24 @@ import socketio
 logger = formatLogger(__name__)
 
 global db_path
-db_path = '/home/pi/db/db'
-# db_path = '/Volumes/Work/homeautomation/db/db'
+# db_path = '/home/pi/db/db'
+db_path = '/Volumes/Work/homeautomation/db/db'
 typeIntCols = ["published","trigger","system","enable","service","online","weather","order","room_id"]
 
 def sioConnect():
 	sio = socketio.RedisManager('redis://', write_only=True)
 	return sio
+
+
+def getParmeters(component,param):
+	component = dbGetTable("components",{"id":component})
+	if component["parameters"]:
+		for parameter in component["parameters"]:
+			if param == parameter["key"]:
+				return parameter["value"]
+	else:
+		logger.error("Component Parameters Not Found.")	
+
 
 
 def formatData(data):
