@@ -117,11 +117,11 @@ class Api:
                             response = dbGetTable("components",{"id":request.match_info['id']})
                     elif request.match_info["command"] == "delete":
                         if int(await request.json()) == 1:
-                            if dbDelete("rules",int(request.match_info["id"])):
-                                response = dbGetTable("rules")
+                            if dbDelete("components",int(request.match_info["id"])):
+                                response = dbGetTable("components")
                     elif request.match_info["command"] == "save":
                         formData = await request.json()
-                        response = dbStore("rules",formData)
+                        response = dbStore("components",formData)
 
 
         return web.json_response(response)

@@ -530,6 +530,11 @@ button, button:active, button:focus{
     color: #fff;
 }
 
+.btn.disabled, .btn.disabled:hover, .btn.disabled:active, .btn.disabled:focus{
+    background: #ccc!important;
+    box-shadow: none!important;
+}
+
 .btn-action{
     background: #fff;
     margin-left: 10px;

@@ -2,8 +2,9 @@ import React, { Component } from "react";
 import { Link, Redirect } from 'react-router-dom';
 import { Header } from "../common/header";
 import { TabHeads } from "./index";
-
-
+import { Notification } from "../../system/notifications";
+import { Formik } from 'formik';
+import { Form } from "../../system/formelements";
 
 export class Components extends Component {
     constructor(props) {
@@ -132,14 +133,131 @@ export class ComponentsEdit extends Component {
         this.state = {
             dataLoaded: false,
         }
-        this.id = 0;
+        this.initialValues = {
+            "parameters":[],
+            "id":null
+        };
     }
+
+    componentDidMount() {
+        this._isMounted = true;
+        console.log("relaoaded")
+        if (this._isMounted) {
+            if (this.props.match.params.id != 0) {
+                fetch(`/api/components/${this.props.match.params.id}`)
+                    .then(response => response.json())
+                    .then((result) => {
+                            this.initialValues.parameters = result.parameters;
+                            this.initialValues.id = result.id;
+                            this.setState({
+                                dataLoaded: true,
+                            })
+                    })
+                    .catch((error) => {
+                        console.error(error)
+                    })
+            } else {
+                console.log("Cannot add a new parameter this way")
+            }
+        }
+    }
+
+
+    saveFormData = (data) => {
+        console.log(data);
+        fetch(`/api/components/${this.id}/save`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+            .then(response => response.json())
+            .then((result) => {
+                if(result!==false){
+                    Notification("success","Saved","Component Saved Successfully")
+                }else{
+                    Notification("error","Error","There was an error saving")
+                }
+            })
+            .catch((error) => {
+                console.error(error)
+            })
+    }
+
     render() {
         return (
             <>
                 <Header name="Settings" icon="fal fa-cog"></Header>
-                <TabHeads active="Components" disabled="1" />
-                Here
+                <TabHeads active="components" disabled="1" />
+                {
+                    this.state.dataLoaded && (
+                        <Formik
+                            // enableReinitialize
+                            initialValues={this.initialValues}
+                            // validate={}
+                            onSubmit={(values, { setSubmitting }) => {
+                                this.saveFormData(values)
+                                setSubmitting(false);
+                            }}
+                            handleChange={(event) => {
+                                console.log("yay");
+                            }}
+                        >
+                            {({
+                                values,
+                                errors,
+                                touched,
+                                handleChange,
+                                handleBlur,
+                                setFieldValue,
+                                handleSubmit,
+                                isSubmitting,
+                            }) => (
+                                    <form onSubmit={handleSubmit}>
+                                       
+                                        <div className="card card-shadow mt-3">
+                                        <div className="card-header">
+                                            <h2>Edit Component</h2>
+                                            </div>
+                                            <div className="card-body">
+                                            <input className="form-control" value={values.id} name="id" onChange={handleChange} type="hidden" />
+                                            <div className="row">
+                                            {
+                                                this.initialValues.parameters.length > 0 ?
+                                                values.parameters.map((key,index)=>{
+                                                    return(
+                                                        <div key={index} className="col-md-6 mb-3">
+                                                        <Form
+                                                        value={values.parameters[index]["value"]}
+                                                        type={values.parameters[index]["type"]}
+                                                        handleChange={handleChange}
+                                                        name={`parameters[${index}][value]`}
+                                                        label={values.parameters[index]["label"] ? values.parameters[index]["label"] : values.parameters[index]["key"]}
+                                                        ></Form>
+                                                        </div>
+                                                    )
+                                                }) : (
+
+                                                    <div className="col-md-12"><i class="fas fa-info-circle"></i> This component does not have any parameters.</div>
+                                                )
+
+                                            }  
+                                            </div>
+                                            </div>
+                                            <div className="card-footer">
+                                            <button type="submit" disabled={isSubmitting} className={`btn btn-info mb-2 ${this.initialValues.parameters.length > 0 ? '' : 'disabled'}`}>
+                                            <i className="fas fa-check-circle"></i> Save Room
+                                    </button>
+                                        <Link to={{ pathname: `/settings/components`, data: null }} className="mb-4 text-muted ml-4">Cancel</Link>
+                                            </div>
+                                        </div>
+                                    </form>
+                                )}
+                        </Formik>
+                    )
+                }
             </>
         )
     }

@@ -172,7 +172,7 @@ export class RoomsEdit extends Component {
         }
     }
 
-    
+
 
     saveFormData = (data) => {
         // console.log(data);
@@ -232,10 +232,10 @@ export class RoomsEdit extends Component {
                                        
                                         <div className="card card-shadow mt-3">
                                         <div className="card-header">
-                                            <h2>Edit Room</h2>
+                                            <h2>Add/Edit Room</h2>
                                             </div>
                                             <div className="card-body">
-                                                <input className="form-control " value={values.id} name="name" onChange={handleChange} type="hidden" />
+                                                <input className="form-control " value={values.id} name="id" onChange={handleChange} type="hidden" />
                                                 <div className="form-group">
                                                     <input className="form-control" value={values.name} name="name" onChange={handleChange} placeholder="Room Name"/>
                                                 </div>
