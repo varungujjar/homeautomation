@@ -65,6 +65,11 @@ export class ModuleList extends Component {
         }
     }    
 
+    onConditionChange = (event) => {
+        const selectedCondition = event.currentTarget.value;
+        this.deviceValues.condition = selectedCondition;
+        this.props.setFieldValue(this.deviceValues.condition)
+    } 
 
     onPropertyChange = (event) => {
         const selectedProperty = this.state.selectedProperty;
@@ -116,15 +121,38 @@ export class ModuleList extends Component {
                     <div className="edit-overlay v-center" onClick={() => this.setState({ edit: true })}>
                         <span className="text-lg icon-1x icon-edit"></span>
                     </div>
-
                     {
-                        
+                            
+                           
                             <div className="p-all-less">
                             <span className={`icon-left icon-1x icon-${this.deviceData.icon ?  this.deviceData.icon : ""} ${this.deviceData.properties.relay[0] ? "icon-bg-success" : "icon-bg-default"}`}></span>
                             <div className="text-bold mt-1">{this.deviceData.name ? this.deviceData.name : "..."}</div>
                             <div className="text-secondary text-md">{this.deviceData.room_name}</div>
                             </div>
+                     }
+                     { 
 
+                            this.deviceValues && 
+                            !this.deviceValues.properties.relay ? (
+                            
+                            <div className="p-all-less b-t">
+                                {
+                                    Object.keys(this.deviceValues.properties).map((key,index)=>{
+                                           return(
+                                                <div key={index}>
+                                                <span className="badge badge-default"><i className="fab fa-codepen"></i> <b>{key.charAt(0).toUpperCase() + key.slice(1)}</b> {Object.values(this.deviceValues.properties)[index]} </span>
+                                                </div>
+
+                                           ) 
+
+
+                                    })
+
+                                }
+                            </div>
+
+                             ) : null
+                           
 
 
                         }
@@ -156,7 +184,7 @@ export class ModuleList extends Component {
                                             }
                                         </select></div>
                                             <div className="col-md-4">  
-                                            <select className="form-control" name={`${this.props.dataType}[condition]`} value={this.deviceValues.condition} onChange={this.props.handleChange}>
+                                            <select className="form-control" name={`${this.props.dataType}[condition]`} value={this.deviceValues.condition} onChange={this.onConditionChange}>
                                             <option value="=">=</option>
                                             <option value=">">&gt;</option>
                                             <option value="<">&lt;</option>

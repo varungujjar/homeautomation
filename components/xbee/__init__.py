@@ -8,8 +8,8 @@ from helpers.db import *
 
 logger = formatLogger(__name__)
 
-SERIALPORT = getParmeters("zigbee","serialport") 
-BAUDRATE = getParmeters("zigbee","baudrate")
+SERIALPORT = getParmeters("xbee","serialport") 
+BAUDRATE = getParmeters("xbee","baudrate")
 
 try:
     ser = Serial(SERIALPORT, BAUDRATE)
@@ -42,7 +42,7 @@ def getJsonData(payload):
     return jsonItem
 
 
-def xbeeHandler(payload):
+def xbeeReceived(payload):
     xbeeData = getJsonData(payload)
     xbeePayload = xbeeData["payload"]
     logger.info("%s" % str(payload))
@@ -50,7 +50,7 @@ def xbeeHandler(payload):
         if key in SUPPORTED_HEADERS:
             if value in SUPPORTED_DEVICES:
                 try:
-                    importDevice = __import__("components.zigbee."+value, fromlist=value)
+                    importDevice = __import__("components.xbee."+value, fromlist=value)
                     importDeviceClass = getattr(importDevice, value)
                     deviceClass = importDeviceClass()
                     loop.create_task(deviceClass.deviceHandler(xbeeData))
@@ -64,14 +64,14 @@ def xbeeHandler(payload):
     return True    
 
 
-xbee = XBee(ser, callback=xbeeHandler)
+xbee = XBee(ser, callback=xbeeReceived)
 
 
 def closeSerialConnection():
     xbee.halt()
     ser.close()
 
-async def zigbeeHandler():
+async def xbeeHandler():
     try:
         xbee
     except:

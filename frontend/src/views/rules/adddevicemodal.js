@@ -42,7 +42,7 @@ export class AddDeviceModal extends Component {
 
                         )
                         .catch(error => {
-                            console.error(`"${item.component} ${item.type}" not yet supported`);
+                            console.error(`"${item.component}/${item.type}" not yet supported`);
                         });
                 })
         })

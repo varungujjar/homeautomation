@@ -738,5 +738,22 @@ ul.days li{
     display: block;
 }
 
+.badge{
+    border-radius: 30px;
+    padding: 10px 20px;
+    display: inline-block;
+}
+
+.badge-info{
+    background-color: #F1F1FA;
+    color: #4949BE;
+   
+}
+
+.badge-default{
+    background-color: #efefef;
+    color: #666;
+   
+}
 
 

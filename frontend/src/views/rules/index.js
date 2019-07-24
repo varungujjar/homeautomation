@@ -310,6 +310,7 @@ export class RuleEdit extends Component {
                                     values:condition
                                 }
 
+
                                 devicesList.push(deviceData);
 
                                 if (type == "if") {
@@ -537,7 +538,6 @@ export class RuleEdit extends Component {
 
 
     saveFormData = (data) => {
-        // console.log(data);
         fetch(`/api/rules/${this.id}/save`, {
             method: 'POST',
             headers: {
@@ -597,6 +597,7 @@ export class RuleEdit extends Component {
                                 // validate={}
                                 onSubmit={(values, { setSubmitting }) => {
                                     const getCleanFormData = this.cleanFormData(values);
+                                    // console.log(values);
                                     this.saveFormData(getCleanFormData);
                                     setSubmitting(false);
                                 }}

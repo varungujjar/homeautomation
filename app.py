@@ -58,7 +58,7 @@ class RunServer:
 
        
     async def stopHandler(self):
-        getService = dbGetTable("components",{"id":"zigbee"})
+        getService = dbGetTable("components",{"id":"xbee"})
         if getService["enable"] == 1:
             logger.info("Closing Serial Connection")
             buildComponentPath = COMPONENTS_DIR+"."+getService["id"]
