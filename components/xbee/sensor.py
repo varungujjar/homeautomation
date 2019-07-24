@@ -38,6 +38,38 @@ class sensor(object):
         return devicePropertiesData           
 
 
+
+    def validateProperties(self,getDevice,conditionProperties,conditionType):
+        validStatus = False
+        getDeviceProperties = getDevice["properties"]
+        getDevicePropertiesKeys = []
+        for key, value in getDeviceProperties.items():
+            getDevicePropertiesKeys.append(key)    
+        for key, value in conditionProperties.items():
+            if key in getDevicePropertiesKeys:
+                if isinstance(value,dict):
+                    for k, v in value.items():
+                        getDeviceProperty= getDeviceProperties[key][k]
+                        getIfProperty = conditionProperties[key][k]
+                else:
+                    getDeviceProperty = getDeviceProperties[key]
+                    getIfProperty = conditionProperties[key]
+                    
+                if conditionType == "=":
+                    if getDeviceProperty == getIfProperty:
+                        validStatus = True
+
+                elif conditionType == ">":
+                    if getDeviceProperty > getIfProperty:
+                        validStatus = True
+
+                elif conditionType == "<":
+                    if getDeviceProperty < getIfProperty:
+                        validStatus = True
+        return validStatus
+
+
+
     async def deviceHandler(self,payload):
         devicePayload = payload
         deviceClass = devicePayload["payload"][CLASS_HEADER]

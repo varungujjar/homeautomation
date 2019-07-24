@@ -10,8 +10,8 @@ import socketio
 logger = formatLogger(__name__)
 
 global db_path
-# db_path = '/home/pi/db/db'
-db_path = '/Volumes/Work/homeautomation/db/db'
+db_path = '/home/pi/db/db'
+# db_path = '/Volumes/Work/homeautomation/db/db'
 typeIntCols = ["published","trigger","system","enable","service","online","weather","order","room_id"]
 
 def sioConnect():
