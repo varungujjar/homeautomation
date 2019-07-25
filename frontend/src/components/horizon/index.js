@@ -67,7 +67,6 @@ export class ModuleList extends Component {
                                 return (
                                     <>
                                         <div className="p-all-less">
-                                            <input type="hidden" name={`${this.props.dataType}[condition]`} value={this.deviceValues.condition} onChange={this.props.handleChange} />
                                             <select name="" value={this.state.selectedProperty} onChange={this.onSelectProperty} className="form-control">
                                                 <option value="false">On Sunset</option>
                                                 <option value="true">On Sunrise</option>

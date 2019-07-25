@@ -1,24 +1,17 @@
 import React, {Component} from "react";
 import { socket } from "../../system/socketio";
-import { DeviceModal } from "../../views/common/devicemodal";
 
 
 export class ModuleList extends Component {
     constructor(props) {
         super(props);
         this._isMounted = false;
-        this.defaultThenProperties = {"type": "component", "id": this.props.data.id, "properties": {"notification":{"title":"","message":""}}}
+        this.defaultThenProperties = {"type": "component", "condition": "=", "id": this.props.data.id, "properties": {"title":"","message":""}}
         if(this.props.values){
             this.deviceValues = this.props.values;
         }
         this.state = {
             edit:false
-        }   
-        this.deviceData = this.props.data;
-        if(this.deviceValues){
-            this.state = {
-                selectedProperty:"",
-            }
         }
     }
 
@@ -27,6 +20,19 @@ export class ModuleList extends Component {
         if (this._isMounted) {
         }
     }    
+
+
+    onTitleChange = (event) => {
+        const Title = event.currentTarget.value;
+        this.deviceValues.properties.title = Title;
+        this.props.setFieldValue(this.deviceValues.properties.title)
+    }
+
+    onMessageChange = (event) => {
+        const Message = event.currentTarget.value;
+        this.deviceValues.properties.message = Message;
+        this.props.setFieldValue(this.deviceValues.properties.message)
+    }
 
   
 
@@ -43,12 +49,24 @@ export class ModuleList extends Component {
                     <div className="edit-overlay v-center" onClick={() => this.setState({ edit: true })}>
                         <span className="text-lg icon-1x icon-edit"></span>
                     </div>
-                    {
-                        
+                    {      
                             <div className="p-all-less">
-                               notification
+                            <span className="icon-left icon-1x icon-bg-warning icon-bell"></span>
+                            <div className="text-bold mt-1">Notification</div>
+                            <div className="text-secondary text-md">Message</div>
                             </div>
-                    }
+                     }
+                     { 
+                        this.deviceValues ? (
+                        <div className="p-all-less b-t">
+                            <div>
+                                <span className="badge badge-default mr-1 mb-1"><i className="fab fa-codepen"></i> <b>Title</b> {Object.values(this.deviceValues.properties.title)} </span>
+                                <span className="badge badge-default mr-1 mb-1"><i className="fab fa-codepen"></i> <b>Message</b> {Object.values(this.deviceValues.properties.message)} </span>
+                            </div>
+                        </div>
+                        ) : null
+
+                        }
                     {
                         this.deviceValues && this.state.edit &&
 
@@ -57,8 +75,8 @@ export class ModuleList extends Component {
                                 return (
                                     <>
                                         <div className="p-all-less">
-                                            Title  message
-                                           
+                                        <input className="form-control mt-3" value={this.deviceValues.properties.title} name={`${this.props.dataType}[properties][title]`} onChange={this.onTitleChange} placeholder="Title" />
+                                        <input className="form-control mt-3" value={this.deviceValues.properties.message} name={`${this.props.dataType}[properties][message]`} onChange={this.onMessageChange} placeholder="Message" />
                                         </div>
                                         <span className="link w-100 b-t" onClick={() => this.setState({ edit: false })}>Done</span>
                                     </>
@@ -69,9 +87,9 @@ export class ModuleList extends Component {
                     }
 
                     {
-                                this.props.addDefaultProperties && this.props.dataType == "then" && (
-                                    <button className="text-lg icon-bg-light icon-shadow icon-1x icon-add float-right" type="button" variant="primary" onClick={() => {this.props.addDefaultProperties(this.defaultThenProperties)}}></button>
-                                )
+                        this.props.addDefaultProperties && this.props.dataType == "then" && (
+                            <button className="text-lg icon-bg-light icon-shadow icon-1x icon-add float-right" type="button" variant="primary" onClick={() => {this.props.addDefaultProperties(this.defaultThenProperties)}}></button>
+                        )
                     }
 
                     
@@ -86,108 +104,3 @@ export class ModuleList extends Component {
     }
 }
 
-
-export const ModuleModal = (props) => {
-    return(
-        <div>
-             {JSON.stringify(props.data)}
-        </div>
-    )
-}
-
-
-export const Module = (props) => {
-    const device = props.data;
-    return (
-        <div className="slider-slide">
-            <div className={`card card-module-height card-shadow item ${device.online ? "" : "offline"}`}>
-                <div className="offline-icon text-danger"></div>
-                <div className="card-body">
-                        <DeviceModal data={device}/> 
-                        <span className={`icon-1x icon-bg-default ${device.properties.astral.above_horizon == "true" ? "icon-sunrise icon-bg-warning " : "icon-moon"}`}></span>
-                        <div className="text-status ">{device.properties.astral.above_horizon == "true" ? ("Above Horizon") : ("Below Horizon")}</div>
-                        <div className="text-secondary title-case mt-2">{device.properties.astral.next_astral} in {device.properties.astral.next_time.number} {device.properties.astral.next_time.unit}</div>
-                        <div className="clearfix"></div>
-                
-                </div>
-            </div>
-        </div>
-    )
-}
-
-
-
-export class Horizon extends Component {
-    constructor(props) {
-        super(props);
-        this._isMounted = false;
-        this.state = {
-            deviceId:0,
-            aboveHorizon: null,
-            astralTimeDigit: 0,
-            astralTimeDigitUnit: null,
-            astralNext: null,
-            dataLoaded: false
-        }
-    }
-
-
-
-    componentDidMount() {
-        this._isMounted = true;
-        fetch("/api/horizon")
-            .then(response => response.json())
-            .then((result) => {
-                if (this._isMounted) {      
-                    this.setState({
-                        deviceId:result.id,
-                        aboveHorizon: result.properties.astral.above_horizon,
-                        astralTimeDigit: result.properties.astral.next_time.number,
-                        astralTimeDigitUnit: result.properties.astral.next_time.unit,
-                        astralNext: result.properties.astral.next_astral,
-                        dataLoaded: true
-                    });
-                }     
-                socket.on(this.state.deviceId, data => {
-                    // console.log(data);
-                    if (this._isMounted) {
-                        this.setState({
-                            aboveHorizon: data.properties.astral.above_horizon,
-                            astralTimeDigit: data.properties.astral.next_time.number,
-                            astralTimeDigitUnit: data.properties.astral.next_time.unit,
-                            astralNext: data.properties.astral.next_astral,
-                            dataLoaded: true
-                        });
-                    }
-                }); 
-               
-            })
-            .catch((error) => {
-                console.error(error)
-            })
-
-    }
-
-
-    componentWillUnmount() {
-        this._isMounted = false;
-    }
-
-
-    render() {
-        let data = this.state;
-        if (data.dataLoaded == true) {
-            return (
-                <div className={`card mt-4 mb-4 ${this.state.aboveHorizon == "true" ? "card-warning " : "card-default"}`}>
-                    <div className="card-body">
-                        <span className={`icon-2x icon-left ${this.state.aboveHorizon == "true" ? "icon-sunrise " : "icon-moon"}`}></span>
-                        <h2 className="mt-1">{this.state.aboveHorizon == "true" ? ("Above Horizon") : ("Below Horizon")}</h2>
-                        <span className="text-secondary title-case">{this.state.astralNext} in Next {this.state.astralTimeDigit} {this.state.astralTimeDigitUnit}</span>
-                        <div className="clearfix"></div>
-                    </div>
-                </div>
-            )
-        }
-        return (null)
-    }
-}

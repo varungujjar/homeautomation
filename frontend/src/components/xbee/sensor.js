@@ -86,7 +86,7 @@ export class ModuleList extends Component {
 
     onPropertyChange = (event) => {
         const selectedProperty = this.state.selectedProperty;
-        this.deviceValues.properties[selectedProperty].value = event.currentTarget.value;
+        this.deviceValues.properties[selectedProperty].value = parseFloat(event.currentTarget.value);
         this.props.setFieldValue(this.deviceValues.properties[selectedProperty].value)
     }
 
@@ -99,7 +99,7 @@ export class ModuleList extends Component {
         this.deviceValues.properties = {};//empty all properties before writing new one
         this.props.setFieldValue(this.deviceValues.properties);
         
-        this.deviceValues.properties[selectedPropertyChange] = {"value":this.deviceData.properties[selectedPropertyChange].value}
+        this.deviceValues.properties[selectedPropertyChange] = {"value":parseFloat(this.deviceData.properties[selectedPropertyChange].value)}
         this.props.setFieldValue(this.deviceValues.properties[selectedPropertyChange])
     }
     
@@ -130,7 +130,7 @@ export class ModuleList extends Component {
                                     Object.keys(this.deviceValues.properties).map((key,index)=>{
                                            return(
                                                 <div key={index}>
-                                                <span className="badge badge-default"><i className="fab fa-codepen"></i> <b>{key.charAt(0).toUpperCase() + key.slice(1)}</b> {Object.values(this.deviceValues.properties)[index].value} </span>
+                                                <span className="badge badge-default"><i className="fab fa-codepen"></i> <b>{key.charAt(0).toUpperCase() + key.slice(1)}</b> {Object.values(this.deviceValues.properties)[index].value ? Object.values(this.deviceValues.properties)[index].value : 0} </span>
                                                 </div>
 
                                            ) 
@@ -174,7 +174,7 @@ export class ModuleList extends Component {
                                         {
                                             this.state.selectedProperty ?
                                                 (
-                                                    <input className="form-control mt-3" value={ this.deviceValues.properties[this.state.selectedProperty].value ? this.deviceValues.properties[this.state.selectedProperty].value : this.deviceData.properties[this.state.selectedProperty].value} name={`${this.props.dataType}[properties][${this.state.selectedProperty}][value]`} onChange={this.onPropertyChange} />
+                                                    <input className="form-control mt-3" value={ this.deviceValues.properties[this.state.selectedProperty].value? this.deviceValues.properties[this.state.selectedProperty].value : ""} name={`${this.props.dataType}[properties][${this.state.selectedProperty}][value]`} onChange={this.onPropertyChange} type="number" />
                                                 )
                                                 : null
                                         }

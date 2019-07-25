@@ -71,6 +71,14 @@
     content: "\f748";
 }
 
+.icon-bell::before {
+  font-family: "Font Awesome 5 Pro";
+  content: "\f0f3";
+}
+
+
+
+
 .icon-light::before {
     font-family: "Font Awesome 5 Pro";
     content: "\f764";

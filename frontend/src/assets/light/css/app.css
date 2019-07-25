@@ -246,7 +246,8 @@ h4{
     border: none;
     padding: 0px 25px 23px 25px;
 }
-.card-hover:focus, card-hover:active{
+.card-hover:focus, .card-hover:active{
+
  }
 .card-hover:hover{
     opacity: 0.9;

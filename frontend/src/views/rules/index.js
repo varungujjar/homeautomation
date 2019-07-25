@@ -597,13 +597,9 @@ export class RuleEdit extends Component {
                                 // validate={}
                                 onSubmit={(values, { setSubmitting }) => {
                                     const getCleanFormData = this.cleanFormData(values);
-                                    // console.log(values);
+                                    console.log(values);
                                     this.saveFormData(getCleanFormData);
                                     setSubmitting(false);
-                                }}
-
-                                handleChange={(event) => {
-                                    console.log(event);
                                 }}
                             >
                                 {({
@@ -616,8 +612,10 @@ export class RuleEdit extends Component {
                                     handleSubmit,
                                     isSubmitting,
                                 }) => (
+                                        
+                                       
+                                        
                                         <form onSubmit={handleSubmit}>
-
                                             <button type="submit" disabled={isSubmitting} className="btn btn-info mb-2">
                                                <i className="fas fa-check-circle"></i> Save Rule
                                             </button>
@@ -637,7 +635,7 @@ export class RuleEdit extends Component {
                                                                     let deviceValues = device.values;
                                                                     return (
                                                                         <div className="col-md-4 mb-3" key={index}>
-                                                                            <Component key={index} indexMap={indexMap} values={deviceValues} data={Data} handleChange={handleChange} dataType={`if`} setFieldValue={setFieldValue} deleteDefaultProperties={this.deleteDevice}/>
+                                                                            <Component key={index} indexMap={indexMap} values={deviceValues} data={Data} dataType={`if`} setFieldValue={setFieldValue} deleteDefaultProperties={this.deleteDevice}/>
                                                                         </div>
                                                                     )
                                                                 }) : null
@@ -666,7 +664,7 @@ export class RuleEdit extends Component {
                                                                     let deviceValues = device.values;
                                                                     return (
                                                                         <div className="col-md-4 mb-3" key={indexMap}>
-                                                                            <Component key={indexMap} indexMap={indexMap} values={deviceValues} data={Data} handleChange={handleChange} dataType={`and`} setFieldValue={setFieldValue} deleteDefaultProperties={this.deleteDevice} />
+                                                                            <Component key={indexMap} indexMap={indexMap} values={deviceValues} data={Data} dataType={`and`} setFieldValue={setFieldValue} deleteDefaultProperties={this.deleteDevice} />
                                                                         </div>
                                                                     )
                                                                 }) :  null
@@ -687,10 +685,12 @@ export class RuleEdit extends Component {
                                                                     const Component = device.component;
                                                                     const Data = device.data;
                                                                     const indexMap = device.indexMap;
-                                                                    let deviceValues = device.values;     
+                                                                    let deviceValues = device.values;
+                                                                    
+                                                                  
                                                                     return (
                                                                         <div className="col-md-4 mb-3" key={indexMap}>
-                                                                            <Component key={indexMap} indexMap={indexMap} values={deviceValues} data={Data} handleChange={handleChange} dataType={`then`} setFieldValue={setFieldValue} deleteDefaultProperties={this.deleteDevice}/>
+                                                                            <Component key={indexMap} indexMap={indexMap} values={deviceValues} data={Data} dataType={`then`} setFieldValue={setFieldValue} deleteDefaultProperties={this.deleteDevice}/>
                                                                         </div>
                                                                     )
                                                                 }) : null

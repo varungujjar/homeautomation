@@ -161,8 +161,6 @@ export class ModuleList extends Component {
                         this.deviceValues && this.state.edit && (
                             <>
                                 <div className="p-all-less">
-                                    <input className="form-control" type="hidden" value={this.deviceValues.type} name={`${this.props.dataType}[type]`} onChange={this.props.handleChange} />
-                                    <input className="form-control" type="hidden" value={this.deviceValues.condition} name={`${this.props.dataType}[condition]`} onChange={this.props.handleChange} />
                                     <button type="button" className="btn btn-default btn-sm" onClick={() => this.toggleTimekeeper(true)}>select time</button>
                                     {this.state.displayTimepicker ?
                                         <div className="time-keeper-box">
