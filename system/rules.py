@@ -155,9 +155,9 @@ async def doThen(ruleData):
                 logger.error("Device with %s Not Found" % str(deviceId))
                 pass             
         elif deviceType == "component":
-            getComponent = dbGetDevice(None,None,None,deviceId)
+            getComponent = dbGetTable("components",{"id":str(deviceId)})
             if getComponent:
-                getSystemComponent = str(getComponent["component"])
+                getSystemComponent = str(getComponent["id"])
                 try:
                     buildComponentPath = "components."+getSystemComponent
                     addSystemPath = "../components/"+getSystemComponent
