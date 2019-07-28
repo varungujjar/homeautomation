@@ -74,7 +74,9 @@ export class DeviceModal extends Component {
       this.state.dataLoaded == true &&
       <>
         <button variant="primary" onClick={this.handleShow} className="show-device-props">
-          <img src="assets/light/images/dots.svg" />
+          <span className="dot"></span>
+          <span className="dot"></span>
+          <span className="dot"></span>
         </button>
         <Modal
           show={this.state.show}

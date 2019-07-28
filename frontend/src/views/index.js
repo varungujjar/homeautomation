@@ -6,9 +6,7 @@ import { Rules, RuleEdit } from "./rules";
 import { Components, ComponentsEdit } from "./settings/components";
 import { Rooms, RoomsEdit } from "./settings/rooms";
 import { Settings } from "./settings";
-import { Horizon } from "../components/horizon";
-import { Weather } from "./dashboard/weather";
-import { Home } from "./dashboard/home";
+
 import { Timeline } from "./timeline";
 
 
@@ -29,12 +27,8 @@ export const Views = () => {
         <div className="layout-sidenav">
           <SideNav></SideNav>
         </div>
-        <div className="layout-highlight">
-          <Home></Home>
-          <Weather></Weather>
-          <Horizon></Horizon>
-        </div>
-        <div className="layout-body">
+      
+        <div className="layout-body mt-5">
           <div className="wrapper">
             <Switch>
               <Route exact path="/" render={() => <Dashboard name={"Dashboard"} icon="home" />} />

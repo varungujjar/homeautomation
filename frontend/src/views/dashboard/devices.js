@@ -137,7 +137,7 @@ export class Devices extends Component {
             slidesToScroll: 1,
             responsive: [
                 {
-                    breakpoint: 1280,
+                    breakpoint: 1219,
                     settings: {
                         slidesToShow: 4,
                         slidesToScroll: 1,
@@ -183,7 +183,6 @@ export class Devices extends Component {
             return (
                 <>
                     <div className="section mt-4">
-                        <h3 className="mb-2">Devices</h3>
                         <div className="slider-wrapper">
                             <SliderInner settings={settings} items={devices}></SliderInner>
                         </div>

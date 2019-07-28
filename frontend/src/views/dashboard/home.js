@@ -6,7 +6,7 @@ export class Home extends Component {
         super(props);
         this._isMounted = false;
         this.state = {
-            itemsLoaded: false
+            itemsLoaded: true
         }
     }
 
@@ -43,29 +43,17 @@ export class Home extends Component {
 
 
     render() {
-        const RoomItem = (props) => {
-            return (
-                <div key={props.room.id} className="card card-shadow item">
-                    <img src="assets/light/images/bedroom.svg" />
-                    <div className="text-bold mt-2">{props.room.name}</div>
-                    <div className="text-secondary text-md">2 Devices</div>
-                </div>
-            )
-        }
-        if (this.state.itemsLoaded == false) {
-            return (
-                <div className="card card-outline-default">
-                    <div className="card-body">
-                         <span className="icon-1x icon-bg-info icon-home"></span>
+        return (
+        <>
+            {this.state.itemsLoaded &&
+                        <div className="b-l-info pl-3">
+                             <h2 className="text-white">Good Morning, Varun</h2>
+                              <div className="text-secondary text-md">{this.state.curTime}</div>
 
-                        <h2 className="mt-3 ">Good Morning, Varun</h2>
-                        <div className="text-xxl mt-2">{this.state.curTime}</div>
-                        <p className="mt-2">I will keep you updated right here with the most important events of your home.
-                        </p>
-                    </div>
-                </div>
+                        </div>    
+                       
+            }
+            </>
             )
-        }
-        return (<div> ... </div>);
     }
 }

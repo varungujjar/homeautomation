@@ -215,7 +215,7 @@ export class ModuleList extends Component {
                                         {
                                             this.state.selectedProperty && this.state.selectedProperty != "relay" ?
                                                 (
-                                                    <input className="form-control mt-3" value={this.deviceValues.properties[this.state.selectedProperty] || this.deviceData.properties[this.state.selectedProperty]} name={`${this.props.dataType}[properties][${this.state.selectedProperty}]`} onChange={this.onPropertyChange} />
+                                                    <input className="form-control mt-3" value={this.deviceValues.properties[this.state.selectedProperty]?this.deviceValues.properties[this.state.selectedProperty]:""} name={`${this.props.dataType}[properties][${this.state.selectedProperty}]`} onChange={this.onPropertyChange} />
                                                 )
                                                 : null
                                         }
@@ -394,13 +394,13 @@ export const Module = (props) => {
                                     <DeviceModal data={device}/>  
                                     <div onClick={() => { toggleState(device.id, index, relays[index]) }}>
                                     <span className={`icon-1x icon-${device.icon ?  device.icon : ""} ${relays[index] ? "icon-bg-success" : "icon-bg-default"}`} ></span>
-                                    <div className="text-status">
+                                    {/* <div className="text-status">
                                         {
                                             relays[index] ? ("On") : ("Off")
                                         }
-                                    </div>
-                                    <div className="text-bold mt-2">{device.name ? device.name : "..."}</div>
-                                    <div className="text-secondary text-md">{device.room_name}</div>
+                                    </div> */}
+                                    <div className="text-white mt-2">{device.name ? device.name : "..."}</div>
+                                    <div className="text-secondary">{device.room_name}</div>
                                     </div>
                                 </div>
 

@@ -186,14 +186,13 @@ export class Horizon extends Component {
         let data = this.state;
         if (data.dataLoaded == true) {
             return (
-                <div className={`card mt-4 mb-4 ${this.state.aboveHorizon == "true" ? "card-warning " : "card-default"}`}>
-                    <div className="card-body">
-                        <span className={`icon-2x icon-left ${this.state.aboveHorizon == "true" ? "icon-sunrise " : "icon-moon"}`}></span>
-                        <h2 className="mt-1">{this.state.aboveHorizon == "true" ? ("Above Horizon") : ("Below Horizon")}</h2>
-                        <span className="text-secondary title-case">{this.state.astralNext} in Next {this.state.astralTimeDigit} {this.state.astralTimeDigitUnit}</span>
+                        <>
+                        <span className={`icon-3x text-info icon-left ${this.state.aboveHorizon == "true" ? "icon-sunrise " : "icon-moon"}`}></span>
                         <div className="clearfix"></div>
-                    </div>
-                </div>
+                        <h2 className="mt-1 text-white">{this.state.aboveHorizon == "true" ? ("Above Horizon") : ("Below Horizon")}</h2>
+                        <span className="text-secondary">  {this.state.astralNext.charAt(0).toUpperCase() + this.state.astralNext.slice(1)} in Next {this.state.astralTimeDigit} {this.state.astralTimeDigitUnit}</span>
+                       
+                        </>
             )
         }
         return (null)

@@ -1,6 +1,283 @@
-body{
-    font-family: 'Source Sans Pro', sans-serif;
+body {
+    font-family: 'Open Sans', sans-serif;
     font-size: 13px;
-    color: #222;
+    color: #4A5669;
+    background: #151515;
+    padding: 0px;
+    margin: 0px;
+    width: 100%;
+    height:100%;
+}
 
+#root,
+.App {
+    width: 100%;
+}
+
+
+
+/* Layout CSS */
+.layout-sidenav {
+    background: #2B2B2B;
+    box-shadow: 0 2px 23px -5px rgba(0, 0, 0, 0.12);
+    padding: 13px 10px;
+    position: fixed;
+    height: 100%;
+    z-index: 999;
+    top: 0px;
+
+}
+
+.layout-highlight {
+    width: 450px;
+    float: left;
+    margin-left: 70px;
+    padding: 30px 30px;
+    height: 100%;
+    position: fixed;
+    background-color: #fff;
+    box-shadow: 0 6px 20px 5px rgba(154, 154, 154, 0.1);
+
+}
+
+.layout-body {
+    width: 100%;
+
+}
+
+@media(max-width:1024px) {
+    body {
+        padding: 0px;
+    }
+
+    .wrapper {
+        width: 100% !important;
+        margin: 0px !important;
+        padding: 0px 20px;
+    }
+
+    .layout-sidenav {
+        display: none;
+    }
+}
+
+.wrapper {
+    width: 70%;
+    margin: 0px auto 30px auto;
+}
+
+
+
+/* Bootstrap Resets */
+
+ul {
+    list-style-type: none;
+    padding: 0px;
+    margin: 0px;
+}
+
+
+
+/* Side Bar Navigation */
+
+.sidebar {
+    width: 100%;
+    text-align: center;
+
+}
+
+.sidebar li {
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.sidebar li a {
+    padding: 15px 18px;
+    display: inline-block;
+    width: 100%;
+    margin-bottom: 10px;
+    color: #fff;
+}
+
+.sidebar li a:hover {
+    color: #8A929E;
+    background: none;
+}
+
+.sidebar li a.active {
+    background-color: #000;
+    border-radius: 9px;
+}
+
+
+/* Card Styling */
+
+.card {
+    background: #000000;
+    border-radius: 14px;
+   
+
+}
+
+.card-hover{
+    transition: 0.3s;
+    cursor: pointer;
+}
+.card-hover:hover{
+    box-shadow: 0 2px 23px -5px rgba(0, 0, 0, 0.8);
+}
+
+.card-body {
+    padding: 28px;
+}
+
+.dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 100%;
+    background: #6D7277;
+    display: inline-block;
+    margin-left: 5px;
+}
+
+
+
+.show-device-props:hover,
+.show-device-props:active,
+.show-device-props:focus {
+    outline: none;
+}
+
+.show-device-props {
+    position: absolute;
+    right: 20px;
+    background: none;
+    border: none;
+    top: 20px;
+}
+
+.show-device-props:hover {
+    opacity: 0.6;
+}
+
+
+/* Helper Classes */
+
+.p-all-less{
+    padding: 20px;
+}
+.h-100{
+    position: static;
+    height: 100%;
+}
+
+/* Typography Styles */
+
+h2 {
+    font-size: 18px;
+    margin: 0px;
+    padding: 0px;
+}
+
+.text-white {
+    color: #fff;
+}
+
+.text-secondary {
+    color: #6D7277 !important;
+}
+
+.text-info {
+    color: #4949BE !important;
+}
+
+.text-md {
+    font-size: 18px;
+}
+
+.text-1x {
+    font-size: 30px;
+}
+
+.text-3x {
+    font-size: 55px;
+    line-height: 44px;
+}
+
+.text-10x {
+    font-size: 120px;
+    line-height: 85px;
+}
+
+.text-normal {
+    font-size: 13px
+}
+
+.text-thin {
+    font-weight: 300;
+}
+
+
+
+/* borders styling */
+
+.b-l-info {
+    border-left: 2px solid #4949BE
+}
+
+.b-r-default {
+    border-right: 1px solid #494949
+}
+
+
+/* Background colors */
+
+.bg-success{
+    background: #51D679;
+}
+
+
+/* Slider Styling */
+.slider-slide {
+    padding: 0px 10px;
+}
+
+.slider-wrapper {
+    margin: 0px -10px;
+}
+
+
+/* Offline Styling */
+
+.offline{
+    position: relative;
+    transition:0.3s;
+   
+}
+
+.offline-icon{
+    display: none;
+}
+.offline .offline-box{
+    opacity: 0.1;
+}   
+
+.offline-icon::before{
+    font-family: "Font Awesome 5 Pro";
+    font-weight: bold;
+    content: "\f06a";
+    font-size: 20px;
+    
+}
+.offline .offline-icon{
+    display: inline-block;
+    position: absolute;
+    top: 50%;
+    width: 20px;
+    height: 20px;
+    margin-top: -16px;
+    margin-left: -8px;
+    left: 50%;
+    z-index: 999;
+    color: #ff6b6b;
 }

@@ -34,7 +34,7 @@ export class Scenes extends Component {
             slidesToScroll: 1,
             responsive: [
                 {
-                    breakpoint: 1280,
+                    breakpoint: 1219,
                     settings: {
                       slidesToShow: 2,
                       slidesToScroll: 1,
@@ -89,35 +89,43 @@ export class Scenes extends Component {
         // if (this.state.itemsLoaded == true) {
             return (
                 <div className="section mt-4">
-                <h3 className="mb-2">Scenes</h3>
                 <div className="slider-wrapper">
                 <Slider {...settings}>
                     <div className="slider-slide">
-                    <div className="card card-shadow">
+                    <div className="card card-shadow card-hover">
                     <div className="card-body">
-                        <span className="icon-1x icon-bg-info icon-sunrise icon-left"></span>
-                        <span className="text-bold mt-3">Early Morning</span>
-                        <div className="text-secondary text-md">2 Devices Triggered</div>
+                        <span className="icon-2x text-white icon-sunrise icon-left"></span>
+                        <div className="mt-2">
+                        <span className="text-white">Early Morning</span>
+                        <div className="text-secondary">2 Devices Triggered</div>
+
+                        </div>
+                        
                         <div className="clearfix"></div>
                         </div>
                     </div>
                     </div>
                     <div className="slider-slide">
-                    <div className="card card-shadow">
+                    <div className="card card-shadow card-hover">
                     <div className="card-body">
-                        <span className="icon-1x icon-bg-info icon-moon icon-left"></span>
-                        <span className="text-bold mt-3">Good Night</span>
-                        <div className="text-secondary text-md">2 Devices Triggered</div>
+                        <span className="icon-2x text-white icon-moon icon-left"></span>
+                        <div className="mt-2"></div>
+                        <span className="text-white">Good Night</span>
+                        <div className="text-secondary">2 Devices Triggered</div>
+                        </div>
                         <div className="clearfix"></div>
                         </div>
                     </div>
-                    </div>
+                    
                     <div className="slider-slide">
-                    <div className="card card-shadow">
+                    <div className="card card-shadow card-hover">
                     <div className="card-body">
-                        <span className="icon-1x icon-bg-info icon-popcorn icon-left"></span>
-                        <span className="text-bold mt-3">Movie Time</span>
-                        <div className="text-secondary text-md">2 Devices Triggered</div>
+                        <span className="icon-2x text-white icon-popcorn icon-left"></span>
+
+                        <div className="mt-2">
+                        <span className="text-white mt-3">Movie Time</span>
+                        <div className="text-secondary">2 Devices Triggered</div>
+                        </div>
                         <div className="clearfix"></div>
                         </div>
                     </div>
