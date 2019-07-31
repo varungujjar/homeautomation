@@ -45,15 +45,15 @@ export class ModuleList extends Component {
     render(){
         return (
             <div>
-                <div className={`card card-outline-default h-100 ${this.deviceValues && !this.state.edit ? "has-edit-hover" : ""}`}>
+                <div className={`card card-outline-default ${this.deviceValues && !this.state.edit ? "has-edit-hover" : ""}`}>
                     <div className="edit-overlay v-center" onClick={() => this.setState({ edit: true })}>
                         <span className="text-lg icon-1x icon-edit"></span>
                     </div>
                     {      
                             <div className="p-all-less">
-                            <span className="icon-left icon-1x icon-bg-warning icon-bell"></span>
+                            <span className="icon-left icon-1x icon-bg-info icon-bell"></span>
                             <div className="text-bold mt-1">Notification</div>
-                            <div className="text-secondary text-md">Message</div>
+                            <div className="text-secondary">Message</div>
                             </div>
                      }
                      { 
@@ -78,7 +78,7 @@ export class ModuleList extends Component {
                                         <input className="form-control mt-3" value={this.deviceValues.properties.title} name={`${this.props.dataType}[properties][title]`} onChange={this.onTitleChange} placeholder="Title" />
                                         <input className="form-control mt-3" value={this.deviceValues.properties.message} name={`${this.props.dataType}[properties][message]`} onChange={this.onMessageChange} placeholder="Message" />
                                         </div>
-                                        <span className="link w-100 b-t" onClick={() => this.setState({ edit: false })}>Done</span>
+                                        <div className="card-footer bg-dark text-center b-t"><span className="link" onClick={() => this.setState({ edit: false })}>Done</span></div>
                                     </>
                                 )
                             }

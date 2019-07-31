@@ -81,7 +81,7 @@ export class ModuleList extends Component {
     render(){
         return (
                 <div>
-                    <div className={`card card-outline-default h-100 ${this.deviceValues && !this.state.edit ? "has-edit-hover" : ""}`}>
+                    <div className={`card card-outline-default ${this.deviceValues && !this.state.edit ? "has-edit-hover" : ""}`}>
                     <div className="edit-overlay v-center" onClick={() => this.setState({ edit: true })}>
                         <span className="text-lg icon-1x icon-edit"></span>
                     </div>

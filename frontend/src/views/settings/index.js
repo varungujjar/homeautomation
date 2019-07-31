@@ -29,18 +29,18 @@ export const TabHeads = (props) => {
 
 
 export const Settings = (props) => {
-
         const category = props.match.params.category
-        console.log(props.match.params.category)
         return (
             <>   
                 <Header name={props.name} icon={props.icon}></Header>
+                <div className="wrapper">
                 <TabHeads active={category} />
-                <div className="tab-content" id="myTabContent">
-                    <Components active={category == "components" ? 1 : 0}/>
-                    <Rooms active={category == "rooms" ? 1 : 0}/>
-                    <Devices active={category == "devices" ? 1 : 0}/>
-                    <System active={category == "system" ? 1 : 0}/>
+                    <div className="tab-content" id="myTabContent">
+                        <Components active={category == "components" ? 1 : 0}/>
+                        <Rooms active={category == "rooms" ? 1 : 0}/>
+                        <Devices active={category == "devices" ? 1 : 0}/>
+                        <System active={category == "system" ? 1 : 0}/>
+                    </div>
                 </div>
             </>
            )

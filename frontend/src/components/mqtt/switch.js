@@ -117,7 +117,7 @@ export class ModuleList extends Component {
     render(){
         return (
                 <div>
-                    <div className={`card card-outline-default h-100 ${this.deviceValues && !this.state.edit ? "has-edit-hover" : ""}`}>
+                    <div className={`card card-outline-default ${this.deviceValues && !this.state.edit ? "has-edit-hover" : ""}`}>
                     <div className="edit-overlay v-center" onClick={() => this.setState({ edit: true })}>
                         <span className="text-lg icon-1x icon-edit"></span>
                     </div>
@@ -125,9 +125,9 @@ export class ModuleList extends Component {
                             
                            
                             <div className="p-all-less">
-                            <span className={`icon-left icon-1x icon-${this.deviceData.icon ?  this.deviceData.icon : ""} ${this.deviceData.properties.relay[0] ? "icon-bg-success" : "icon-bg-default"}`}></span>
+                            <span className={`icon-left icon-1x icon-${this.deviceData.icon ?  this.deviceData.icon : ""} ${this.deviceData.properties.relay[0] ? "icon-bg-on" : "icon-bg-off"}`}></span>
                             <div className="text-bold mt-1">{this.deviceData.name ? this.deviceData.name : "..."}</div>
-                            <div className="text-secondary text-md">{this.deviceData.room_name}</div>
+                            <div className="text-secondary">{this.deviceData.room_name}</div>
                             </div>
                      }
                      { 
@@ -220,7 +220,7 @@ export class ModuleList extends Component {
                                                 : null
                                         }
                         </div>
-                                        <span className="link w-100 b-t" onClick={() => this.setState({ edit: false })}>Done</span>    
+                        <div className="card-footer bg-dark text-center b-t"><span className="link" onClick={() => this.setState({ edit: false })}>Done</span>    </div>
 
                                     </>
                                 )
@@ -393,7 +393,7 @@ export const Module = (props) => {
                                 <div key={index} className={relays[index] ? ("on") : ("")} >
                                     <DeviceModal data={device}/>  
                                     <div onClick={() => { toggleState(device.id, index, relays[index]) }}>
-                                    <span className={`icon-1x icon-${device.icon ?  device.icon : ""} ${relays[index] ? "icon-bg-success" : "icon-bg-default"}`} ></span>
+                                    <span className={`icon-1x icon-${device.icon ?  device.icon : ""} ${relays[index] ? "icon-bg-on" : "icon-bg-off"}`} ></span>
                                     {/* <div className="text-status">
                                         {
                                             relays[index] ? ("On") : ("Off")

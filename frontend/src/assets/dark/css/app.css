@@ -1,7 +1,7 @@
 body {
     font-family: 'Open Sans', sans-serif;
     font-size: 13px;
-    color: #4A5669;
+    color: #fff;
     background: #151515;
     padding: 0px;
     margin: 0px;
@@ -63,10 +63,17 @@ body {
 
 .wrapper {
     width: 70%;
-    margin: 0px auto 30px auto;
+    margin: 0px auto 0px auto;
 }
 
+.header{
+    color: #fff;
+    padding: 30px 0px 5px 0px;
 
+}
+.header h1{
+    font-size: 20px;
+}
 
 /* Bootstrap Resets */
 
@@ -75,7 +82,16 @@ ul {
     padding: 0px;
     margin: 0px;
 }
-
+.days li{
+    display: inline-block;
+    background: #16191C;
+    padding: 3px 8px;
+    font-size: 12px;
+    text-align: center;
+    border-radius: 4px;
+    margin-right: 4px;
+    margin-top: 4px;
+}
 
 
 /* Side Bar Navigation */
@@ -97,28 +113,78 @@ ul {
     width: 100%;
     margin-bottom: 10px;
     color: #fff;
+    transition: 0.3s;
 }
 
 .sidebar li a:hover {
-    color: #8A929E;
-    background: none;
+    background: #111;
+    border-radius: 9px;
 }
 
 .sidebar li a.active {
-    background-color: #000;
+    background-image: linear-gradient(180deg, #4949BE 0%, #34348F 100%);
     border-radius: 9px;
+}
+
+
+/* Top Navigation Dashboard */
+
+.top-nav{
+    padding: 30px 0px 40px 0px;
+}
+
+.top-nav li{
+    display: inline;
+    font-weight: bold;
+
+}
+.top-nav li a{
+    display: inline-block;
+    padding: 8px 30px;
+    margin-right: 30px;
+    color: #fff;
+    transition: 0.3s;
+    
+}
+.top-nav li.active a{
+    border-radius: 30px;
+    background-image: linear-gradient(180deg, #4949BE 0%, #34348F 100%);
+}
+.top-nav li.active a:hover{
+    color: #fff;
+}
+.top-nav li a:hover{
+    text-decoration: none;
+    color: #999;
+}
+
+/* List Styling */
+.list-item{
+    background: #1E2125;
+    border-bottom: 1px solid #151515
 }
 
 
 /* Card Styling */
 
 .card {
-    background: #000000;
-    border-radius: 14px;
-   
-
+    background:#1E2125;
+    border-radius: 10px;
+    border: none;
 }
-
+.card-header{
+    padding: 20px 20px;
+    font-size: 13px!important;
+    font-weight: bold;
+    background: #16191C;
+    border-bottom: 1px solid #151515;
+}
+.card-footer{
+    padding: 20px 20px;
+    font-size: 13px!important;
+    font-weight: bold;
+    border-top: 1px solid #151515;
+}
 .card-hover{
     transition: 0.3s;
     cursor: pointer;
@@ -130,6 +196,9 @@ ul {
 .card-body {
     padding: 28px;
 }
+.card-light{
+    background: transparent!important;
+}
 
 .dot {
     width: 5px;
@@ -138,7 +207,42 @@ ul {
     background: #6D7277;
     display: inline-block;
     margin-left: 5px;
+    position: relative;
 }
+
+
+  
+  .dot-ripple:after {
+    content:'';
+    position: absolute;
+    z-index:1;
+    background-color: #51D679;
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(0,0,0,.3) inset;
+    -webkit-animation-name:'ripple';
+    -webkit-animation-duration: 1s;
+    -webkit-animation-timing-function: ease;
+    -webkit-animation-delay: 0s;
+    -webkit-animation-iteration-count: infinite;
+    -webkit-animation-direction: normal;
+  }
+  
+  @keyframes ripple {
+     0% {
+      left:2px;
+      top:2px;
+      opcity:75;
+      width:0;
+      height:0;
+    }
+    100% {
+      left:-12px;
+      top:-12px;
+      opacity: 0;
+      width:30px;
+      height:30px;
+    }
+  }
 
 
 
@@ -166,15 +270,71 @@ ul {
 .p-all-less{
     padding: 20px;
 }
+.bg-dark{
+    background: #16191C!important;
+}
+
+.b-t{
+    border-top: 1px solid #151515;
+}
+
+
+.b-t-light{
+    border-top: 1px solid #222;
+}
+
+.b-b{
+    border-bottom: 1px solid #666;
+}
+
 .h-100{
     position: static;
     height: 100%;
 }
+.v-center{
+    display: flex;
+    justify-content: center;
+  flex-direction: column;
+}
 
+.float-right{
+    position: absolute!important;
+    top: 50%;
+    margin-top: -22px;
+    right: -22px;
+    z-index: 99;
+}
+
+.float-center{
+    position: absolute!important;
+    margin-left: -22px;
+    background: #fff;
+    top: 0px;
+    width: 100%;
+}
+
+.bg-dark-gradient{
+    background-image: linear-gradient(180deg, #151515 0%, #1B1E21 100%);
+}
+.border-rounded{
+    border-radius: 6px;
+    overflow: hidden;
+}
+.empty-device{
+    border:2px dashed #444;
+    border-radius: 6px;
+    padding: 40px;
+
+}
 /* Typography Styles */
 
 h2 {
     font-size: 18px;
+    margin: 0px;
+    padding: 0px;
+}
+h3 {
+    font-size: 13px;
     margin: 0px;
     padding: 0px;
 }
@@ -195,6 +355,8 @@ h2 {
     font-size: 18px;
 }
 
+
+
 .text-1x {
     font-size: 30px;
 }
@@ -210,13 +372,16 @@ h2 {
 }
 
 .text-normal {
-    font-size: 13px
+    font-size: 13px;
+    font-weight: normal!important;
 }
 
 .text-thin {
     font-weight: 300;
 }
-
+.text-bold{
+    font-weight: bold;
+}
 
 
 /* borders styling */
@@ -280,4 +445,193 @@ h2 {
     left: 50%;
     z-index: 999;
     color: #ff6b6b;
+}
+
+
+/* Badges Styling */
+
+.badge{
+    display: inline-block;
+    background: #16191C;
+    padding: 3px 8px;
+    font-size: 12px;
+    color: #6D7277 !important;
+    line-height: normal!important; 
+    text-align: center;
+    border-radius: 4px;
+    margin-right: 4px;
+    margin-top: 4px;
+    font-weight: normal!important;
+}
+.badge b{
+    color: #ccc;
+}
+
+/* Button Styling */
+button, button:active, button:focus{
+    border: none;
+    outline: none;
+}
+.btn{
+    border-radius: 6px;
+    font-size: 13px;
+    padding: 16px 25px;
+    border: none;
+    transition: 0.3s;
+    font-weight: 700;
+}
+.btn:hover, .btn:focus, .btn:active{
+    box-shadow: none!important;
+    background: #333;
+    color: #fff;
+    box-shadow: 0 9px 30.5px 1.5px rgba(0,0,0,.35)!important;
+
+}
+.btn:active{
+    background: #555!important;
+}
+.btn-info{
+    background: #4949BE;
+    color: #fff;
+}
+.btn-default{
+    background: #555;
+    color: #fff;
+}
+
+.btn.disabled, .btn.disabled:hover, .btn.disabled:active, .btn.disabled:focus{
+    background: #ccc!important;
+    box-shadow: none!important;
+}
+
+.btn-action{
+    background: transparent;
+    border: none;
+    margin-left: 10px;
+    transition: 0.3s;
+    cursor: pointer;
+}
+
+.btn-action-disabled{
+    background: #333;
+    color: #999;
+    border: none;
+    margin-left: 10px;
+    transition: 0.3s;
+}
+
+.btn-action:hover, .btn-action:active, .btn-action:focus{
+    background: #000;
+    box-shadow: 0 9px 30.5px 1.5px rgba(0,0,0,.1)!important;
+    text-decoration: none;
+    color:#fff;
+}
+
+.link{
+    padding: 20px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+.link:hover{
+    color: #666;
+}
+
+/* Edit Card Overlay Styling */
+.has-edit-hover{
+    cursor: pointer;
+    position: relative;
+    transition: 0.5s;
+}
+
+.edit-overlay{
+    display: none;
+}
+
+.edit-overlay .text-lg{
+    line-height:45px;
+}
+.edit-overlay .icon-edit{
+    position: absolute;
+    top: 50%;
+    margin-top: -22px;
+    left: 50%;
+    margin-left: -22px;
+}
+
+.has-edit-hover:hover .edit-overlay{
+    background:rgba(0, 0, 0, 0.9);
+    position: absolute;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    z-index: 9;
+    border-radius: 6px;
+    display: block;
+}
+
+/* Form Styling */
+
+label{
+    color: #999;
+}
+.form-control{
+    background: #151515;
+    border: none;
+    padding: 10px 20px!important;
+    display: block;
+    font-size: 13px;
+    height: auto!important;
+    color: #fff;
+    border: 2px solid transparent;
+}
+
+.form-control:hover, .form-control:focus, .form-control:active{
+    background: #151515;
+    box-shadow: none;
+    color: #ccc;
+    border: 2px solid #4949BE;
+}
+
+/* Icon styling overrides  */
+.icon-bg-light {
+    background-color: #000;
+    color: #666;
+    cursor: pointer;
+  }
+  
+  .icon-bg-light:hover{
+    background-color: #555;
+    color: #ccc!important;
+    box-shadow: 0 9px 30.5px 1.5px rgba(0,0,0,.1)!important;
+  }
+
+/* Nav Stylings */
+
+.nav-tabs{
+    border-bottom: 1px solid #444;
+}
+
+.nav-link.active{
+    color: #fff!important;
+}
+
+
+/* Modal Styling */
+.modal-backdrop.show{
+    opacity: 0.9!important;
+}
+.modal-content{
+    background: #151515;
+    border-color: #000
+}
+.modal-header .close{
+    text-shadow: none;
+    color: #fff;
+}
+.modal-body{
+    padding: 20px 40px;
+}
+.modal-header{
+    border-bottom: none;
+    padding: 30px 40px 20px 40px;
 }

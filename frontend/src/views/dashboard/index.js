@@ -14,6 +14,17 @@ export class Dashboard extends Component {
     render() {
         return (
             <>
+                <div className="wrapper">
+                <ul className="top-nav">
+                    <li className="active"><a href="#">Dashboard</a></li>
+                    <li><a href="#">Living Room</a></li>
+                    <li><a href="#">Bedroom</a></li>
+                    <li><a href="#">Bedroom 02</a></li>
+                    <li><a href="#">Bathroom</a></li>
+                    <li><a href="#">Kitchen</a></li>
+
+                </ul>
+
                 <Home />
                 <div className="row mt-5">
                     <div className="col-md-5 b-r-default"><Weather/></div>
@@ -36,6 +47,7 @@ export class Dashboard extends Component {
                 {/* <Rooms></Rooms> */}
                 <Scenes/>
                 <Devices/>
+                </div>
             </>
         )
     }

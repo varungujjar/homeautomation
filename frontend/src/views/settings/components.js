@@ -75,7 +75,7 @@ export class Components extends Component {
     render() {
         return (
             <div className={`tab-pane fade ${this.props.active ? "show active" : null}`} id="components" role="tabpanel" aria-labelledby="components-tab">
-                <div className="mt-4">
+                <div className="mt-4 border-rounded">
                 {
                     this.state.dataLoaded ?
                         (
@@ -190,6 +190,7 @@ export class ComponentsEdit extends Component {
         return (
             <>
                 <Header name="Settings" icon="fal fa-cog"></Header>
+                <div className="wrapper">
                 <TabHeads active="components" disabled="1" />
                 {
                     this.state.dataLoaded && (
@@ -219,7 +220,7 @@ export class ComponentsEdit extends Component {
                                        
                                         <div className="card card-shadow mt-3">
                                         <div className="card-header">
-                                            <h2>Edit Component</h2>
+                                            Edit Component
                                             </div>
                                             <div className="card-body">
                                             <input className="form-control" value={values.id} name="id" onChange={handleChange} type="hidden" />
@@ -258,6 +259,7 @@ export class ComponentsEdit extends Component {
                         </Formik>
                     )
                 }
+            </div>
             </>
         )
     }

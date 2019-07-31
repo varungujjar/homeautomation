@@ -123,7 +123,7 @@ export class ModuleList extends Component {
     render() {
         return (
             <div>
-                <div className={`card card-outline-default h-100 ${this.deviceValues && !this.state.edit ? "has-edit-hover" : ""}`}>
+                <div className={`card card-outline-default ${this.deviceValues && !this.state.edit ? "has-edit-hover" : ""}`}>
                     <div className="edit-overlay v-center" onClick={() => this.setState({ edit: true })}>
                         <span className="text-lg icon-1x icon-edit"></span>
                     </div>
@@ -131,25 +131,25 @@ export class ModuleList extends Component {
                         
                             <>
                                 <div className="p-all-less">
-                                    <span className="icon-1x icon-clock icon-left btn-info"></span>
+                                    <span className="icon-1x icon-clock icon-left icon-bg-info"></span>
                                     <div className="text-bold">{convertTime(this.deviceData.properties.time)}</div>
                                     <ul className="days">
                                         {
                                             this.deviceData.properties.day.length == 7 && (
-                                                <li>All Weekdays</li>
+                                                <li className="text-secondary">All Weekdays</li>
                                             )
                                         }
                                         {
                                             this.deviceData.properties.day.length < 7 && this.deviceData.properties.day.length > 0 &&
                                             this.deviceData.properties.day.map((number, index) => {
                                                 return (
-                                                    <li key={index}>{Object.values(this.day)[number]}&nbsp;&nbsp;</li>
+                                                    <li className="text-secondary" key={index}>{Object.values(this.day)[number]}</li>
                                                 )
                                             })
                                         }
                                         {
                                             this.deviceData.properties.day.length == 0 && (
-                                                <li>Weekdays</li>
+                                                <li  className="text-secondary">Weekdays</li>
                                             )
                                         }
                                     </ul>
@@ -195,7 +195,7 @@ export class ModuleList extends Component {
                                         })
                                     }
                                 </div>
-                                <span className="link w-100 b-t" onClick={() => this.setState({ edit: false })}>Done</span>
+                                <div className="card-footer bg-dark text-center b-t"><span className="link" onClick={() => this.setState({ edit: false })}>Done</span></div>
                             </>
                         )
                     }

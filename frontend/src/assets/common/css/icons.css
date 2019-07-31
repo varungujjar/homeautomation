@@ -229,7 +229,16 @@
 
 .icon-bg-default {
   color: #fff;
-  border: 1px solid #6D7277;
+  background: #222;
+}
+.icon-bg-on {
+  color: #111;
+  background: #fff;
+}
+
+.icon-bg-off {
+  color: #fff;
+  background: #222;
 }
 
 .icon-bg-dark {
@@ -238,19 +247,18 @@
 }
 
 .icon-bg-info {
-    background-color: #F1F1FA;
-    color: #4949BE;
+    background-color: #4949BE;
+    color: #fff;
 }
 
 .icon-bg-warning {
-  background-color: #FFEFE0;
-  color: #F19438;
+  background-color: #F19438;
+  color: #FFEFE0;
 }
 
 .icon-bg-success {
-    background-color: #fff;
-    color: #000;
-    border: 1px solid #fff;
+    background-color: #51D679;
+    color: #fff;
 }
 .icon-left{
   float: left;

@@ -200,20 +200,20 @@ export class Rules extends Component {
         return (
                 <>
                 <Header name={this.props.name} icon={this.props.icon}></Header>
-                <Link to={{ pathname: `/rules/0`, data: null }} className="btn btn-info mb-2"><i className="fas fa-plus"></i> Create Rule</Link>
-                <div className="card card-shadow mt-3">
+                <div className="wrapper">
+                <Link to={{ pathname: `/rules/0`, data: null }} className="btn btn-info mb-2"><i className="fas fa-plus"></i></Link>
+                <div className="row">
                     {this.state.dataLoaded && (
                         this.state.ruleData.map((item, index) => {
                             return (     
-                                    <div className="p-all-less list-item" key={index}>
-                                        <div className="row">          
-                                            <div className="col-md-1 text-center text-lg text-bold v-center">
-                                                <div className="content-v-center">
-                                                    <span className="icon-1x icon-bg-info text-bold ">if</span>
-
-                                                </div>
+                                    
+                                    <div className="col-md-4">
+                                    <div className="card card-shadow mt-3 border-rounded" key={index}>
+                                        <div className="card-header">
+                                            <div className="text-secondary text-normal">Rule ID {item.id}</div>
+                                            <span className="text-md text-info">Trigger </span><span className="text-md">When</span>
                                             </div>
-                                            <div className="col-md-4">
+                                                
                                             {  
                                                this.state.ifComponents.length > 0 ?
                                                this.state.ifComponents.map((conditionDevice,index)=>{
@@ -232,12 +232,8 @@ export class Rules extends Component {
                                                     <>Add If Devices Here</>
                                                 )
                                             }
-                                            </div>
-                                            <div className="col-md-3 text-right v-center">
-                                                <span className="badge-1x icon-bg-info text-bold">then</span>
-                                            </div>
-                                            <div className="col-md-4 text-right v-center">
-                                            <div className="action-buttons">
+                                          
+                                            <div className="card-footer text-center">
                                             <Link to={{ pathname: `/rules/${item.id}`, data: null }} className="btn-action icon-1x icon-bg-default icon-edit text-bold"></Link>
 
                                             <span className={`btn-action icon-1x icon-bg-default text-bold ${item.published ? "icon-publish text-success" :"icon-unpublish text-muted"}`} onClick={() => this.togglePublished(item.id, item.published)}>
@@ -246,15 +242,15 @@ export class Rules extends Component {
                                             <span className="btn-action icon-1x icon-bg-default icon-trash text-bold" onClick={() => this.deleteRule(item.id)}>
                                                        
                                             </span> 
-                                            </div>    
-                                            </div>
-                                        </div>
                                     </div>
-                                    
+                                    </div>
+                                    </div>
                                 )
                         })
                     )
                     }
+                </div>
+               
                 </div>
             </>)
     }
@@ -587,7 +583,10 @@ export class RuleEdit extends Component {
     render() {
         return (
             <>
-                <Header name={this.props.name} icon={this.props.icon}></Header>
+               
+                    <Header name={this.props.name} icon={this.props.icon}></Header>
+                
+                <div className="wrapper b-t-light">
                 {this.state.dataLoaded &&
                     (
                         <>
@@ -616,16 +615,17 @@ export class RuleEdit extends Component {
                                        
                                         
                                         <form onSubmit={handleSubmit}>
-                                            <button type="submit" disabled={isSubmitting} className="btn btn-info mb-2">
+                                            <button type="submit" disabled={isSubmitting} className="btn btn-info mb-2 mt-4">
                                                <i className="fas fa-check-circle"></i> Save Rule
                                             </button>
 
-                                            <div className="card card-shadow mt-3">
-                                                <div className="card-body">
+                                            <div className="mt-4">
+                                            <div className="text-bold"><span className="text-md text-info">Trigger </span><span className="text-md">When</span>
+                                            </div>
+                                          
 
-                                                    <span className="icon-1x icon-bg-info text-bold mb-3">if</span>
 
-                                                    <div className="row">
+                                                    <div className="row mt-3">
                                                         {
                                                             this.state.ifComponents.length > 0 ?
                                                                 this.state.ifComponents.map((device, index) => {
@@ -647,14 +647,16 @@ export class RuleEdit extends Component {
                                                             ) : null
                                                         }
                                                     </div>
-                                                </div>
                                             </div>
-                                            <div className="card card-shadow mt-3">
-                                                <div className="card-body">
 
-                                                <span className="badge-1x icon-bg-info text-bold mb-3 ">and</span>    
 
-                                                    <div className="row">
+
+                                            <div className="mt-4">
+                                            <div className="text-bold"><span className="text-md">And</span> <span className="text-md text-info">Condition </span>
+                                            </div>
+
+
+                                                    <div className="row mt-3">
                                                         {
                                                             this.state.andComponents.length > 0 ? 
                                                                 this.state.andComponents.map((device, index) => {
@@ -672,13 +674,17 @@ export class RuleEdit extends Component {
 
                                                                 <AddDeviceModal renderAddedDevice={this.addDevice} dataType={`and`} setFieldValue={setFieldValue} values={values} />
                                                     </div>
-                                                </div>
-                                            </div>
-                                            <div className="card card-shadow mt-3 ">
-                                                <div className="card-body">
+                                                    </div>
+                                               
 
-                                                <span className="badge-1x icon-bg-info text-bold mb-3 ">then</span>
-                                                    <div className="row">
+
+
+                                                    <div className="mt-4">
+                                            <div className="text-bold"><span className="text-md">Then</span> <span className="text-md text-info">Do </span>
+                                            <p className="text-normal text-secondary">Triggers The Following devices when the above conditions are meet 'true'</p>
+                                            </div>
+
+                                                    <div className="row mt-3">
                                                         {
                                                             this.state.thenComponents.length > 0 ?
                                                                 this.state.thenComponents.map((device, index) => {
@@ -697,7 +703,7 @@ export class RuleEdit extends Component {
                                                         }
                                                             <AddDeviceModal renderAddedDevice={this.addDevice} dataType={`then`} setFieldValue={setFieldValue} values={values} />
 
-                                                    </div>
+                                                   
                                                 </div>
                                             </div>
                                            
@@ -707,6 +713,7 @@ export class RuleEdit extends Component {
                         </>
                     )
                 }
+                </div>
             </>)
     }
 }

@@ -203,6 +203,7 @@ export class RoomsEdit extends Component {
         return (
             <>
                 <Header name="Settings" icon="fal fa-cog"></Header>
+                <div className="wrapper">
                 <TabHeads active="rooms" disabled="1" />
                 {
                     this.state.dataLoaded && (
@@ -265,6 +266,7 @@ export class RoomsEdit extends Component {
                         </Formik>
                     )
                 }
+                </div>
             </>
         )
     }

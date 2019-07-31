@@ -97,6 +97,7 @@ export class Timeline extends Component {
             return (
                 <>
                     <Header name={this.props.name} icon={this.props.icon}></Header>
+                    <div className="wrapper">
                     <div className="mb-3">
                         <button className="btn btn-default mb-3" onClick={()=>this.clearAll()}><i className="fas fa-trash"></i> Clear All</button>
                         <div className="clearfix"></div>
@@ -137,6 +138,7 @@ export class Timeline extends Component {
                                 </div>)
                         })
                     }
+                </div>
                 </>
             )
         }
@@ -144,7 +146,9 @@ export class Timeline extends Component {
             return (
                 <>
                 <Header name={this.props.name} icon={this.props.icon}></Header>
+                <div className="wrapper">
                 <div className="text-center p-all"><i className="fa fa-info-circle text-muted"/> No Notifications Yet.</div>
+            </div>
             </>
             )
         }

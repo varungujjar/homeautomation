@@ -28,8 +28,7 @@ export const Views = () => {
           <SideNav></SideNav>
         </div>
       
-        <div className="layout-body mt-5">
-          <div className="wrapper">
+        <div className="layout-body">
             <Switch>
               <Route exact path="/" render={() => <Dashboard name={"Dashboard"} icon="home" />} />
               <Route exact path="/rules" render={() => <Rules name={"Rules"} icon="list-alt" />} />
@@ -40,7 +39,6 @@ export const Views = () => {
               <Route path="/settings/:category" render={(props) => <Settings  {...props} name={"Settings"} icon="cog" />} />
               <Route component={NoMatch} />
             </Switch>
-          </div>
         </div>
         <MobileNav></MobileNav>
         

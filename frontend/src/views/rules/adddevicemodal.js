@@ -119,11 +119,10 @@ export class AddDeviceModal extends Component {
           centered
         >
           <Modal.Header closeButton>
-            <h2 className="text-bold">Devices List</h2>
+            <h2 className="text-bold">Available Devices & Components</h2>
           </Modal.Header>
           <Modal.Body>
-            <div className="p-all-less-lg bg-light">
-              <h2 className="mb-3">Components</h2>
+              <h3 className="mb-3">Components</h3>
               <div className="row mb-3">
               {
                   Object.keys(this.state.components).map((key, index) => { 
@@ -149,7 +148,7 @@ export class AddDeviceModal extends Component {
             </div>
               <div className="clearfix"></div>
 
-             <h2 className="mb-3">Devices</h2>  
+             <h3 className="mb-3">Devices</h3>  
             <div className="row">
              
               {
@@ -174,7 +173,6 @@ export class AddDeviceModal extends Component {
                   })
               }
             </div>
-        </div>
           </Modal.Body>
         </Modal>
       </>

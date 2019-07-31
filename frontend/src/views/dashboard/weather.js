@@ -69,7 +69,7 @@ export class Weather extends Component {
                     °{data.item.properties.temperature.unit ? data.item.properties.temperature.unit : "C"}
                     </span>
                     <div className="clearfix"></div>
-                    <div className="text-normal text-white mt-3">{data.item.properties.gas.value ? data.item.properties.gas.value : null }K / Acceptable <span className="dot bg-success"></span></div>
+                    <div className="text-normal text-white mt-3">{data.item.properties.gas.value ? data.item.properties.gas.value : null }K / Acceptable <span className="dot bg-success dot-ripple"></span></div>
                 </div>
 
                 <div className="float-left">
