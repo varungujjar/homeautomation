@@ -89,7 +89,7 @@ export class ModuleList extends Component {
                             <div className="p-all-less">
                             <span className={`icon-left icon-1x icon-bg-info icon-${this.deviceData.icon ?  this.deviceData.icon : ""}`}></span>
                             <div className="text-bold mt-1">{this.deviceData.name ? this.deviceData.name : "..."}</div>
-                            <div className="text-secondary text-md">{this.deviceData.room_name ? this.deviceData.room_name : "..."}</div>
+                            <div className="text-secondary">{this.deviceData.room_name ? this.deviceData.room_name : "..."}</div>
                             </div>
                      }
                      { 
@@ -148,7 +148,7 @@ export class ModuleList extends Component {
                                                 : null
                                         }
                                          </div>
-                                        <span className="link w-100 b-t" onClick={() => this.setState({ edit: false })}>Done</span>    
+                                         <div className="card-footer bg-dark text-center b-t"><span className="link" onClick={() => this.setState({ edit: false })}>Done</span>    </div>
 
                                     </>
                                 )

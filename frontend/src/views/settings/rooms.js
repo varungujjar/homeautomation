@@ -77,7 +77,7 @@ export class Rooms extends Component {
        return(
         <div className={`tab-pane fade ${this.props.active ? "show active" : null}`} id="rooms" role="tabpanel" aria-labelledby="room-tab">
         <div className="mt-4">
-        <Link to={{ pathname: `/settings/rooms/0`, data: null }} className="btn btn-info mb-4"><i className="fas fa-plus"></i> Add Room</Link>
+        <Link to={{ pathname: `/settings/rooms/0`, data: null }} className="btn btn-info mb-4"><i className="fas fa-plus"></i></Link>
             {
                 this.state.dataLoaded ? 
                 (   
@@ -233,7 +233,7 @@ export class RoomsEdit extends Component {
                                        
                                         <div className="card card-shadow mt-3">
                                         <div className="card-header">
-                                            <h2>Add/Edit Room</h2>
+                                            Add/Edit Room
                                             </div>
                                             <div className="card-body">
                                                 <input className="form-control " value={values.id} name="id" onChange={handleChange} type="hidden" />
@@ -255,11 +255,14 @@ export class RoomsEdit extends Component {
                                                 </select>
                                             </div>
                                             <div className="card-footer">
-                                            <button type="submit" disabled={isSubmitting} className="btn btn-info mb-2 mt-2">
+
+                                            <div className="btn-group">
+                                            <button type="submit" disabled={isSubmitting} className="btn btn-info">
                                             <i className="fas fa-check-circle"></i> Save Room
                                     </button>
-                                        <Link to={{ pathname: `/settings/rooms`, data: null }} className="mb-4 text-muted ml-4">Cancel</Link>
+                                        <Link to={{ pathname: `/settings/rooms`, data: null }} className="btn btn-default">Cancel</Link>
                                             </div>
+                                        </div>
                                         </div>
                                     </form>
                                 )}

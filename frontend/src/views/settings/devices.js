@@ -49,27 +49,28 @@ export class Devices extends Component {
             <div className="text-muted mb-5">Any new devices will automatically show up here.</div>
             
             <h2 className="mb-3">Devices</h2>
+            <div className="row">
             {
                 this.state.dataLoaded ? 
                 (   
                                     this.state.list.map((item,index)=>{
                                     return(
-                                        <div className="p-all-less list-item" key={index}>
-                                        <div className="row">          
-                                                <div className="col-md-5">
-                                                    <div className="p-all-less">
-                                                    <span className={`icon-1x icon-left icon-bg-default icon-${item.icon ? item.icon : ""}`}></span>
+                                         
+                                        <div className="col-md-4"  key={index}>
+                                         <div className="card card-shadow mt-3 border-rounded">
+
+                                         <div className="card-body">
+                                         <span className={`icon-1x icon-left icon-bg-default icon-${item.icon ? item.icon : ""}`}></span>
                                                         <div className="text-bold">{item.name?item.name:"..."}</div>
                                                         <div className="text-secondary">{item.room_name?item.room_name:"..."}</div>
                                                         <div className="text-secondary">{item.description?item.description:"..."}</div>
-                                                        </div>
-                                                </div>
+                                             </div>
+
+
+                                                   
                                            
-                                            <div className="col-md-3 text-right v-center">
-                                               
-                                            </div>
-                                            <div className="col-md-4 text-right v-center">
-                                            <div className="action-buttons">
+                                          
+                                                        <div className="card-footer text-center">
                                             <Link to={{ pathname: `/settings/rooms/${item.id}`}} className="btn-action icon-1x icon-bg-default icon-edit text-bold"></Link>
 
                                             {/* <span className={`btn-action icon-1x icon-bg-default text-bold ${item.published ? "icon-publish text-success" :"icon-unpublish text-muted"}`} onClick={() => this.togglePublished(item.id, item.published)}>
@@ -78,8 +79,7 @@ export class Devices extends Component {
                                             </span> 
 
                                             </div>    
-                                            </div>
-                                        </div>
+                                    </div>
                                     </div>
 
                                     )
@@ -94,6 +94,7 @@ export class Devices extends Component {
 
                 )
             }
+            </div>
        </div>
     </div>
        )

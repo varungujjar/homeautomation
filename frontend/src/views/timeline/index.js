@@ -102,6 +102,8 @@ export class Timeline extends Component {
                         <button className="btn btn-default mb-3" onClick={()=>this.clearAll()}><i className="fas fa-trash"></i> Clear All</button>
                         <div className="clearfix"></div>
                     </div>
+
+                    <div className="timeline">
                     
                     {
                          
@@ -123,21 +125,35 @@ export class Timeline extends Component {
                                 }
                             }
                             return (
-                                <div key={index} className="card card-shadow mt-3 overflow-hidden">
-                                    <div className={`bg-${item.class ? item.class : "info"}  p-all-less float-left`}>
-                                        <span className={`icon-1x text-light ${icon}`}></span>
+
+                                <div className="timeline-container mt-3">
+                                    <div className="time-cont text-right">
+                                        <span className="badge badge-info mb-2"><i className="fa fa-clock"></i> {convertTime(item.created)}</span>  
+                                        <div className="clearfix"></div>  
+                                        <span className="text-secondary">{convertAgo(item.created)} ago</span>
                                     </div>
-                                    <div className="float-left p-all-less">
-                                        <div className="text-md mt-1">
-                                            <span className="text-bold">{item.title}</span> &nbsp;
-                                            {renderHTML(item.message)}
-                                        </div>
-                                        <span className="text-muted">{convertAgo(item.created)} ago at {convertTime(item.created)} </span>
+                                    <div className="dot-cont">
+                                        <span className="dot-1x"></span>
+
                                     </div>
-                                    <div className="clearfix"></div>
-                                </div>)
+                                    <div className={`content-cont`}>
+                                    
+                                    <div className={`card card-shadow b-l-${item.class ? item.class : "info"} `}>
+                                    <div className="card-body">
+                                    
+                                    <span className="text-secondary">{item.title}</span>
+                                    <div className="text-sm"><span className={`text-light ${icon}`}></span>&nbsp;{renderHTML(item.message)}</div>
+                                    </div>
+                                    </div>
+                                </div>
+                                
+                               
+                                <div className="clearfix"></div>
+                                </div>
+                                )
                         })
                     }
+                    </div>
                 </div>
                 </>
             )

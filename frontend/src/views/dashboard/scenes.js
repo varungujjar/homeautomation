@@ -92,7 +92,7 @@ export class Scenes extends Component {
                 <div className="slider-wrapper">
                 <Slider {...settings}>
                     <div className="slider-slide">
-                    <div className="card card-shadow card-hover bg-dark-gradient">
+                    <div className="card card-shadow card-hover bg-dark">
                     <div className="card-body">
                         <span className="icon-2x text-white icon-sunrise icon-left"></span>
                         <div className="mt-2">
@@ -106,7 +106,7 @@ export class Scenes extends Component {
                     </div>
                     </div>
                     <div className="slider-slide">
-                    <div className="card card-shadow card-hover bg-dark-gradient">
+                    <div className="card card-shadow card-hover bg-dark">
                     <div className="card-body">
                         <span className="icon-2x text-white icon-moon icon-left"></span>
                         <div className="mt-2"></div>
@@ -118,7 +118,7 @@ export class Scenes extends Component {
                     </div>
                     
                     <div className="slider-slide">
-                    <div className="card card-shadow card-hover bg-dark-gradient">
+                    <div className="card card-shadow card-hover bg-dark">
                     <div className="card-body">
                         <span className="icon-2x text-white icon-popcorn icon-left"></span>
 

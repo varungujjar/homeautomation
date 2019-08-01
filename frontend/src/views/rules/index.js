@@ -207,8 +207,8 @@ export class Rules extends Component {
                         this.state.ruleData.map((item, index) => {
                             return (     
                                     
-                                    <div className="col-md-4">
-                                    <div className="card card-shadow mt-3 border-rounded" key={index}>
+                                    <div className="col-md-4"  key={index}>
+                                    <div className="card card-shadow mt-3 border-rounded">
                                         <div className="card-header">
                                             <div className="text-secondary text-normal">Rule ID {item.id}</div>
                                             <span className="text-md text-info">Trigger </span><span className="text-md">When</span>
@@ -586,7 +586,7 @@ export class RuleEdit extends Component {
                
                     <Header name={this.props.name} icon={this.props.icon}></Header>
                 
-                <div className="wrapper b-t-light">
+                <div className="wrapper">
                 {this.state.dataLoaded &&
                     (
                         <>
@@ -615,9 +615,14 @@ export class RuleEdit extends Component {
                                        
                                         
                                         <form onSubmit={handleSubmit}>
-                                            <button type="submit" disabled={isSubmitting} className="btn btn-info mb-2 mt-4">
+
+                                            <div className="btn-group mb-2">
+                                            <button type="submit" disabled={isSubmitting} className="btn btn-info">
                                                <i className="fas fa-check-circle"></i> Save Rule
                                             </button>
+
+                                            <Link to={{ pathname: `/rules`, data: null }} className="text-muted btn btn-default"><i className="fas fa-times-circle"></i> Cancel</Link>
+                                            </div>
 
                                             <div className="mt-4">
                                             <div className="text-bold"><span className="text-md text-info">Trigger </span><span className="text-md">When</span>

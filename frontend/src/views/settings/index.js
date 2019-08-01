@@ -29,7 +29,7 @@ export const TabHeads = (props) => {
 
 
 export const Settings = (props) => {
-        const category = props.match.params.category
+        const category = props.match.params.category ? props.match.params.category : "components"
         return (
             <>   
                 <Header name={props.name} icon={props.icon}></Header>

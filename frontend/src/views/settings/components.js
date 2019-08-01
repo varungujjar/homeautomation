@@ -248,10 +248,14 @@ export class ComponentsEdit extends Component {
                                             </div>
                                             </div>
                                             <div className="card-footer">
-                                            <button type="submit" disabled={isSubmitting} className={`btn btn-info mb-2 ${this.initialValues.parameters.length > 0 ? '' : 'disabled'}`}>
+
+                                            <div className="btn-group">
+
+                                            <button type="submit" disabled={isSubmitting} className={`btn btn-info ${this.initialValues.parameters.length > 0 ? '' : 'disabled'}`}>
                                             <i className="fas fa-check-circle"></i> Save Room
                                     </button>
-                                        <Link to={{ pathname: `/settings/components`, data: null }} className="mb-4 text-muted ml-4">Cancel</Link>
+                                        <Link to={{ pathname: `/settings/components`, data: null }} className="btn btn-default">Cancel</Link>
+                                            </div>
                                             </div>
                                         </div>
                                     </form>

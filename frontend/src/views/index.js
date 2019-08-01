@@ -32,11 +32,12 @@ export const Views = () => {
             <Switch>
               <Route exact path="/" render={() => <Dashboard name={"Dashboard"} icon="home" />} />
               <Route exact path="/rules" render={() => <Rules name={"Rules"} icon="list-alt" />} />
-              <Route exact path="/timeline" render={() => <Timeline name={"Timeline"} icon="list-alt" />} />
+              <Route exact path="/timeline" render={() => <Timeline name={"Timeline"} icon="stream" />} />
               <Route exact path="/rules/:id" render={(props) => <RuleEdit {...props} name={"Rule Edit"} icon="list-alt" />} />
               <Route exact path="/settings/components/:id" render={(props) => <ComponentsEdit {...props} name={"Component Edit"} icon="list-alt" />} />
               <Route exact path="/settings/rooms/:id" render={(props) => <RoomsEdit {...props} name={"Rooms Edit"} icon="list-alt" />} />
               <Route path="/settings/:category" render={(props) => <Settings  {...props} name={"Settings"} icon="cog" />} />
+              <Route path="/settings" render={(props) => <Settings  {...props} name={"Settings"} icon="cog" />} />
               <Route component={NoMatch} />
             </Switch>
         </div>

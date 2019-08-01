@@ -253,7 +253,7 @@ export class ModuleList extends Component {
                                             })
                                         }
                                                 </div>
-                                            <span className="link w-100 b-t" onClick={() => this.setState({ edit: false })}>Done</span>
+                                                <div className="card-footer bg-dark text-center b-t"><span className="link" onClick={() => this.setState({ edit: false })}>Done</span></div>
                                     </>
                                 )
                             }
