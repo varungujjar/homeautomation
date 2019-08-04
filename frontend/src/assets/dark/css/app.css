@@ -124,7 +124,7 @@ ul {
 }
 
 .sidebar li a.active {
-    background-image: linear-gradient(180deg, #4949BE 0%, #34348F 100%);
+    background:#4949BE;
     border-radius: 9px;
 }
 
@@ -133,6 +133,10 @@ ul {
 
 .top-nav {
     padding: 30px 0px 40px 0px;
+    white-space:nowrap;
+    display: block;
+    overflow-y: hidden;
+
 }
 
 .top-nav li {
@@ -291,7 +295,11 @@ ul {
     border-top: 1px solid #151515;
 }
 
+.n-p{
+padding: 0px!important;
+margin: 0px;
 
+}
 .b-t-light {
     border-top: 1px solid #222;
 }
@@ -404,6 +412,20 @@ h3 {
 }
 
 
+/* Table Styling */
+
+.table{
+    color: #fff;
+    margin-bottom: 0px;
+}
+.table td, .table th{
+    border-top: 1px solid #151515;
+    padding: 15px 30px!important;
+    font-weight: normal;
+    vertical-align: middle;
+}
+
+
 /* borders styling */
 
 .b-l-info {
@@ -437,7 +459,9 @@ h3 {
 .bg-success {
     background: #51D679;
 }
-
+.bg-info{
+    background: #4949BE!important;
+}
 
 /* Slider Styling */
 .slider-slide {
@@ -513,6 +537,10 @@ h3 {
 
 .badge-info {
     background: #4949BE;
+    color: #fff !important;
+}
+.badge-success {
+    background: #51D679;
     color: #fff !important;
 }
 
@@ -725,6 +753,56 @@ label {
 .iziToast.iziToast-balloon:after {
     box-shadow: none !important;
 }
+
+
+/* Timekeeper Styling */
+.time-keeper-box{
+    position: absolute;
+    z-index: 999;
+}
+
+.react-timekeeper{
+    box-shadow: 0 9px 30.5px 1.5px rgba(0,0,0,.35)!important;
+}
+
+
+/* Progress Bar Styling */
+
+.progress{
+    height: 3px;
+    background: #151515;
+}
+
+/* Pop Notifications Styling */
+.overlay-notification{
+    position: fixed;
+    text-align: center;
+    z-index: 9999;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0,1);
+    padding-top: 150px;
+    transition: 0.5s;
+}
+.overlay-notification-title{
+    font-size: 80px;
+    font-weight: 300;
+    line-height: 100px;
+    transition: 1s;
+}
+.overlay-notification-message{
+    font-size: 50px;
+    font-weight: 300;
+    line-height: 63px;
+    transition: 1s;
+}
+.overlay-notification-icon{
+    font-size: 50px;
+}
+
+
+
+
 
 /* Timeline Styling */
 

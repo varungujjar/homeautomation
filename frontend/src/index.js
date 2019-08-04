@@ -4,7 +4,7 @@ import { Notification, NotificationSio } from "./system/notifications";
 import { Views } from "./views";
 import { Provider } from "./system/provider";
 import { Switch, Route, BrowserRouter as Router } from 'react-router-dom';
-
+import { OverlayNotification } from './components/notifications';
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 
 import 'bootstrap/dist/css/bootstrap.min.css'
@@ -25,7 +25,8 @@ class App extends Component {
         <Provider>
            <Router>
             <div className="App">
-              <Views></Views>
+              <OverlayNotification/>
+              <Views/>
               <NotificationSio/>
               
             </div>

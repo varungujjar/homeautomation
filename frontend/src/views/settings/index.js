@@ -18,7 +18,7 @@ export const TabHeads = (props) => {
                             Object.keys(tabs).map((key,index)=>{
                                 return(
                                     <li className="nav-item" key={index}>
-                                        <a className={`nav-link ${props.disabled ? "disabled" : null} ${key==props.active ? "active" : null} `} id={`${key}-tab`} data-toggle="tab" href={`#${key}`} role="tab" aria-controls={`${key}`} aria-selected="true"><i className={`fal ${Object.values(tabs)[index]}`}></i> {key}</a>
+                                        <a className={`nav-link ${props.disabled ? "disabled" : null} ${key==props.active ? "active" : null} `} id={`${key}-tab`} data-toggle="tab" href={`#${key}`} role="tab" aria-controls={`${key}`} aria-selected="true"><i className={`fal ${Object.values(tabs)[index]}`}></i> {key.charAt(0).toUpperCase() + key.slice(1)}</a>
                                     </li>
                                 )
                             })

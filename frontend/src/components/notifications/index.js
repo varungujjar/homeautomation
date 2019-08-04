@@ -1,5 +1,87 @@
 import React, {Component} from "react";
-import { socket } from "../../system/socketio";
+import {sio} from "../../system/socketio";
+
+
+export class OverlayNotification extends Component  {
+    constructor(props) {
+        super(props);
+        this._isMounted = false;
+        this.state = {
+            messages:[],
+            dataLoaded :false
+        }
+    }
+
+
+    getData() {
+        fetch("/api/notifications/read/0")
+            .then(response => response.json())
+            .then((result) => {
+                if (this._isMounted) {
+                        this.setState({
+                            messages:result.sort((a, b) => b.id - a.id),
+                            dataLoaded :true
+                        })
+                }
+            })
+            .catch((error) => {
+                console.error(error)
+            })
+    }
+
+
+    readMessage(id){
+        fetch(`/api/notifications/${id}/read`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(1)
+        })
+        .then(response => response.json())
+        .then(() => {
+            this.getData();
+        })
+        .catch((error) => {
+            console.error(error)
+        })
+    }
+
+
+    componentDidMount() {
+        this._isMounted = true;
+        if (this._isMounted) {  
+            this.getData();
+            sio("OverlayNotification",data=>{
+                 this.getData();
+            })
+        }
+    }
+    
+    
+    render(){ 
+            return (
+                <>
+                {
+                    this.state.dataLoaded && 
+                        
+                        this.state.messages.map((message,index)=>(
+                                <div className="overlay-notification" key={index}>
+                                    <div className="overlay-notification-icon"><i className="fal fa-envelope text-info"></i></div>
+                                    <div className="overlay-notification-icon">Time & Ago</div>
+                                    <div className="overlay-notification-title">{message.title?message.title:""}</div>
+                                    <div className="overlay-notification-message text-secondary">{message.message?message.message:""}</div>
+                                    <button className="btn btn-info mt-3" onClick={()=>this.readMessage(message.id)}>Close Message</button>
+                                </div>
+                        )
+                    )
+                }
+            </>
+            )
+    }
+}
+
 
 
 export class ModuleList extends Component {

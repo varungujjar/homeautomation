@@ -126,7 +126,7 @@ export class Timeline extends Component {
                             }
                             return (
 
-                                <div className="timeline-container mt-3">
+                                <div className="timeline-container mt-3" key={index}>
                                     <div className="time-cont text-right">
                                         <span className="badge badge-info mb-2"><i className="fa fa-clock"></i> {convertTime(item.created)}</span>  
                                         <div className="clearfix"></div>  

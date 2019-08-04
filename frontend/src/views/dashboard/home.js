@@ -13,6 +13,10 @@ export class Home extends Component {
 
     componentDidMount() {
         this._isMounted = true;
+        var time = new Date();
+        this.setState({
+            curTime: time.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: true })
+        })
         setInterval(() => {
             var time = new Date();
             if (this._isMounted) {
