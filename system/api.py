@@ -87,12 +87,21 @@ class Api:
 
     async def apiNotifications(self,request):
         response = False
-        if "command" in request.match_info:
-            if request.match_info['command'] == "delete":
-                if await request.json() == 1:
-                    response = dbDelete("notifications")
-        else:           
-            response = dbGetTable("notifications")
+        if(request.method=="GET"):
+            if "command" in request.match_info:
+                if request.match_info['command'] == "read":
+                    response = dbGetTable("notifications",{"read":int(request.match_info['data'])})
+            else:           
+                response = dbGetTable("notifications")
+        elif(request.method=="POST"):
+            print(request.match_info)
+            if "command" in request.match_info:
+                if request.match_info['command'] == "delete":
+                    if await request.json() == 1:
+                        response = dbDelete("notifications")                
+                elif request.match_info['command'] == "read":
+                    read = await request.json()
+                    response = dbStore("notifications",{"id":request.match_info['id'],"read":read})
         return web.json_response(response)
 
 
@@ -171,7 +180,9 @@ class Api:
             
         #Notifications API
         app.router.add_get('/api/notifications', self.apiNotifications)
+        app.router.add_get('/api/notifications/{command}/{data}', self.apiNotifications)
         app.router.add_post('/api/notifications/{command}', self.apiNotifications) #eg. notifications/delete => 1 accepts Json
+        app.router.add_post('/api/notifications/{id}/{command}', self.apiNotifications)  #eg. 5/read accepts Json
         
         #Rules API
         app.router.add_get('/api/rules', self.apiRules)    

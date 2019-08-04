@@ -15,9 +15,10 @@ def sioConnect():
 
 
 def storeNotification(alert_class,type,title,message,push): #true push, false
-    dbStore("notifications",{"id":0,"class":str(alert_class),"type":str(type),"title":str(title),"message":str(message)})
+    insertId = dbStore("notifications",{"id":0,"class":str(alert_class),"type":str(type),"title":str(title),"message":str(message)})
     if push:
         pushNotification(alert_class,type,title,message)
+    return insertId    
 
 
 def pushNotification(alert_class,type,title,message):

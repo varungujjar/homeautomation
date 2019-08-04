@@ -269,8 +269,9 @@ def dbStore(tableName, formData):
 				cur = db.cursor()
 				cur.execute("INSERT INTO %s(%s, created) VALUES(%s,datetime(CURRENT_TIMESTAMP, 'localtime'))" % (tableName,joinInsertCols,joinInsertValues))
 				db.commit()
-				response = True
-				logger.info('%s Inserted Successfully' % (tableName))
+				lastrowid = cur.lastrowid
+				response = lastrowid
+				logger.info('%s Inserted Successfully %s' % (tableName, lastrowid))
 			except Exception as err:
 				response = False
 				logger.error('%s Insert Error: %s' % (tableName,str(err)))
