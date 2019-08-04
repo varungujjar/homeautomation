@@ -1,5 +1,6 @@
 import React, {Component} from "react";
 import {sio} from "../../system/socketio";
+import Moment from 'react-moment';
 
 
 export class OverlayNotification extends Component  {
@@ -10,6 +11,11 @@ export class OverlayNotification extends Component  {
             messages:[],
             dataLoaded :false
         }
+    }
+
+    convertAgo(datetime){
+        var var_datetime = new Date(datetime);
+        return <Moment fromNow ago>{var_datetime}</Moment>
     }
 
 
@@ -51,8 +57,11 @@ export class OverlayNotification extends Component  {
 
     componentDidMount() {
         this._isMounted = true;
-        if (this._isMounted) {  
+        if (this._isMounted) { 
             this.getData();
+            setInterval(() => {
+                this.getData();
+            }, 1000)    
             sio("OverlayNotification",data=>{
                  this.getData();
             })
@@ -65,14 +74,13 @@ export class OverlayNotification extends Component  {
                 <>
                 {
                     this.state.dataLoaded && 
-                        
                         this.state.messages.map((message,index)=>(
-                                <div className="overlay-notification" key={index}>
-                                    <div className="overlay-notification-icon"><i className="fal fa-envelope text-info"></i></div>
-                                    <div className="overlay-notification-icon">Time & Ago</div>
-                                    <div className="overlay-notification-title">{message.title?message.title:""}</div>
-                                    <div className="overlay-notification-message text-secondary">{message.message?message.message:""}</div>
-                                    <button className="btn btn-info mt-3" onClick={()=>this.readMessage(message.id)}>Close Message</button>
+                                <div className="overlay-notification " key={index}>
+                                    <div className="overlay-notification-icon animated fadeIn"><i className="fal fa-envelope text-info"></i></div>
+                                    <div className="overlay-notification-title animated fadeIn">{message.title?message.title:""}</div>
+                                    <div className="overlay-notification-message text-secondary animated fadeIn">{message.message?message.message:""}</div>
+                                    <div className="text-md mt-3"><i className="far fa-clock animated fadeIn"></i> {this.convertAgo(message.created)} ago</div>
+                                    <button className="btn btn-info mt-3 animated fadeIn" onClick={()=>this.readMessage(message.id)}>Close Message</button>
                                 </div>
                         )
                     )
