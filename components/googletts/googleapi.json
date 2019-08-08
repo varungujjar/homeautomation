@@ -1,0 +1,13 @@
+{
+    "type": "service_account",
+    "project_id": "kenosis.in:api-project-287524714990",
+    "private_key_id": "abead43ff2dfb1f86cff5ed823837b2141779024",
+    "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCtg53bacXr+z0L\nhdEVH4H6nqCFF8eA3zb3JkAPunUzNq1vCl+6z2VkL8SsMEJhy80LQ7B4okrdzbHj\n1jyg7MRfARmyulM+4GNpRTyssvrF8wesxSzPHFShsmn0hPuWtlIh9mQArLIGExQj\nCCDxDcEfER0ZpwziZ6izmdmQSm3Hz3z7WLM0buvUiHQi7gGcZwQszwvdjlPk0laE\nqcJEb7LChuG9sfzfkxn63WDSPtnyCIHYY8FNX9h08DDSkPe+kTYSeP/09znnG5IO\nWibZySRxIDNAZ6ncnODivQz2AyNpyy3xZ1tXUsh3qiZ5Psv1I3gZyr/AY7xtFbwE\niMDa60/dAgMBAAECggEAPJoHBM6tF24A1KjwrRF7mrZTdximj96mOmzsG/IyI+h5\na5pyc/MixPqgFMmoLbL6EvCZzpBUWKKSenJla4k2Tr46JP/JumCxp99MQT8jsgZf\nTFrzewS4lF8VfZcCrhFQn1cId2nZpaB9PH0G0FpO9JRMFx0OtXah59SYtbohHJNK\ng6taLfzhU5gnkWBBnmHjT4OdzmxMToWi8zHpIS1ymKw7F0gl+Ee9Q/v4h9r0L6fW\nCSLUAVCvIGWHfrPTslJQ6rmD7lmGNHJh14tCu7aGBnZPBd56oqn616KSk2AuyYMu\n9dW2i3RYkT3HIb0ExuY5Ugtf/Oe9BaO5OozruA5rqwKBgQDcX7ymMSunWKO5wdbN\nmKV4wq4DuBeJLUnLWNzDjiM4m0x2X6xd6izYoNakev5YsbSf+Wg5WON9NHLGp001\nFQFiHNbXRRHrQV7H0e2B2NjmgBwy2tsx/OuqcJuu+T176XPT2R/imTH12MWEkXLR\nLccps1ItNfSv0jTQ9uQ5hGz1uwKBgQDJkJETRDhA0NqtYJhL5wplZpLCkbbkL28S\nby5sFjDgjdsmU8e5lVM5k3/FRfj8vXNGLTHoK7pUHZI5XUKJb9iFuzxufS5+7JgB\n82bdZQAU6Cu6Vkmy39BgliODG7Rg55lwgfklCduAxiJtJ7fdXYTp23GqdHiczcfT\n9eQ1UxprRwKBgBfZ0LwX9EaPZGD1Zr8ntzkDsPu8D+gL28HDY1lS5+L3g+YH4srj\nTmk/txtkKGUHDqqFvs7+HNjvNUDk2IlXNagdwO7Zjd/tWkm8Ib1877S6xtKGN1UI\nr6TpvR/J3+qqUJvsEvReajbWeEIpz8ht8PFFdC5qeYoR8R9wqTDEcVqDAoGBAKYw\ndx0uiz8NtK9szEUQyqaOawTXhbcgUPEfEGR363bKH127iBpAv2zia1+o8MDaJzg+\nPT7TBv8hnpWDij+tIxYoKYxj1Dk8M5ywJij2hJm4T42EZaGBHdr1D3SjHBcl/YIg\n994NAZlsQ6hCLjvrRpJWp6JGA8gtdswRmkZJLagzAoGAIq6TNZLhGceY5sCDfpB4\nMK8ZamVQ03HbbBoVPqn+YAteZ2gHlWD8thVdHnHJNN29urpu1iqku79Mbh475Krf\nNu0LvpQZTwIcZAFz5iqV/Tm4Uv3giazFzUD3Vu9tHFjzR/zVgRez6zXimXju3kZ9\nG4QfPu5RkDMcIGvhJxuGBFU=\n-----END PRIVATE KEY-----\n",
+    "client_email": "text-to-speech@api-project-287524714990.kenosis.in.iam.gserviceaccount.com",
+    "client_id": "104592112321465622358",
+    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+    "token_uri": "https://oauth2.googleapis.com/token",
+    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+    "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/text-to-speech%40api-project-287524714990.kenosis.in.iam.gserviceaccount.com"
+  }
+  
