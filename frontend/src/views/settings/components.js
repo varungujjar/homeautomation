@@ -89,6 +89,7 @@ export class Components extends Component {
                                                             <span className="icon-1x icon-bg-info text-bold icon-left">{item.name.charAt(0)}</span>
                                                             <div className="text-bold">{item.name ? item.name : "..."}</div>
                                                             <div className="text-secondary">{item.description ? item.description : "..."}</div>
+                                                            <div className="badge badge-info mt-2">{item.internet ? "Requires Internet" : ""}</div>
                                                         </div>
                                                     </div>
                                                     <div className="col-md-3 text-right v-center">
@@ -241,7 +242,7 @@ export class ComponentsEdit extends Component {
                                                     )
                                                 }) : (
 
-                                                    <div className="col-md-12"><i class="fas fa-info-circle"></i> This component does not have any parameters.</div>
+                                                    <div className="col-md-12"><i className="fas fa-info-circle"></i> This component does not have any parameters.</div>
                                                 )
 
                                             }  

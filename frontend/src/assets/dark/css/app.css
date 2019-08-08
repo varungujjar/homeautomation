@@ -520,12 +520,12 @@ h3 {
 .badge {
     display: inline-block;
     background: #16191C;
-    padding: 3px 8px;
+    padding: 3px 10px;
     font-size: 12px;
     color: #6D7277 !important;
     line-height: normal !important;
     text-align: center;
-    border-radius: 4px;
+    border-radius: 3px;
     margin-right: 4px;
     margin-top: 4px;
     font-weight: normal !important;
@@ -539,6 +539,12 @@ h3 {
     background: #4949BE;
     color: #fff !important;
 }
+
+.badge-warning {
+    background: #F19438;
+    color: #fff !important;
+}
+
 .badge-success {
     background: #51D679;
     color: #fff !important;
@@ -696,14 +702,14 @@ label {
 
 /* Icon styling overrides  */
 .icon-bg-light {
-    background-color: #222;
-    color: #666;
+    background-color: #555;
+    color: #ccc;
     cursor: pointer;
 }
 
 .icon-bg-light:hover {
-    background-color: #555;
-    color: #ccc !important;
+    background-color: #777;
+    color: #fff !important;
     box-shadow: 0 9px 30.5px 1.5px rgba(0, 0, 0, .1) !important;
 }
 

@@ -91,6 +91,11 @@
   content: "\f0f3";
 }
 
+.icon-spotify::before {
+  font-family: "Font Awesome 5 Brands";
+  content: "\f1bc";
+}
+
 
 
 
@@ -183,6 +188,13 @@
   font-family: "Font Awesome 5 Pro";
   content: "\f76a";
 }
+
+.icon-tts::before{
+  font-family: "Font Awesome 5 Pro";
+  content: "\f4a6";
+}
+
+
 
 .icon-livingroom::before{
   font-family: "Font Awesome 5 Pro";
