@@ -2,6 +2,7 @@ import asyncio, json
 from aiohttp import web, ClientSession, ClientError
 from system.system import *
 from helpers.db import *
+from system.piwifi import *
 #request headers aiohttp reference from here..
 #https://aiohttp.readthedocs.io/en/v0.18.2/web_reference.html
 
@@ -131,8 +132,6 @@ class Api:
                     elif request.match_info["command"] == "save":
                         formData = await request.json()
                         response = dbStore("components",formData)
-
-
         return web.json_response(response)
         
 
@@ -159,8 +158,38 @@ class Api:
 
 
     async def apiSystem(self,request):
-        system = systemHandler()
-        return web.json_response(system)
+        response = False
+        if(request.method=="GET"):
+            if "type" in request.match_info:
+                if request.match_info["type"] == "wifi":
+                    if request.match_info["command"] == "scan":
+                        content_wlist = wifiscan(interface='wlan0')
+                        response_wlist = wifiparse(content_wlist)
+                        content_status = wifistatus()
+                        response_status = wifistatusparse(content_status)   
+                        wifi_scan_list = []
+                        for witem in response_wlist:
+                            if witem["essid"] == response_status["essid"]:
+                                wifi_scan_list.append(response_status)
+                            else:
+                                wifi_scan_list.append(witem)
+                        response = wifi_scan_list        
+                    elif request.match_info["command"] == "status":
+                        content = wifistatus()
+                        response = wifistatusparse(content)
+                    elif request.match_info["command"] == "ping":
+                        response = pingrouter()   
+            else:        
+                response = systemHandler()
+        elif(request.method=="POST"):
+            if "type" in request.match_info:
+                if request.match_info["type"] == "wifi":
+                    if request.match_info["command"] == "set":
+                        formData = await request.json()
+                        create_wpa_supplicant(formData["ssid_name"], formData["ssid_key"])
+                        response = True
+
+        return web.json_response(response)
 
 
 
@@ -172,6 +201,8 @@ class Api:
         
         #System Info API
         app.router.add_get('/api/system', self.apiSystem)
+        app.router.add_get('/api/system/{type}/{command}', self.apiSystem)
+        app.router.add_post('/api/system/{type}/{command}', self.apiSystem)  #eg. wifi/set => accepts json
 
         #Devices API
         app.router.add_get('/api/devices', self.apiDevices)

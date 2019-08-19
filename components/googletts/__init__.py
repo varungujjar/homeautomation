@@ -20,19 +20,20 @@ class  googletts(object):
         message = ""
         message = str(conditionProperties["message"])
         logger.info(message)
+        validStatus = True
         client = texttospeech.TextToSpeechClient()
         synthesis_input = texttospeech.types.SynthesisInput(text=message)
         voice = texttospeech.types.VoiceSelectionParams(
             language_code='en-US',
-            name='en-US-Wavenet-F',
+            # name='en-US-Wavenet-F',
             ssml_gender=texttospeech.enums.SsmlVoiceGender.FEMALE)
         audio_config = texttospeech.types.AudioConfig(
             audio_encoding=texttospeech.enums.AudioEncoding.MP3)
         response = client.synthesize_speech(synthesis_input, voice, audio_config)
-        with open('output.mp3', 'wb') as out:
+        with open('/home/pi/components/googletts/output.mp3', 'wb') as out:
             out.write(response.audio_content)
-        os.system('omxplayer -o local output.mp3')
-        validStatus = True
+        os.system('omxplayer -o local /home/pi/components/googletts/output.mp3')
+        
         return validStatus
 
 
