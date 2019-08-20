@@ -24,13 +24,6 @@ wpaRe = re.compile(r"IE:\ WPA\ Version\ 1$")
 wpa2Re = re.compile(r"IE:\ IEEE\ 802\.11i/WPA2\ Version\ 1$")
 
 
-def pingrouter():
-    # ping -q -w 1 -c 1 `ip r | grep default | cut -d ' ' -f 3` > /dev/null && echo ok || echo error
-    cmd = ["ping","-q","-w","1","-c","1","`ip","r","|","grep","default","|","cut","-d","'","'","-f","3`",">","/dev/null","&&","echo","ok","||","echo","error"]
-    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    status = proc.stdout.read().decode('utf-8')
-    return status
-
 # Indicates the interface operational state, possible values are:
 # "unknown", "notpresent", "down", "lowerlayerdown", "testing","dormant", "up"."no such file or directory"
 def wifinetworkstatus(interface='wlan0'):

@@ -2,12 +2,14 @@ import os, sys
 sys.path.append('../')
 sys.path.append('../../')
 import json
+import subprocess
 import asyncio
 from helpers.logger import formatLogger
 from helpers.db import *
 import os
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="/home/pi/components/googletts/googleapi.json"
 from google.cloud import texttospeech
+import pygame
 
 logger = formatLogger(__name__)
 
@@ -15,6 +17,12 @@ class  googletts(object):
     def __init__(self):
         pass
 
+    async def playaudio(self):
+        pygame.mixer.init(48000, -16, 1, 1024)
+        pygame.mixer.init()
+        pygame.mixer.music.load("/home/pi/components/googletts/output.mp3")
+        pygame.mixer.music.set_volume(1.0)
+        pygame.mixer.music.play()
 
     def triggerAction(self,getComponent,conditionProperties):
         message = ""
@@ -32,8 +40,8 @@ class  googletts(object):
         response = client.synthesize_speech(synthesis_input, voice, audio_config)
         with open('/home/pi/components/googletts/output.mp3', 'wb') as out:
             out.write(response.audio_content)
-        os.system('omxplayer -o local /home/pi/components/googletts/output.mp3')
-        
+        loop = asyncio.get_event_loop()
+        loop.create_task(self.playaudio())    
         return validStatus
 
 

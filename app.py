@@ -14,6 +14,7 @@ import threading
 from system.rules import *
 from system.notifications import *
 from system.status import *
+from system.networkstatus import *
 from system.system import *
 from system.api import *
 
@@ -55,6 +56,7 @@ class RunServer:
                 app.loop.create_task(functionCall)
         app.loop.create_task(eventsHandlerTimer())
         app.loop.create_task(statusHandler())
+        app.loop.create_task(networkHandler())
 
        
     async def stopHandler(self):
