@@ -1,0 +1,33 @@
+Metadata-Version: 2.0
+Name: matrix-io-proto
+Version: 0.0.10
+Summary: Protobufs used MATRIX ecosystem
+Home-page: https://github.com/matrix-io/protocol-buffers
+Author: MATRIX Labs
+Author-email: devel@matrixlabs.ai
+License: GPLv3
+Platform: UNKNOWN
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: GNU General Public License v3 (GPLv3)
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 2
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.4
+Classifier: Programming Language :: Python :: 3.5
+Classifier: Programming Language :: Python :: 3.6
+Requires-Dist: protobuf (>=3.2.0)
+Provides-Extra: grpc
+Requires-Dist: grpcio (>=1.2.0); extra == 'grpc'
+
+========================
+MATRIX Ecosystem protos
+========================
+
+matrix-protos contains the python classes generated from the 
+protocol buffers available in the matrixprotos_ repository.
+
+.. _`matrixprotos`: https://github.com/matrix-io/protocol-buffers
+
+

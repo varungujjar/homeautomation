@@ -18,6 +18,10 @@ from system.networkstatus import *
 from system.system import *
 from system.api import *
 
+from matrix_lite import led
+import time
+
+
 COMPONENTS_DIR = "components"
 logger = formatLogger(__name__)
 
@@ -45,6 +49,16 @@ class RunServer:
         return dirList
 
 
+    async def startLeds(self):
+        everloop = ['black'] * led.length
+        everloop[0] = {'b':0,'r':0, 'g':10}
+        while True:
+            everloop.append(everloop.pop(0))
+            led.set(everloop)
+            time.sleep(0.050)
+            await asyncio.sleep(0.050)
+
+
     async def startBackgroundProcesses(self, app):
         getServices = dbGetTable("components",{"service":1})
         for service in getServices:
@@ -57,6 +71,7 @@ class RunServer:
         app.loop.create_task(eventsHandlerTimer())
         app.loop.create_task(statusHandler())
         app.loop.create_task(networkHandler())
+        app.loop.create_task(self.startLeds())
 
        
     async def stopHandler(self):

@@ -1,6 +1,7 @@
 .git/
 node_modules/
 .local/
+.tests/
 .nano/
 .cache/
 .npm/

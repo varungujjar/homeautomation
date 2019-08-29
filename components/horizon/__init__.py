@@ -18,7 +18,6 @@ logger = formatLogger(__name__)
 
 def sun_horizon(sunrise,sunset): #if 1 above horizon if 0 below horzion
 	now_utc = datetime.now()
-	print(sunrise)
 	horizon = False 
 	if(now_utc > sunrise and now_utc < sunset):
 		horizon = True	

@@ -1,0 +1,19 @@
+Metadata-Version: 2.1
+Name: matrix-lite
+Version: 0.0.3
+Summary: A wrapper for MATRIX HAL in Python
+Home-page: https://github.com/matrix-io/matrix-lite-py
+Author: MATRIX Labs
+Author-email: UNKNOWN
+License: UNKNOWN
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.4
+Classifier: Programming Language :: Python :: 3.5
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Requires-Dist: colour (<1)
+
+UNKNOWN
+
+
