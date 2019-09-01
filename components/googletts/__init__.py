@@ -16,6 +16,19 @@ import nltk
 import ipaddress
 from num2words import num2words
 from pydub import AudioSegment
+from ibm_watson import TextToSpeechV1
+import json
+from os.path import join, dirname
+
+
+text_to_speech = TextToSpeechV1(
+    iam_apikey='YAPspnQOd7jK9NuT44RsnoGTzDE7Q5aUczShvVzLnTG4',
+    url='https://gateway-lon.watsonplatform.net/text-to-speech/api'
+)
+
+voice_dic_folder = 'en_female_dict_02'
+
+
 
 # import subprocess  
 # subprocess.Popen("aplay file.wav") 
@@ -27,19 +40,57 @@ class  googletts(object):
         pass
 
     async def playaudio(self,wav_file):
-        pygame.mixer.init(48000, -16, 1, 1024)
+        pygame.mixer.init(22000, -16, 1, 1024)
         pygame.mixer.init()
         pygame.mixer.music.load(wav_file)
         pygame.mixer.music.set_volume(1.0)
         pygame.mixer.music.play()
 
 
-    def detect_leading_silence(self,sound, silence_threshold=-50.0, chunk_size=5):
+    def sync_dictionary(self,this_word):
+        dict_file = '/home/pi/components/googletts/dict.txt'
+        words_dict = [line.rstrip('\n') for line in open(dict_file)]
+
+        if this_word not in words_dict:
+            f = open(dict_file, 'a') 
+            f.write(this_word+'\n')
+            f.close()
+
+        for word in words_dict:
+            word_wav_file_p = '/home/pi/components/googletts/'+voice_dic_folder+'/'+word+'_p.wav'
+            word_wav_file_m = '/home/pi/components/googletts/'+voice_dic_folder+'/'+word+'_m.wav'
+            dic_word_p = os.path.exists(word_wav_file_p)
+            dic_word_m = os.path.exists(word_wav_file_m)
+
+            if not dic_word_p:
+                self.ibm_tts_download_word(word,"p")
+                logger.info("Downloading Word '"+word+"' Pause Pronounciation")
+                
+            if not dic_word_m:
+                self.ibm_tts_download_word(word,"m")
+                logger.info("Downloading Word '"+word+"' Motion Pronounciation")
+
+        return True
+   
+
+
+
+    def detect_leading_silence(self,sound, silence_threshold=-50.0, chunk_size=10):
         trim_ms = 0 # ms
         assert chunk_size > 0 # to avoid infinite loop
         while sound[trim_ms:trim_ms+chunk_size].dBFS < silence_threshold and trim_ms < len(sound):
             trim_ms += chunk_size
         return trim_ms
+
+
+    def ibm_tts_download_word(self,word,pron_type):
+        output_word_file = '/home/pi/components/googletts/en_female_dict_02/'+word+'_'+pron_type+'.wav'
+        with open(output_word_file,'wb') as audio_file:
+            if pron_type == "p":
+                response = text_to_speech.synthesize(word, accept='audio/wav',voice="en-US_AllisonV3Voice").get_result()
+            elif pron_type == "m":
+                response = text_to_speech.synthesize('<s>'+word+'<break time="500ms"/>dash</s>', accept='audio/wav',voice="en-US_AllisonV3Voice").get_result()
+            audio_file.write(response.content)
 
 
     def google_tts_download_word(self,word,pron_type):
@@ -83,7 +134,6 @@ class  googletts(object):
                     is_next_word_fullstop = True
 
             total_sentence_len = len(sentence)-1
-            voice_dic_folder = 'en_female_dict_01'
             sentence_wav_output = '/home/pi/components/googletts/joinedFile2.wav'
             if word == "fullstop" or word == "comma":
                 wav_part_file = AudioSegment.silent(duration=500)
@@ -92,32 +142,25 @@ class  googletts(object):
                 if idx == total_sentence_len or is_next_word_fullstop:
                     word_wav_file = '/home/pi/components/googletts/'+voice_dic_folder+'/'+word+'_p.wav'
                     dic_word = os.path.exists(word_wav_file)
-                    if dic_word:
-                        pass
-                    else:
-                        self.google_tts_download_word(word,"p")
-                    wav_part_file = AudioSegment.from_wav(word_wav_file)
-                    start_trim = self.detect_leading_silence(wav_part_file)
-                    end_trim = self.detect_leading_silence(wav_part_file.reverse())
-                    duration = len(wav_part_file)        
-                    combined_wav += (wav_part_file[start_trim:duration-end_trim]).fade_out(2)
-                    # combined_wav += AudioSegment.silent(duration=30)    
+                    if not dic_word:
+                        if self.sync_dictionary(word):                 
+                            wav_part_file = AudioSegment.from_wav(word_wav_file)
+                            start_trim = self.detect_leading_silence(wav_part_file)
+                            end_trim = self.detect_leading_silence(wav_part_file.reverse())
+                            duration = len(wav_part_file)        
+                            combined_wav += (wav_part_file[start_trim:duration-end_trim]).fade_out(2)
+                            # combined_wav += AudioSegment.silent(duration=30)    
                 else:
                     word_wav_file = '/home/pi/components/googletts/'+voice_dic_folder+'/'+word+'_m.wav'
                     dic_word = os.path.exists(word_wav_file)
-                    if dic_word:
-                        pass
-                    else:
-                        self.google_tts_download_word(word,"m")
-                    wav_part_file = AudioSegment.from_wav(word_wav_file)
-                    duration_chop = len(wav_part_file)
-                    chop_dash_output = wav_part_file[:duration_chop-700]
-                    start_trim = self.detect_leading_silence(chop_dash_output)
-                    end_trim = self.detect_leading_silence(chop_dash_output.reverse())
-                    duration = len(chop_dash_output)        
-                    combined_wav += (chop_dash_output[start_trim:duration-end_trim]).fade_out(2)
-                    combined_wav += AudioSegment.silent(duration=35)
-                #crossfade = combined_wav.append(sound2, crossfade=5000)                                                          
+                    if not dic_word:
+                        if self.sync_dictionary(word):
+                            wav_part_file = AudioSegment.from_wav(word_wav_file)
+                            start_trim = self.detect_leading_silence(wav_part_file)
+                            end_trim = self.detect_leading_silence(wav_part_file.reverse())
+                            duration = len(wav_part_file)        
+                            combined_wav += (wav_part_file[start_trim:duration-1800]).fade_out(50) #700 google #fade 30 | #ibm 1650
+                            combined_wav += AudioSegment.silent(duration=1) #google 35
         combined_wav.export(sentence_wav_output, format="wav")
         loop.create_task(self.playaudio(sentence_wav_output))    
         return validStatus
