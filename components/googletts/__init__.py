@@ -16,7 +16,7 @@ import nltk
 import ipaddress
 from num2words import num2words
 from pydub import AudioSegment
-from ibm_watson import TextToSpeechV1
+from ibm_watson import TextToSpeechV1, ApiException
 import json
 from os.path import join, dirname
 
@@ -38,6 +38,7 @@ logger = formatLogger(__name__)
 class  googletts(object):
     def __init__(self):
         pass
+        # self.sync_dict_audio_library()
 
     async def playaudio(self,wav_file):
         pygame.mixer.init(22000, -16, 1, 1024)
@@ -47,33 +48,30 @@ class  googletts(object):
         pygame.mixer.music.play()
 
 
-    def sync_dictionary(self,this_word):
+    def sync_dict_audio_library(self):
         dict_file = '/home/pi/components/googletts/dict.txt'
         words_dict = [line.rstrip('\n') for line in open(dict_file)]
-
-        if this_word not in words_dict:
-            f = open(dict_file, 'a') 
-            f.write(this_word+'\n')
-            f.close()
-
         for word in words_dict:
             word_wav_file_p = '/home/pi/components/googletts/'+voice_dic_folder+'/'+word+'_p.wav'
             word_wav_file_m = '/home/pi/components/googletts/'+voice_dic_folder+'/'+word+'_m.wav'
             dic_word_p = os.path.exists(word_wav_file_p)
             dic_word_m = os.path.exists(word_wav_file_m)
-
             if not dic_word_p:
-                self.ibm_tts_download_word(word,"p")
                 logger.info("Downloading Word '"+word+"' Pause Pronounciation")
-                
+                self.ibm_tts_download_word(word,"p") 
             if not dic_word_m:
-                self.ibm_tts_download_word(word,"m")
                 logger.info("Downloading Word '"+word+"' Motion Pronounciation")
+                self.ibm_tts_download_word(word,"m")
 
-        return True
+
+    def check_sync_dictionary(self,this_word):
+        dict_file = '/home/pi/components/googletts/dict.txt'
+        words_dict = [line.rstrip('\n') for line in open(dict_file)]
+        if this_word not in words_dict:
+            f = open(dict_file, 'a') 
+            f.write(this_word+'\n')
+            f.close()
    
-
-
 
     def detect_leading_silence(self,sound, silence_threshold=-50.0, chunk_size=10):
         trim_ms = 0 # ms
@@ -84,13 +82,31 @@ class  googletts(object):
 
 
     def ibm_tts_download_word(self,word,pron_type):
+        result = False
         output_word_file = '/home/pi/components/googletts/en_female_dict_02/'+word+'_'+pron_type+'.wav'
-        with open(output_word_file,'wb') as audio_file:
-            if pron_type == "p":
+        
+        def write_audio_file(response):
+            with open(output_word_file,'wb') as audio_file:
+                audio_file.write(response.content) 
+
+        if pron_type == "p":
+            try:
                 response = text_to_speech.synthesize(word, accept='audio/wav',voice="en-US_AllisonV3Voice").get_result()
-            elif pron_type == "m":
+                write_audio_file(response)
+                result = True
+            except ApiException as ex:
+                logger.error("Api call with error "+str(ex.code))
+                result = False
+        elif pron_type == "m":
+            try:
                 response = text_to_speech.synthesize('<s>'+word+'<break time="500ms"/>dash</s>', accept='audio/wav',voice="en-US_AllisonV3Voice").get_result()
-            audio_file.write(response.content)
+                write_audio_file(response)
+                result = True
+            except ApiException as ex:
+                logger.error("Api call with error "+str(ex.code))
+                result = False
+        return result         
+                
 
 
     def google_tts_download_word(self,word,pron_type):
@@ -109,11 +125,7 @@ class  googletts(object):
         output_word_file = '/home/pi/components/googletts/en_female_dict_01/'+word+'_'+pron_type+'.wav'
         with open(output_word_file, 'wb') as out:
             out.write(response.audio_content)
-        # if pron_type == "m":
-        #     word_wav_file = AudioSegment.from_wav(output_word_file)
-        #     duration = len(word_wav_file)
-        #     combined_wav = word_wav_file[:duration-675]
-        #     combined_wav.export(output_word_file, format="wav")
+
 
 
     def triggerAction(self,getComponent,conditionProperties):
@@ -128,6 +140,7 @@ class  googletts(object):
         for idx, word in enumerate(sentence):
             is_next_word_fullstop = False
             get_next_idx = idx+1
+
             if get_next_idx < len(sentence):
                 get_next_word = sentence[get_next_idx]
                 if get_next_word == "fullstop" or get_next_word == "comma":
@@ -135,32 +148,58 @@ class  googletts(object):
 
             total_sentence_len = len(sentence)-1
             sentence_wav_output = '/home/pi/components/googletts/joinedFile2.wav'
+
             if word == "fullstop" or word == "comma":
                 wav_part_file = AudioSegment.silent(duration=500)
                 combined_wav += wav_part_file
+
             else:
                 if idx == total_sentence_len or is_next_word_fullstop:
                     word_wav_file = '/home/pi/components/googletts/'+voice_dic_folder+'/'+word+'_p.wav'
                     dic_word = os.path.exists(word_wav_file)
-                    if not dic_word:
-                        if self.sync_dictionary(word):                 
+
+                    if dic_word:
+                        wav_part_file = AudioSegment.from_wav(word_wav_file)
+                        start_trim = self.detect_leading_silence(wav_part_file)
+                        end_trim = self.detect_leading_silence(wav_part_file.reverse())
+                        duration = len(wav_part_file)        
+                        combined_wav += (wav_part_file[start_trim:duration-end_trim]).fade_out(2)
+                    else:
+                        self.check_sync_dictionary(word)
+                        if self.ibm_tts_download_word(word,"p"):
                             wav_part_file = AudioSegment.from_wav(word_wav_file)
                             start_trim = self.detect_leading_silence(wav_part_file)
                             end_trim = self.detect_leading_silence(wav_part_file.reverse())
                             duration = len(wav_part_file)        
                             combined_wav += (wav_part_file[start_trim:duration-end_trim]).fade_out(2)
-                            # combined_wav += AudioSegment.silent(duration=30)    
+                        else:
+                            wav_part_file = AudioSegment.silent(duration=500)
+                            combined_wav += wav_part_file
+                    
                 else:
                     word_wav_file = '/home/pi/components/googletts/'+voice_dic_folder+'/'+word+'_m.wav'
                     dic_word = os.path.exists(word_wav_file)
-                    if not dic_word:
-                        if self.sync_dictionary(word):
+
+                    if dic_word:
+                        wav_part_file = AudioSegment.from_wav(word_wav_file)
+                        start_trim = self.detect_leading_silence(wav_part_file)
+                        end_trim = self.detect_leading_silence(wav_part_file.reverse())
+                        duration = len(wav_part_file)        
+                        combined_wav += (wav_part_file[start_trim:duration-1800]).fade_out(50) #700 google #fade 30 | #ibm 1650
+                        combined_wav += AudioSegment.silent(duration=1) #google 35
+                    else:
+                        self.check_sync_dictionary(word)
+                        if self.ibm_tts_download_word(word,"p"):
                             wav_part_file = AudioSegment.from_wav(word_wav_file)
                             start_trim = self.detect_leading_silence(wav_part_file)
                             end_trim = self.detect_leading_silence(wav_part_file.reverse())
                             duration = len(wav_part_file)        
                             combined_wav += (wav_part_file[start_trim:duration-1800]).fade_out(50) #700 google #fade 30 | #ibm 1650
                             combined_wav += AudioSegment.silent(duration=1) #google 35
+                        else:
+                            wav_part_file = AudioSegment.silent(duration=500)
+                            combined_wav += wav_part_file                    
+                   
         combined_wav.export(sentence_wav_output, format="wav")
         loop.create_task(self.playaudio(sentence_wav_output))    
         return validStatus
@@ -169,7 +208,7 @@ class  googletts(object):
     def sentence_words(self,paragraph):
             sentences = nltk.word_tokenize(paragraph)
             split_sentence = []
-            special_characters = {"%":"percent","#":"hash","$":"dollar","@":"at",".":"fullstop", ",":"comma"}
+            special_characters = {"%":"percent","#":"hash","$":"dollar","@":"at",".":"fullstop", ",":"comma","!":"fullstop"}
             for word in sentences:
                     this_word = word
                     if this_word.isdigit():

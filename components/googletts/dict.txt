@@ -65,6 +65,8 @@ living
 drawing
 dining
 bath
+bed
+home
 master
 room
 on
@@ -187,7 +189,7 @@ environment
 environmental
 day
 today
-tommorow
+tomorrow
 yesterday
 complete
 completed
@@ -264,3 +266,11 @@ your
 welcome
 turned
 switched
+will
+turn
+goodnight
+have
+devices
+there
+was
+went
