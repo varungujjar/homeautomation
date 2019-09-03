@@ -208,13 +208,27 @@ class  googletts(object):
     def sentence_words(self,paragraph):
             sentences = nltk.word_tokenize(paragraph)
             split_sentence = []
-            special_characters = {"%":"percent","#":"hash","$":"dollar","@":"at",".":"fullstop", ",":"comma","!":"fullstop"}
+            special_characters = {"%":"percent","#":"hash","$":"dollar","@":"at",".":"fullstop", ",":"comma","!":"fullstop",":":""}
             for word in sentences:
                     this_word = word
                     if this_word.isdigit():
-                            get_num2words_digit = nltk.word_tokenize(num2words(int(this_word)))
-                            for digit in get_num2words_digit:
-                                    split_sentence.append(digit) 
+                            digit_length = len(this_word)
+                            if digit_length == 4 and int(this_word) > 1009 and int(this_word) < 10000:
+                                digit_break_apart = list(map(int,str(this_word)))
+                                digit_join_make_sen = str(digit_break_apart[0])+str(digit_break_apart[1])+" "+str(digit_break_apart[2])+str(digit_break_apart[3])
+                                
+                                digit_get_words = nltk.word_tokenize(digit_join_make_sen)
+                                combined_digit = ""
+                                for digit_each in digit_get_words:
+                                    combined_digit += num2words(int(digit_each))+" "
+
+                                final_tokenise_digits = nltk.word_tokenize(combined_digit)
+                                for digit in final_tokenise_digits:
+                                    split_sentence.append(digit)
+                            else:
+                                get_num2words_digit = nltk.word_tokenize(num2words(int(this_word)))
+                                for digit in get_num2words_digit:
+                                        split_sentence.append(digit) 
                     else:
                             try:
                                     float(this_word) and '.' in this_word
