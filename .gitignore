@@ -1,7 +1,5 @@
 .git/
-node_modules/
 .local/
-tests/
 .nano/
 .cache/
 .npm/
@@ -12,6 +10,9 @@ tests/
 .gitconfig
 .profile
 .DS_Store
+tests/
+env/
+node_modules/
 *.log
 *.pyc
 __pycache__
