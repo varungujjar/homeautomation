@@ -4,20 +4,12 @@ import asyncio
 
 from hbmqtt.client import MQTTClient, ClientException, ConnectException
 from hbmqtt.mqtt.constants import QOS_1
+from core.mqtt.config import CONFIG
 
 logger = formatLogger(__name__)
 
-config = {
-    'keep_alive': 30,
-    'ping_delay': 2,
-    'default_qos': 1,
-    'default_retain': False,
-    'auto_reconnect': True,
-    'reconnect_max_interval': 2,
-    'reconnect_retries': 1800
-}
 
-C = MQTTClient(config=config)
+C = MQTTClient(config=CONFIG)
 
 @asyncio.coroutine
 def publish(topic, value):

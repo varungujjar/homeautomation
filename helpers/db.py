@@ -4,13 +4,13 @@ import sqlite3
 import json
 import time, datetime
 from helpers.logger import formatLogger
-from system.status import deviceCheckIncoming
+from core.status import deviceCheckIncoming
 import socketio
 
 logger = formatLogger(__name__)
 
 global db_path
-db_path = '/home/pi/db/db'
+db_path = '/home/pi/db/db_home'
 # db_path = '/Volumes/Work/homeautomation/db/db'
 typeIntCols = ["published","trigger","system","enable","service","online","weather","order","room_id"]
 

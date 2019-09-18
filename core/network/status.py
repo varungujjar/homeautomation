@@ -23,11 +23,10 @@ async def networkHandler():
     while True:
         getPing = pingGateway()
         if getPing == "disconnected":
-            logger.error("Network Disconnected")
+            logger.error("Network Status => Disconnected)")
             await networkRestart()
         elif getPing == "connected":
-            logger.info("Network Connected")
-        logger.info("Network Check Completed")
+            logger.info("Network Status => Connected")
         await asyncio.sleep(TIMER)    
     
 

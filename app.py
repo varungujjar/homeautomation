@@ -11,14 +11,15 @@ import sys
 import signal
 import functools
 import threading
-from system.rules import *
-from system.notifications import *
-from system.status import *
-from system.networkstatus import *
-from system.system import *
-from system.api import *
+from core.rules import *
+from core.notifications import *
+from core.status import *
+from core.network.status import *
+from core.mqtt.server import *
+from core.system import *
+from core.api import *
 
-from matrix_lite import led
+# from matrix_lite import led
 import time
 
 
@@ -67,11 +68,12 @@ class RunServer:
                 sys.path.append("./"+COMPONENTS_DIR+"/")
                 importModule = __import__(buildComponentPath, fromlist="*")
                 functionCall = getattr(importModule, "%sHandler" % service["id"])()
-                app.loop.create_task(functionCall)
-        app.loop.create_task(eventsHandlerTimer())
-        app.loop.create_task(statusHandler())
-        app.loop.create_task(networkHandler())
-        app.loop.create_task(self.startLeds())
+                self.loop.create_task(functionCall)
+        self.loop.create_task(mqttHandler())
+        self.loop.create_task(eventsHandlerTimer())
+        self.loop.create_task(statusHandler())
+        self.loop.create_task(networkHandler())
+        # app.loop.create_task(self.startLeds())
 
        
     async def stopHandler(self):

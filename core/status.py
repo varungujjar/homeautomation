@@ -15,7 +15,7 @@ logger = formatLogger(__name__)
 
 def deviceCheckIncoming(device):
     if device["online"] == 0:
-        importNotificationModule = __import__("system.notifications", fromlist="notifications")        
+        importNotificationModule = __import__("core.notifications", fromlist="notifications")        
         importNotificationModule.storeNotification("success","device",device["room_name"] or device["component"],"Device "+device["name"]+" is now Online",True)
         importDbModule = __import__("helpers.db", fromlist="db")
         importDbModule.dbStore("devices",{"id":int(device["id"]),"online":1})
@@ -31,7 +31,7 @@ async def statusHandler():
 
 def statusCheck():
     importDbModule = __import__("helpers.db", fromlist="db")
-    importNotificationModule = __import__("system.notifications", fromlist="notifications") 
+    importNotificationModule = __import__("core.notifications", fromlist="notifications") 
     devices = importDbModule.dbGetDevices()
     for device in devices:
         now = datetime.now()

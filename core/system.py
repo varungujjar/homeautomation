@@ -50,7 +50,7 @@ def systemHandler():
 	data["disk"]["percent"] = str(psutil.disk_usage("/").percent)
 
 	data["process"] = {}
-	data["process"] = server.supervisor.getProcessInfo('app')
+	data["process"] = "server.supervisor.getProcessInfo('app')"
 
 	data["mqtt"] = {}
 	data["mqtt"]["status"] = str(getMQTTStatus())

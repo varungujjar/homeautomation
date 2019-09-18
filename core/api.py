@@ -1,8 +1,8 @@
 import asyncio, json
 from aiohttp import web, ClientSession, ClientError
-from system.system import *
+from core.system import *
 from helpers.db import *
-from system.piwifi import *
+from core.network.piwifi import *
 #request headers aiohttp reference from here..
 #https://aiohttp.readthedocs.io/en/v0.18.2/web_reference.html
 
@@ -188,12 +188,29 @@ class Api:
                         formData = await request.json()
                         create_wpa_supplicant(formData["ssid_name"], formData["ssid_key"])
                         response = True
-
         return web.json_response(response)
 
 
 
     def Routers(self,app):
+        #Agent API
+        app.router.add_get('/api/agents', self.apiRooms)
+        app.router.add_get('/api/agents/{id}', self.apiRooms)
+        app.router.add_post('/api/agents/{id}/{command}', self.apiRooms)  #eg. default/90/save => accepts json
+
+        #Intents API
+        app.router.add_get('/api/intents', self.apiRooms)
+        app.router.add_get('/api/intents/{id}', self.apiRooms)
+        app.router.add_post('/api/intents/{id}/{command}', self.apiRooms)  #eg. welcome/90/save => accepts json
+
+        #Entities & Synomns API
+        app.router.add_get('/api/entities', self.apiRooms)
+        app.router.add_get('/api/entities/{id}', self.apiRooms)
+        app.router.add_post('/api/entities/{id}/{command}', self.apiRooms)  #eg. location/90/save => accepts json
+
+        #NLU & Training API
+        app.router.add_get('/api/train', self.apiRooms)
+
         #Rooms API
         app.router.add_get('/api/rooms', self.apiRooms)
         app.router.add_get('/api/rooms/{id}', self.apiRooms)

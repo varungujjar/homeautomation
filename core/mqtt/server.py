@@ -8,22 +8,11 @@ SUPPORTED_DEVICES = {"switch","light"}
 
 from hbmqtt.client import MQTTClient, ClientException, ConnectException
 from hbmqtt.mqtt.constants import QOS_1
+from core.mqtt.config import CONFIG
 
 logger = formatLogger(__name__)
 
-
-config = {
-    'keep_alive': int(getParmeters("mqtt","keepalive")),
-    'ping_delay': 2,
-    'default_qos': int(getParmeters("mqtt","qos")),
-    'default_retain': False,
-    'auto_reconnect': getParmeters("mqtt","autoreconnect"),
-    'reconnect_max_interval':int(getParmeters("mqtt","reconnectinterval")),
-    'reconnect_retries': int(getParmeters("mqtt","reconnectretries"))
-}
-
-C = MQTTClient(config=config)
-
+C = MQTTClient(config=CONFIG)
 
 @asyncio.coroutine
 def mqttHandler():
