@@ -1,12 +1,12 @@
 import os, sys
 import json
 import asyncio
-from helpers.logger import formatLogger
 from helpers.db import *
 from core.notifications import *
-from core.mqtt.publish import *
+from components.mqtt.publish import *
 
 logger = formatLogger(__name__)
+
 
 COMPONENT = "mqtt"
 CLASS_HEADER = "class"
@@ -82,6 +82,7 @@ class switch(object):
         if "relay" in conditionProperties:
             relays = conditionProperties["relay"]
             for relayId, state in relays.items():
+                
                 self.stateToggleChange(int(getDevice["id"]),int(relayId),int(state))
                 triggered = True
         else:

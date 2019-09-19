@@ -2,23 +2,33 @@ import os, sys, json
 from helpers.logger import formatLogger
 from helpers.db import *
 import asyncio
+from helpers.db import *
+from hbmqtt.client import MQTTClient, ClientException, ConnectException
+from hbmqtt.mqtt.constants import QOS_1
 
 SUPPORTED_HEADERS = {"class"}
 SUPPORTED_DEVICES = {"switch","light"}
 
-from hbmqtt.client import MQTTClient, ClientException, ConnectException
-from hbmqtt.mqtt.constants import QOS_1
-from core.mqtt.config import CONFIG
+config = {
+        'keep_alive': int(getParmeters("mqtt","keepalive")),
+        'ping_delay': 2,
+        'default_qos': int(getParmeters("mqtt","qos")),
+        'default_retain': False,
+        'auto_reconnect': getParmeters("mqtt","autoreconnect"),
+        'reconnect_max_interval':int(getParmeters("mqtt","reconnectinterval")),
+        'reconnect_retries': int(getParmeters("mqtt","reconnectretries"))
+}
+
+C = MQTTClient(config=config)
 
 logger = formatLogger(__name__)
 
-C = MQTTClient(config=CONFIG)
 
 @asyncio.coroutine
 def mqttHandler():
     yield from C.connect('mqtt://'+getParmeters("mqtt","username")+':'+getParmeters("mqtt","password")+'@'+getParmeters("mqtt","host")+':'+str(getParmeters("mqtt","port")))
-    yield from C.subscribe([('#', QOS_1)])
-    logger.info("Subscribed to #")
+    yield from C.subscribe([("homie", QOS_1)])
+    logger.info("Subscribed to Topic 'homie'")
     
     try:
         while True:
@@ -27,11 +37,11 @@ def mqttHandler():
             topic = packet.variable_header.topic_name
             payload = str(packet.payload.data.decode())
             mqttPayload = json.loads(payload)
+            logger.info(topic+' => '+str(mqttPayload))
             # logger.info("%s" % str(mqttPayload))
             if isinstance(mqttPayload,dict):
                 for key, value in mqttPayload.items():
                     if key in SUPPORTED_HEADERS:
-                        logger.info(mqttPayload)
                         if value in SUPPORTED_DEVICES:
                             importDevice = __import__("components.mqtt."+value, fromlist=value)
                             importDeviceClass = getattr(importDevice, value)

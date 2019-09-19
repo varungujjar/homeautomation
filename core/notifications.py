@@ -13,7 +13,6 @@ def sioConnect():
 	sio = socketio.RedisManager('redis://', write_only=True)
 	return sio
 
-
 def storeNotification(alert_class,type,title,message,push): #true push, false
     insertId = dbStore("notifications",{"id":0,"class":str(alert_class),"type":str(type),"title":str(title),"message":str(message)})
     if push:
@@ -26,4 +25,8 @@ def pushNotification(alert_class,type,title,message):
     data["type"] = alert_class
     data["title"] = title
     data["message"] = message
-    sioConnect().emit("notification", data)
+    sioConnect().emit("notification", data) #very important since this updates the device state instantly on the frontend
+
+
+
+

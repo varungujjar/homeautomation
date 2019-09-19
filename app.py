@@ -15,19 +15,18 @@ from core.rules import *
 from core.notifications import *
 from core.status import *
 from core.network.status import *
-from core.mqtt.server import *
 from core.system import *
 from core.api import *
-
-# from matrix_lite import led
 import time
+# from matrix_lite import led
+
 
 
 COMPONENTS_DIR = "components"
 logger = formatLogger(__name__)
 
 mgr = socketio.AsyncRedisManager('redis://')
-sio = socketio.AsyncServer(client_manager=mgr,async_mode='aiohttp')
+sio = socketio.AsyncServer(client_manager=mgr, async_mode='aiohttp', cors_allowed_origins='*')
 
 
 class RunServer:
@@ -69,13 +68,12 @@ class RunServer:
                 importModule = __import__(buildComponentPath, fromlist="*")
                 functionCall = getattr(importModule, "%sHandler" % service["id"])()
                 self.loop.create_task(functionCall)
-        self.loop.create_task(mqttHandler())
         self.loop.create_task(eventsHandlerTimer())
         self.loop.create_task(statusHandler())
         self.loop.create_task(networkHandler())
         # app.loop.create_task(self.startLeds())
 
-       
+
     async def stopHandler(self):
         getService = dbGetTable("components",{"id":"xbee"})
         if getService["enable"] == 1:
@@ -84,21 +82,15 @@ class RunServer:
             sys.path.append("./"+COMPONENTS_DIR+"/")
             importModule = __import__(buildComponentPath, fromlist="*")
             functionCall = getattr(importModule, "closeSerialConnection")()
-        logger.info("Cancelling All Tasks")
+        logger.info("Cancelling all Tasks")
         pending = asyncio.Task.all_tasks()
         for task in pending:
             task.cancel()
         await sio.disconnect(0)    
         self.loop.remove_signal_handler(signal.SIGINT)
         self.loop.remove_signal_handler(signal.SIGTERM)
-        self.loop.add_signal_handler(signal.SIGTERM, self.shutdownHandler)
-        os.kill(os.getpid(), signal.SIGTERM)
-
-
-    def shutdownHandler(self):
-        logger.info("Server Down.Goodbye")
-        self.loop.remove_signal_handler(signal.SIGTERM)
-        raise web.GracefulExit()
+        os.kill(os.getpid(), signal.SIGKILL)
+        
 
 
     async def createApp(self):
@@ -108,16 +100,10 @@ class RunServer:
         return app
 
 
-    @sio.on('connect',namespace='/')
-    async def connect(self, sid):
-        pushNotification("success","system","Hi, there","I Am now connected.")
-    
-
     def runApp(self):
         loop = self.loop
         app = loop.run_until_complete(self.createApp())
         app.on_startup.append(self.startBackgroundProcesses)
-        # app.on_cleanup.append(self.cleanBackgroundProcesses)
         for sig in (signal.SIGTERM, signal.SIGINT):
             loop.add_signal_handler(sig, lambda: asyncio.ensure_future(self.stopHandler()))
         web.run_app(app, host=self.host, port=self.port, handle_signals=False) 

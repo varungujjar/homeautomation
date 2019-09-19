@@ -3,8 +3,11 @@ from aiohttp import web, ClientSession, ClientError
 from core.system import *
 from helpers.db import *
 from core.network.piwifi import *
+
 #request headers aiohttp reference from here..
 #https://aiohttp.readthedocs.io/en/v0.18.2/web_reference.html
+
+logger = formatLogger(__name__)
 
 COMPONENTS_DIR = "components"
 
