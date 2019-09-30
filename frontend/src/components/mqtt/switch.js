@@ -7,15 +7,13 @@ const convertAgo = (datetime) => {
     return <Moment fromNow ago>{var_datetime}</Moment>
 }
 
-const toggleState = (deviceId, relayIndex, relayState) => {
-    var relayIndexString = relayIndex;
+const toggleState = (deviceId, relayState) => {
     var setRelaystate = 0;
     if (relayState == 0) {
         setRelaystate = 1;
     }
-    const relay = {
-        "relay": { "0": setRelaystate }
-    }
+
+    const relay = { "state": setRelaystate }
     fetch(`/api/devices/${deviceId}/action`, {
         method: 'POST',
         headers: {
@@ -32,11 +30,11 @@ const toggleState = (deviceId, relayIndex, relayState) => {
 export class ModuleList extends Component {
     constructor(props) {
         super(props);
-        this._isMounted = false;    
-        this.defaultIfAndProperties = {"type": "device", "condition": "=", "id": this.props.data.id, "properties": {'relay':{"0":0}}}
-        this.defaultThenProperties = {"type": "device", "id": this.props.data.id, "properties": {'relay':{"0":0}}}
+        this._isMounted = false;
+        this.relayState = this.props.data.state;
         if(this.props.values){
             this.deviceValues = this.props.values;
+            
         }
         this.state = {
             edit:false
@@ -46,11 +44,14 @@ export class ModuleList extends Component {
             this.state = {
                 selectedProperty:Object.keys(this.deviceValues.properties)[0] ? Object.keys(this.deviceValues.properties)[0] : Object.keys(this.deviceData.properties)[0],
             }
+          
         }
+
+        this.defaultIfAndProperties = {"type": "device", "condition": "=", "id": this.props.data.id, "properties": {'state':this.relayState}}
+        this.defaultThenProperties = {"type": "device", "id": this.props.data.id, "properties": {'state':this.relayState}}
 
         this.allowedValues = {
             "energy":"Energy",
-            "relay":"Switch",
             "power":"Power",
             "apparant":"Apparant",
             "voltage":"Voltage",
@@ -84,12 +85,12 @@ export class ModuleList extends Component {
         })
 
         const selectedPropertyChange = selectedProperty.currentTarget.value
-        const relaysInitialStore = this.deviceValues.properties.relay;
+        const relaysInitialStore = this.deviceValues.state;
         this.deviceValues.properties = {};//empty all properties before writing new one
 
-        if(selectedPropertyChange=="relay"){
-            this.deviceValues.properties.relay = relaysInitialStore;
-            this.props.setFieldValue(this.deviceValues.properties.relay);
+        if(selectedPropertyChange=="state"){
+            this.deviceValues.state = relaysInitialStore;
+            this.props.setFieldValue(this.deviceValues.state);
         }else{
             this.props.setFieldValue(this.deviceValues.properties);
         }
@@ -102,12 +103,12 @@ export class ModuleList extends Component {
     handleRelay = (event) => {
         const target = event.currentTarget;
         if (target.checked) {
-            this.deviceValues.properties.relay[target.id] = 1;
+            this.deviceValues.properties.state = 1;
         } else {
-            this.deviceValues.properties.relay[target.id] = 0;
+            this.deviceValues.properties.state = 0;
         }
-        this.props.setFieldValue(this.deviceValues.properties.relay[target.id])
-        this.deviceData.properties.relay[target.id] = this.deviceValues.properties.relay[target.id] //update the UI
+        this.props.setFieldValue(this.deviceValues.properties.state)
+        this.deviceData.state = this.deviceValues.properties.state //update the UI
     }
 
     componentWillUnmount() {
@@ -115,6 +116,8 @@ export class ModuleList extends Component {
     }
 
     render(){
+
+
         return (
                 <div>
                     <div className={`card card-outline-default ${this.deviceValues && !this.state.edit ? "has-edit-hover" : ""}`}>
@@ -125,7 +128,7 @@ export class ModuleList extends Component {
                             
                            
                             <div className="p-all-less">
-                            <span className={`icon-left icon-1x icon-${this.deviceData.icon ?  this.deviceData.icon : ""} ${this.deviceData.properties.relay[0] ? "icon-bg-on" : "icon-bg-off"}`}></span>
+                            <span className={`icon-left icon-1x icon-${this.deviceData.icon ?  this.deviceData.icon : ""} ${this.deviceData.state ? "icon-bg-on" : "icon-bg-off"}`}></span>
                             <div className="text-bold mt-1">{this.deviceData.name ? this.deviceData.name : "..."}</div>
                             <div className="text-secondary">{this.deviceData.room_name}</div>
                             </div>
@@ -133,7 +136,8 @@ export class ModuleList extends Component {
                      { 
 
                             this.deviceValues && 
-                            !this.deviceValues.properties.relay ? (
+                            
+                            (
                             
                             <div className="p-all-less b-t">
                                 {
@@ -142,7 +146,6 @@ export class ModuleList extends Component {
                                                 <div key={index}>
                                                 <span className="badge badge-default"><i className="fab fa-codepen"></i> <b>{key.charAt(0).toUpperCase() + key.slice(1)}</b> {Object.values(this.deviceValues.properties)[index]} </span>
                                                 </div>
-
                                            ) 
 
 
@@ -151,7 +154,7 @@ export class ModuleList extends Component {
                                 }
                             </div>
 
-                             ) : null
+                             ) 
                            
 
 
@@ -172,7 +175,9 @@ export class ModuleList extends Component {
                                       
                                         
                                         <div className="row">
-                                        <div className="col-md-8"><select name="" value={this.state.selectedProperty} onChange={this.onSelectProperty} className="form-control">
+                                        <div className="col-md-8">
+                                            <select name="" value={this.state.selectedProperty} onChange={this.onSelectProperty} className="form-control">
+                                            <option value="state">Switch</option>
                                             {    
                                                 Object.keys(this.deviceData.properties).map((property, index) => {
                                                     if(property in this.allowedValues){
@@ -195,17 +200,18 @@ export class ModuleList extends Component {
 
                                         {
                                             
-                                            this.state.selectedProperty == "relay" &&
-                                            Object.keys(this.deviceData.properties.relay).map((key, index) => {
-                                                let checked = false;
-                                                if (this.deviceValues.properties.relay[key] == 1) { checked = true; }
-                                                return (
-                                                    <div className="form-check mt-3" key={index}>
-                                                        <input className="form-check-input" type="checkbox" id={key} name={`${this.props.dataType}[properties][relay][${key}]`} onChange={this.handleRelay} checked={checked} />
-                                                        <label className="form-check-label">Relay {key}</label>
-                                                    </div>
+                                            this.state.selectedProperty == "state" && 
+                                               
+                                                (
+                                                <div className="form-check mt-3">
+                                                <input className="form-check-input" type="checkbox" id="0" name={`${this.props.dataType}[properties][state]`} onChange={this.handleRelay} checked={this.deviceData.state ? true : false} />
+                                                <label htmlFor="0" className="form-check-label">Switch </label>
+                                                </div>
                                                 )
-                                            })
+
+                                            
+                         
+                                           
                                         }   
                                         
                                       
@@ -213,7 +219,7 @@ export class ModuleList extends Component {
                                         
 
                                         {
-                                            this.state.selectedProperty && this.state.selectedProperty != "relay" ?
+                                            this.state.selectedProperty && this.state.selectedProperty != "state" ?
                                                 (
                                                     <input className="form-control mt-3" value={this.deviceValues.properties[this.state.selectedProperty]?this.deviceValues.properties[this.state.selectedProperty]:""} name={`${this.props.dataType}[properties][${this.state.selectedProperty}]`} onChange={this.onPropertyChange} />
                                                 )
@@ -231,6 +237,7 @@ export class ModuleList extends Component {
                                         
                                         <div className="p-all-less">
                                         <select name="" value={this.state.selectedProperty} onChange={this.onSelectProperty} className="form-control">
+                                        <option value="state">Switch</option>
                                             {
                                                 Object.keys(this.deviceData.actions).map((property, index) => {
                                                     return (
@@ -240,17 +247,13 @@ export class ModuleList extends Component {
                                             }
                                         </select>
                                         {
-                                            this.state.selectedProperty == "relay" &&
-                                            Object.keys(this.deviceData.actions.relay).map((key, index) => {
-                                                let checked = false;
-                                                if (this.deviceValues.properties.relay[key] == 1) { checked = true; }
-                                                return (
-                                                    <div className="form-check mt-3" key={index}>
-                                                        <input className="form-check-input" type="checkbox" id={key} name={`${this.props.dataType}[properties][relay][${key}]`} onChange={this.handleRelay} checked={checked} />
-                                                        <label className="form-check-label">Relay {key}</label>
+                                            this.state.selectedProperty == "state" &&
+                                                (
+                                                    <div className="form-check mt-3">
+                                                        <input className="form-check-input" type="checkbox" id="0" name={`${this.props.dataType}[properties][state]`} onChange={this.handleRelay} checked={this.deviceData.state ? true : false} />
+                                                        <label htmlFor="0" className="form-check-label">Switch</label>
                                                     </div>
                                                 )
-                                            })
                                         }
                                                 </div>
                                                 <div className="card-footer bg-dark text-center b-t"><span className="link" onClick={() => this.setState({ edit: false })}>Done</span></div>
@@ -292,17 +295,17 @@ export const ModuleModal = (props) => {
 
     const data = props.data;
     const properties = data.properties;
-    const relays = properties.relay;
+    const device_state = props.data.state;
 
     return(
         <>
-            <div className={`${relays[0] ? "bg-success" : "bg-default"}`}>
+            <div className={`${device_state ? "bg-success" : "bg-default"}`}>
                 <div className={`${data.properties.online ? "" : ""}`}>
                     <div className="offline-icon text-danger"></div>
                     <div className="p-all-less-md">
                         <div className="row">
                             <div className="col-md-6">
-                                <span className={`icon-left mb-4 icon-1x icon-lamp ${relays[0] ? "icon-bg-success" : "icon-bg-default"}`}></span>
+                                <span className={`icon-left mb-4 icon-1x icon-lamp ${device_state ? "icon-bg-success" : "icon-bg-default"}`}></span>
                                 <div className="text-bold mt-1 text-light">{data.name ? data.name : "..."}</div>
                                 <div className="text-light text-md mb-1">{data.room_name}</div>
                                 <div>
@@ -310,7 +313,7 @@ export const ModuleModal = (props) => {
                                 </div>
                             </div>
                             <div className="col-md-6 text-right">
-                                <span className="text-xxl text-light">{properties.current} W</span>
+                                <span className="text-xxl text-light">{properties.current ? properties.current : 0} W</span>
                                 <span className="text-lg"></span>
                             </div>
                         </div>
@@ -348,7 +351,7 @@ export const ModuleModal = (props) => {
                             <li>
                                 <span className="text-bold">VCC : </span> {properties.vcc} mAh
                             </li>
-                            <li>
+                            {/* <li>
                                 <span className="text-bold">Voltage : </span> {properties.voltage} V
                             </li>
                             <li>
@@ -356,13 +359,8 @@ export const ModuleModal = (props) => {
                             </li>
                             <li>
                                 <span className="text-bold">Current : </span> {properties.current} W
-                            </li>
-                            <li>
-                                <span className="text-bold">Subscribe : </span> {properties.subscribe}
-                            </li>
-                            <li>
-                                <span className="text-bold">Publish : </span> {properties.publish}
-                            </li>
+                            </li> */}
+                       
                         </ul>
                     </div>
                 </div>
@@ -378,7 +376,7 @@ export const ModuleModal = (props) => {
 export const Module = (props) => {
     
     const device = props.data;
-    const relays = props.data.properties.relay;
+    const device_state = props.data.state;
    
     return (
         <>
@@ -387,13 +385,10 @@ export const Module = (props) => {
            
                 <div className="offline-icon text-danger"></div>
                 <div className="card-body">
-                    {
-                        Object.keys(relays).map(index =>
-                            (
-                                <div key={index} className={relays[index] ? ("on") : ("")} >
+                                <div className={device_state ? ("on") : ("")} >
                                     <DeviceModal data={device}/>  
-                                    <div onClick={() => { toggleState(device.id, index, relays[index]) }}>
-                                    <span className={`icon-1x icon-${device.icon ?  device.icon : ""} ${relays[index] ? "icon-bg-on" : "icon-bg-off"}`} ></span>
+                                    <div onClick={() => { toggleState(device.id, index, state) }}>
+                                    <span className={`icon-1x icon-${device.icon ?  device.icon : ""} ${device_state ? "icon-bg-on" : "icon-bg-off"}`} ></span>
                                     {/* <div className="text-status">
                                         {
                                             relays[index] ? ("On") : ("Off")
@@ -405,10 +400,7 @@ export const Module = (props) => {
                                 </div>
 
                                 
-                            )
 
-                        )
-                    }
                 </div>
             </div>
             

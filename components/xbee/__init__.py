@@ -45,7 +45,7 @@ def getJsonData(payload):
 def xbeeReceived(payload):
     xbeeData = getJsonData(payload)
     xbeePayload = xbeeData["payload"]
-    logger.info("%s" % str(payload))
+    logger.debug("%s" % str(payload))
     for key, value in xbeePayload.items():
         if key in SUPPORTED_HEADERS:
             if value in SUPPORTED_DEVICES:

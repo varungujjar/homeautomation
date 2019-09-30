@@ -6,8 +6,6 @@ from helpers.db import *
 from hbmqtt.client import MQTTClient, ClientException, ConnectException
 from hbmqtt.mqtt.constants import QOS_1
 
-SUPPORTED_HEADERS = {"class"}
-SUPPORTED_DEVICES = {"switch","light"}
 
 config = {
         'keep_alive': int(getParmeters("mqtt","keepalive")),
@@ -27,8 +25,8 @@ logger = formatLogger(__name__)
 @asyncio.coroutine
 def mqttHandler():
     yield from C.connect('mqtt://'+getParmeters("mqtt","username")+':'+getParmeters("mqtt","password")+'@'+getParmeters("mqtt","host")+':'+str(getParmeters("mqtt","port")))
-    yield from C.subscribe([("homie", QOS_1)])
-    logger.info("Subscribed to Topic 'homie'")
+    yield from C.subscribe([("#", QOS_1)])
+    logger.info("Subscribed to Topic '#'")
     
     try:
         while True:
@@ -36,28 +34,28 @@ def mqttHandler():
             packet = message.publish_packet
             topic = packet.variable_header.topic_name
             payload = str(packet.payload.data.decode())
-            mqttPayload = json.loads(payload)
-            logger.info(topic+' => '+str(mqttPayload))
-            # logger.info("%s" % str(mqttPayload))
-            if isinstance(mqttPayload,dict):
-                for key, value in mqttPayload.items():
-                    if key in SUPPORTED_HEADERS:
-                        if value in SUPPORTED_DEVICES:
-                            importDevice = __import__("components.mqtt."+value, fromlist=value)
-                            importDeviceClass = getattr(importDevice, value)
-                            deviceClass = importDeviceClass()
-                            loop = asyncio.get_event_loop()    
-                            loop.create_task(deviceClass.deviceHandler(topic,payload))
-                            try:
-                                pass
-                            except ImportError as error:
-                                logger.error("%s" % str(error))
-                            except Exception as exception:
-                                logger.error(" %s" % str(exception))
-                        else:
-                            logger.warning("Device Not Supported")       
-                    else:
-                        pass
+            logger.info(topic+' => '+str(payload))
+            try:
+                mqttPayload = json.loads(payload)
+            except:
+                mqttPayload = str(payload)
+            getMqttDevices = dbGetTable("devices",{"component":"mqtt"})
+            for mqttDevice in getMqttDevices:
+                mqttType = mqttDevice["type"]
+                importDevice = __import__("components.mqtt."+mqttType, fromlist=mqttType)
+                importDeviceClass = getattr(importDevice, mqttType)
+                deviceClass = importDeviceClass()
+                loop = asyncio.get_event_loop()    
+                loop.create_task(deviceClass.deviceHandler(topic,mqttPayload,mqttDevice))
+                try:
+                    pass
+                except ImportError as error:
+                    logger.error("%s" % str(error))
+                except Exception as exception:
+                    logger.error(" %s" % str(exception))
+
+
+
         # yield from C.unsubscribe(['#'])
         # yield from C.disconnect()
     except ClientException as ce:

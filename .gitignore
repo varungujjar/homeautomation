@@ -2,6 +2,7 @@
 .local/
 .nano/
 .gnupg/
+.node-gyp/
 .cache/
 .npm/
 .keras/

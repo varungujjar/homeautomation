@@ -18,7 +18,8 @@ from core.network.status import *
 from core.system import *
 from core.api import *
 import time
-# from matrix_lite import led
+from components.beacon import *
+from matrix_lite import led
 
 
 
@@ -71,7 +72,8 @@ class RunServer:
         self.loop.create_task(eventsHandlerTimer())
         self.loop.create_task(statusHandler())
         self.loop.create_task(networkHandler())
-        # app.loop.create_task(self.startLeds())
+        self.loop.create_task(ibeaconHandler())
+        app.loop.create_task(self.startLeds())
 
 
     async def stopHandler(self):

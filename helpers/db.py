@@ -45,28 +45,13 @@ def Merge(oldProps, newProps):
     return result 
 
 
-def dbGetConfig():
-	try:
-		db = sqlite3.connect(db_path)
-		db.row_factory = lambda c, r: dict([(col[0], r[idx]) for idx, col in enumerate(c.description)])
-		cur = db.cursor()
-		cur.execute("SELECT * FROM config")
-		config = cur.fetchone()
-		db.commit()
-	except Exception as err:
-		logger.error('[DB] Config Error: %s' % (str(err)))
-	finally:
-		db.close()
-	return config
-
-
-def dbSyncDevice(type,prop,actions,address,component):
-	getDevice = dbGetDevice(component,type,address)
+def dbSyncDevice(type,prop,actions,deviceAddress,component,state=0):
+	getDevice = dbGetTable("devices",{"type":type,"component":component,"address":deviceAddress})[0]
 	if not getDevice:
 		try:
 			db = sqlite3.connect(db_path)
 			cur = db.cursor()
-			cur.execute("INSERT INTO devices(address, type, component, properties, actions, online, modified, created) VALUES(?,?,?,?,?,datetime(CURRENT_TIMESTAMP, 'localtime'),datetime(CURRENT_TIMESTAMP, 'localtime'))", (str(address), str(type), str(component),str(prop), str(actions), 1))
+			cur.execute("INSERT INTO devices(address, type, component, properties, actions, state, online, modified, created) VALUES(?,?,?,?,?,?,datetime(CURRENT_TIMESTAMP, 'localtime'),datetime(CURRENT_TIMESTAMP, 'localtime'))", (str(address), str(type), str(component),str(prop), str(actions), int(state), 1))
 			db.commit()
 		except Exception as err:
 			logger.error('[DB] Device Insert Sync Error: %s' % (str(err)))
@@ -78,66 +63,15 @@ def dbSyncDevice(type,prop,actions,address,component):
 		try:
 			db = sqlite3.connect(db_path)
 			cur = db.cursor()
-			cur.execute("UPDATE devices SET properties=?, actions=?, modified=datetime(CURRENT_TIMESTAMP, 'localtime') WHERE component=? AND type=? AND address=?",(str(combinedProperties), str(actions), str(component), str(type), str(address)))
+			cur.execute("UPDATE devices SET properties=?, actions=?, state=?, modified=datetime(CURRENT_TIMESTAMP, 'localtime') WHERE component=? AND type=? AND address=?",(str(combinedProperties), str(actions), int(state), str(component), str(type), str(deviceAddress)))
 			db.commit()
 		except Exception as err:
 			logger.error('[DB] Device Update Sync Error: %s' % (str(err)))
 		finally:
 			db.close()
-	thisDevice = dbGetDevice(component,type,address)
+	thisDevice = dbGetTable("devices",{"type":type,"component":component,"address":deviceAddress})[0]
 	sioConnect().emit(thisDevice["id"], thisDevice) #very important since this updates the device state instantly on the frontend
 	return thisDevice
-
-
-
-def dbGetDevice(component=None,type=None,address=None,id=None):
-	response = False
-	try:
-		db = sqlite3.connect(db_path)
-		db.row_factory = lambda c, r: dict([(col[0], r[idx]) for idx, col in enumerate(c.description)])
-		cur = db.cursor()
-		if id is None:
-			cur.execute('SELECT devices.*, rooms.id as room_id, rooms.name as room_name FROM devices LEFT JOIN rooms on room_id = rooms.id WHERE component=? AND type=? AND address=?',(component,type,address))
-			response = cur.fetchone()
-		else:
-			cur.execute('SELECT devices.*, rooms.id as room_id, rooms.name as room_name FROM devices LEFT JOIN rooms on room_id = rooms.id WHERE devices.id=?',(id,))
-			response = cur.fetchone()
-		db.commit()
-	except Exception as err:
-		response = False
-		logger.error('[DB] Get All Devices Error: %s' % (str(err)))
-	finally:
-		db.close()
-	if response is None:
-		response = False
-		return response
-	else:
-		response = formatData(response)	
-	return response
-
-
-def dbGetDevices():
-	response = False
-	try:
-		db = sqlite3.connect(db_path)
-		db.row_factory = lambda c, r: dict([(col[0], r[idx]) for idx, col in enumerate(c.description)])
-		cur = db.cursor()
-		cur.execute("SELECT devices.*, rooms.id as room_id, rooms.name as room_name FROM devices LEFT JOIN rooms on room_id = rooms.id ORDER BY 'order' ASC")
-		response = cur.fetchall()
-		db.commit()
-	except Exception as err:
-		response = False
-		logger.error('[DB] Get All Devices Error: %s' % (str(err)))
-	finally:
-		db.close()
-	if response is None:
-		response = False
-		return response	
-	else:
-		jsonDevices = []
-		for device in response:
-			jsonDevices.append(formatData(device))
-	return jsonDevices
 
 
 
@@ -150,13 +84,19 @@ def dbGetTable(tableName,colQuery=None, orderQuery=""):
 				colData = colQuery[col]	
 			else:
 				colData = str('"%s"' % colQuery[col])
-			compileCols.append("%s=%s" % (col, colData))
+			if(tableName=="devices"):
+				compileCols.append("devices.%s=%s" % (col, colData))
+			else:
+				compileCols.append("%s=%s" % (col, colData))
 		joinQuery = " AND ".join(compileCols)
 		try:
 			db = sqlite3.connect(db_path)
 			db.row_factory = lambda c, r: dict([(col[0], r[idx]) for idx, col in enumerate(c.description)])
 			cur = db.cursor()
-			cur.execute("SELECT * FROM %s WHERE %s %s" % (tableName,joinQuery,orderQuery))
+			if(tableName=="devices"):
+				cur.execute("SELECT devices.*, rooms.id as room_id, rooms.name as room_name FROM devices LEFT JOIN rooms on room_id = rooms.id WHERE %s %s" % (joinQuery,orderQuery))
+			else:	
+				cur.execute("SELECT * FROM %s WHERE %s %s" % (tableName,joinQuery,orderQuery))
 			if len(colQuery) > 1:
 				table = cur.fetchall()
 			else:
@@ -169,12 +109,16 @@ def dbGetTable(tableName,colQuery=None, orderQuery=""):
 			logger.error("Table %s Error: %s" % (tableName, str(err)))
 		finally:
 			db.close()
+		
 	else:
 		try:
 			db = sqlite3.connect(db_path)
 			db.row_factory = lambda c, r: dict([(col[0], r[idx]) for idx, col in enumerate(c.description)])
 			cur = db.cursor()
-			cur.execute("SELECT * FROM %s %s" % (tableName,orderQuery))		
+			if(tableName=="devices"):
+				cur.execute("SELECT devices.*, rooms.id as room_id, rooms.name as room_name FROM devices LEFT JOIN rooms on room_id = rooms.id %s" % (orderQuery))
+			else:
+				cur.execute("SELECT * FROM %s %s" % (tableName,orderQuery))		
 			table = cur.fetchall()
 			db.commit()
 		except Exception as err:

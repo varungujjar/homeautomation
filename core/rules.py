@@ -50,7 +50,7 @@ def validateConditions(ruleDataJson):
         deviceType = deviceCondition["type"]
         deviceId = deviceCondition["id"]
         if deviceType == "device":
-            getDevice = dbGetDevice(None,None,None,deviceId)
+            getDevice = dbGetTable("devices",{"id":int(deviceId)})
             if getDevice:
                 getDeviceModule = str(getDevice["type"])
                 getDeviceClass = str(getDevice["type"])
@@ -132,7 +132,7 @@ async def doThen(ruleData):
         deviceId = deviceCondition["id"]
 
         if deviceType == "device":
-            getDevice = dbGetDevice(None,None,None,deviceId)
+            getDevice = dbGetTable("devices",{"id":int(deviceId)})
             if getDevice:
                 getDeviceModule = str(getDevice["type"])
                 getDeviceClass = str(getDevice["type"])

@@ -19,7 +19,9 @@ from pydub import AudioSegment
 from ibm_watson import TextToSpeechV1, ApiException
 import json
 from os.path import join, dirname
-
+import wave
+import pyaudio
+import sys
 
 text_to_speech = TextToSpeechV1(
     iam_apikey='YAPspnQOd7jK9NuT44RsnoGTzDE7Q5aUczShvVzLnTG4',
@@ -40,12 +42,25 @@ class  googletts(object):
         pass
         # self.sync_dict_audio_library()
 
-    async def playaudio(self,wav_file):
-        pygame.mixer.init(22000, -16, 1, 1024)
-        pygame.mixer.init()
-        pygame.mixer.music.load(wav_file)
-        pygame.mixer.music.set_volume(1.0)
-        pygame.mixer.music.play()
+    async def playaudio(self,wav_file):    
+        CHUNK = 1024
+        if len(sys.argv) < 2:
+            print("Plays a wave file.\n\nUsage: %s filename.wav" % sys.argv[0])
+            sys.exit(-1)
+        wf = wave.open(wav_file, 'rb')
+        p = pyaudio.PyAudio()
+        stream = p.open(format=p.get_format_from_width(wf.getsampwidth()),
+                        channels=wf.getnchannels(),
+                        rate=wf.getframerate(),
+                        output=True)
+        data = wf.readframes(CHUNK)
+        while data != '':
+            stream.write(data)
+            data = wf.readframes(CHUNK)
+        stream.stop_stream()
+        stream.close()
+        p.terminate()
+
 
 
     def sync_dict_audio_library(self):
@@ -198,8 +213,10 @@ class  googletts(object):
                             combined_wav += AudioSegment.silent(duration=1) #google 35
                         else:
                             wav_part_file = AudioSegment.silent(duration=500)
-                            combined_wav += wav_part_file                    
-                   
+                            combined_wav += wav_part_file       
+
+        combined_wav = combined_wav.set_frame_rate(44000)
+        combined_wav = combined_wav.set_channels(2)            
         combined_wav.export(sentence_wav_output, format="wav")
         loop.create_task(self.playaudio(sentence_wav_output))    
         return validStatus

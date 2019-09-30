@@ -2,6 +2,7 @@ import asyncio, json
 from aiohttp import web, ClientSession, ClientError
 from core.system import *
 from helpers.db import *
+import helpers.db_agent as agent
 from core.network.piwifi import *
 
 #request headers aiohttp reference from here..
@@ -46,9 +47,9 @@ class Api:
         if(request.method=="GET"):
             if "id" in request.match_info:
                 if request.match_info['id']:
-                    response = dbGetDevice(None,None,None,int(request.match_info['id']))
+                    response = dbGetTable("devices",{"id":int(request.match_info['id'])})
             else:           
-                response = dbGetDevices()
+                response = dbGetTable("devices")
         elif(request.method=="POST"):
             if "id" in request.match_info:
                 if "command" in request.match_info:
@@ -60,9 +61,10 @@ class Api:
                         formData = await request.json()
                         response = dbStoreDevice(formData)
                     elif request.match_info["command"] == "action":
+                        command = request.match_info["command"]
                         actionData = await request.json()
                         deviceId = int(request.match_info["id"])
-                        getDevice = dbGetDevice(None,None,None,deviceId)
+                        getDevice = dbGetTable("devices",{"id":int(deviceId)})
                         if getDevice:
                             getDeviceModule = str(getDevice["type"])
                             getDeviceClass = getDeviceModule
@@ -194,25 +196,104 @@ class Api:
         return web.json_response(response)
 
 
+    async def apiAgent(self,request):
+        response = False
+        if(request.method=="GET"):
+            if "id" in request.match_info:
+                response = agent.dbGetTable("bot",{"name":str(request.match_info['id'])})        
+            else:           
+                response = agent.dbGetTable("bot")
+        elif(request.method=="POST"):
+            if "id" in request.match_info:
+                if "command" in request.match_info:
+                    if request.match_info["command"] == "delete":
+                        if int(await request.json()) == 1:
+                            if dbDelete("bot",int(request.match_info["id"])):
+                                response = dbGetTable("bot")
+                    elif request.match_info["command"] == "save":
+                        formData = await request.json()
+                        response = dbStore("bot",formData)
+        return web.json_response(response)
+
+
+    async def apiIntents(self,request):
+        response = False
+        if(request.method=="GET"):
+            if "id" in request.match_info:
+                response = agent.dbGetTable("intent",{"id":str(request.match_info['id'])})        
+            else:           
+                response = agent.dbGetTable("intent")
+        elif(request.method=="POST"):
+            if "id" in request.match_info:
+                if "command" in request.match_info:
+                    if request.match_info["command"] == "delete":
+                        if int(await request.json()) == 1:
+                            if dbDelete("intent",int(request.match_info["id"])):
+                                response = dbGetTable("intent")
+                    elif request.match_info["command"] == "save":
+                        formData = await request.json()
+                        response = dbStore("intent",formData)
+        return web.json_response(response)
+
+
+    async def apiEntities(self,request):
+        response = False
+        if(request.method=="GET"):
+            if "id" in request.match_info:
+                response = agent.dbGetTable("entity",{"id":str(request.match_info['id'])})        
+            else:           
+                response = agent.dbGetTable("entity")
+        elif(request.method=="POST"):
+            if "id" in request.match_info:
+                if "command" in request.match_info:
+                    if request.match_info["command"] == "delete":
+                        if int(await request.json()) == 1:
+                            if dbDelete("entity",int(request.match_info["id"])):
+                                response = dbGetTable("entity")
+                    elif request.match_info["command"] == "save":
+                        formData = await request.json()
+                        response = dbStore("entity",formData)
+        return web.json_response(response)
+
+
+    async def apiTrain(self,request):
+        response = False
+        if(request.method=="GET"):
+            if "id" in request.match_info:
+                response = agent.dbGetTable("entity",{"id":str(request.match_info['id'])})        
+            else:           
+                response = agent.dbGetTable("entity")
+        elif(request.method=="POST"):
+            if "id" in request.match_info:
+                if "command" in request.match_info:
+                    if request.match_info["command"] == "delete":
+                        if int(await request.json()) == 1:
+                            if dbDelete("entity",int(request.match_info["id"])):
+                                response = dbGetTable("entity")
+                    elif request.match_info["command"] == "save":
+                        formData = await request.json()
+                        response = dbStore("entity",formData)
+        return web.json_response(response)
+
 
     def Routers(self,app):
         #Agent API
-        app.router.add_get('/api/agents', self.apiRooms)
-        app.router.add_get('/api/agents/{id}', self.apiRooms)
-        app.router.add_post('/api/agents/{id}/{command}', self.apiRooms)  #eg. default/90/save => accepts json
+        app.router.add_get('/api/agents', self.apiAgent)
+        app.router.add_get('/api/agents/{id}', self.apiAgent)
+        app.router.add_post('/api/agents/{id}/{command}', self.apiAgent)  #eg. default/90/save => accepts json
 
         #Intents API
-        app.router.add_get('/api/intents', self.apiRooms)
-        app.router.add_get('/api/intents/{id}', self.apiRooms)
-        app.router.add_post('/api/intents/{id}/{command}', self.apiRooms)  #eg. welcome/90/save => accepts json
+        app.router.add_get('/api/intents', self.apiIntents)
+        app.router.add_get('/api/intents/{id}', self.apiIntents)
+        app.router.add_post('/api/intents/{id}/{command}', self.apiIntents)  #eg. welcome/90/save => accepts json
 
         #Entities & Synomns API
-        app.router.add_get('/api/entities', self.apiRooms)
-        app.router.add_get('/api/entities/{id}', self.apiRooms)
-        app.router.add_post('/api/entities/{id}/{command}', self.apiRooms)  #eg. location/90/save => accepts json
+        app.router.add_get('/api/entities', self.apiEntities)
+        app.router.add_get('/api/entities/{id}', self.apiEntities)
+        app.router.add_post('/api/entities/{id}/{command}', self.apiEntities)  #eg. location/90/save => accepts json
 
         #NLU & Training API
-        app.router.add_get('/api/train', self.apiRooms)
+        app.router.add_get('/api/train', self.apiTrain)
 
         #Rooms API
         app.router.add_get('/api/rooms', self.apiRooms)

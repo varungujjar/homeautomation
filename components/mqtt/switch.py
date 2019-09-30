@@ -7,164 +7,139 @@ from components.mqtt.publish import *
 
 logger = formatLogger(__name__)
 
-
 COMPONENT = "mqtt"
-CLASS_HEADER = "class"
-TYPE = "switch"
-STATE_ON = 1
-STATE_OFF = 0
-DEVICE_PROPERTIES = {"ip","mac","host","ssid","rssi","uptime","vcc","version","voltage","current","apparent","factor","energy","relay","publish","subscribe"}
-DEVICE_ACTIONS = {"relay"}
 
-#{class:switch,actions{state:{type:int,on:1,off:0,topic:state},brightness{type:int,range:0-100,topic:brightness}}
-#on_off
-#brightness
-#color_temp
-#hs
-#rgb
-#white
 
 class switch(object):
     def __init__(self):
         self.topic = 0
 
 
-    def dispatchNotification(self,data,type):
-        if type == "state":
-            stateText = "Off"
-            stateType = "default"
-            if data["properties"]["relay"]["0"]:
-                stateText = "On"
-                stateType = "success"
-            roomName = data["room_name"] or "None"
-            message = data["name"] + " Switch Turned <b>"+stateText+"</b>"
-            storeNotification(stateType,"device",roomName,message, True)
-        
+    def dispatchNotification(self,deviceData,state):
+        stateText = "Off"
+        stateType = "default"
+        if state:
+            stateText = "On"
+            stateType = "success"
+        roomName = deviceData["room_name"] or "Unknown"
+        deviceName = deviceData["name"] or "Unknown"
+        message = deviceName + " Switch Turned <b>"+stateText+"</b>"
+        storeNotification(stateType,"device",roomName,message, True)
+                
 
-    def publish(self,topic,value):
-        loop = asyncio.get_event_loop()
-        loop.create_task(publish(topic, value))
-        
+
 
     def validateProperties(self,getDevice,conditionProperties,conditionType):
         validStatus = False
         getDeviceProperties = getDevice["properties"]
+        getDeviceState = getDevice["state"]
         getDevicePropertiesKeys = []
         for key, value in getDeviceProperties.items():
             getDevicePropertiesKeys.append(key)    
+
         for key, value in conditionProperties.items():
-            if key in getDevicePropertiesKeys:
-                if isinstance(value,dict):
-                    for k, v in value.items():
-                        getDeviceProperty= getDeviceProperties[key][k]
-                        getIfProperty = conditionProperties[key][k]
-                else:
+            if key == "state":
+                if value == getDeviceState:
+                    validStatus = True
+            else:        
+                if key in getDevicePropertiesKeys:
                     getDeviceProperty = getDeviceProperties[key]
                     getIfProperty = conditionProperties[key]
-                    
-                if conditionType == "=":
-                    if getDeviceProperty == getIfProperty:
-                        validStatus = True
+                        
+                    if conditionType == "=":
+                        if getDeviceProperty == getIfProperty:
+                            validStatus = True
 
-                elif conditionType == ">":
-                    if getDeviceProperty > getIfProperty:
-                        validStatus = True
+                    elif conditionType == ">":
+                        if getDeviceProperty > getIfProperty:
+                            validStatus = True
 
-                elif conditionType == "<":
-                    if getDeviceProperty < getIfProperty:
-                        validStatus = True
+                    elif conditionType == "<":
+                        if getDeviceProperty < getIfProperty:
+                            validStatus = True
         return validStatus
         
     
-
     def triggerAction(self,getDevice,conditionProperties):
         triggered = False
-        if "relay" in conditionProperties:
-            relays = conditionProperties["relay"]
-            for relayId, state in relays.items():
-                
-                self.stateToggleChange(int(getDevice["id"]),int(relayId),int(state))
-                triggered = True
+        if "state" in conditionProperties:
+            state = conditionProperties["state"]
+            getParmeter = getDevice["parameters"]
+            topic_publish = getParmeter["topic_publish"]
+            topic_publish_topic = topic_publish["topic"]
+            topic_publish_values = topic_publish["values"]
+            loop = asyncio.get_event_loop()
+            loop.create_task(publish(topic_publish_topic,topic_publish_values[int(state)]))
+            triggered = True
         else:
             logger.error("The Device does not support this action")    
         return triggered
 
 
-    def stateToggleChange(self,deviceId,relayId,state=None):
-        getDevice = dbGetDevice(None,None,None,deviceId)
-        if getDevice:      
-            if getDevice["type"] == TYPE:        
-                deviceActions = getDevice["actions"]
-                deviceProperties = getDevice["properties"]
-                deviceRelayState = int(deviceProperties["relay"][str(relayId)])
-                cleanTopic = (deviceProperties["subscribe"]).strip("/")
-                relayTopic = cleanTopic+deviceActions["relay"][str(relayId)]["topic"]
-                stateValues = {0:deviceActions["relay"][str(relayId)]["on"],1:deviceActions["relay"][str(relayId)]["off"]}
-                if state is not None:
-                    stateValue = state
-                else:
-                    stateValue = stateValues[deviceRelayState]  
-                self.publish(relayTopic,stateValue)
-            else:
-                logger.error("Toggle Not Supported on This Device")   
-
-    
-    def getDeviceProperties(self,payload):
-        devicePropertiesData = {}
-        for key, value in payload.items():
-                if key in DEVICE_PROPERTIES:
-                    devicePropertiesData[key] = value
-                else:
-                    pass
-        return devicePropertiesData            
-
-
-    def checkStateChanged(self,type,deviceAddress,deviceProperties):
-        getDevice = dbGetDevice(COMPONENT,type,deviceAddress)
+    def checkStateChanged(self,currentState,newState):
         state = False
-        if getDevice:
-            devicePropertiesLoad = getDevice["properties"]
-            #print(devicePropertiesLoad)
-            for key, value in devicePropertiesLoad["relay"].items():
-                StateJson = deviceProperties
-                newState = StateJson["relay"][key]
-                currentState = value
-                if newState != currentState:
-                    state = True
+        if newState != currentState:
+            state = True
         return state
 
-
-    def getDeviceActions(self,payload):
-        # deviceActionsData = {}
-        deviceActionsData = {'relay': {
-            '0': {'type': 'switch', 'topic': '/relay/0/set', 'on':1, 'off':0}
-        }}
-        # for key, value in payload["actions"].items():
-        #         if key in DEVICE_ACTIONS:
-        #             deviceActionsData[key] = value
-        #         else:
-        #             pass
-        return deviceActionsData
+    def convertStateValues(self,getDevice,mqttPayload):
+        getParmeter = getDevice["parameters"]
+        topic_publish = getParmeter["topic_publish"]
+        topic_publish_values = topic_publish["values"]
+        for key, value in topic_publish_values.items():
+            if value == mqttPayload:
+                return key
 
 
-    async def deviceHandler(self,topic,payload):
-        devicePayload = json.loads(str(payload))
-        deviceClass = devicePayload[CLASS_HEADER]
-        deviceAddress = devicePayload["mac"]
-        deviceProperties = {}
-        deviceActions = {}
-        
-        if TYPE in deviceClass:
-            deviceProperties = self.getDeviceProperties(devicePayload)
-            deviceActions = self.getDeviceActions(devicePayload)
-        else:
-            pass
-        state = False   
-        state = self.checkStateChanged(deviceClass,deviceAddress,deviceProperties)
-        dbSync = dbSyncDevice(deviceClass,deviceProperties,deviceActions,deviceAddress,COMPONENT)
+    async def deviceHandler(self,topic,mqttPayload,getDevice):
+            getParmeter = getDevice["parameters"]
+            getDeviceId = getDevice["id"]          
+            topic_data = getParmeter["topic_data"]
+            topic_state = getParmeter["topic_state"]
+            deviceProperties = mqttPayload
+            deviceActions = json.dumps({"action":"allowed"})
+            deviceAddress = None
+            topic_start_part = None
+            topic_key = None
+            state = False 
 
-        if dbSync and state:
-            self.dispatchNotification(dbSync,"state")
+            if topic_state:
+                topic_state_find = topic_state.find('.')
+                if(topic_state_find != -1):
+                    topic_state_value = topic_state.split('.')
+                    topic_start_part = topic_state_value[0]
+                    topic_key = topic_state_value[1]
+                else:
+                    topic_start_part = topic_state    
+            else:
+                logger.error("State topic empty could not receive parse data")
+
+            #check all incoming matching topics
+            if(topic==(topic_data or topic_start_part)):      
+                if isinstance(mqttPayload,dict):
+                    if "mac" in mqttPayload.keys():
+                        deviceAddress = mqttPayload["mac"]
+                    if topic_key:
+                        if topic_key in deviceProperties.keys():
+                            newState = int(deviceProperties[topic_key])
+                            currentState = int(getDevice["state"])
+                            state = self.checkStateChanged(currentState,newState)
+                            dbSync = dbSyncDevice("switch",deviceProperties,deviceActions,deviceAddress,COMPONENT,newState)
+                            if dbSync and state:
+                                self.dispatchNotification(getDevice,newState)
+                    else:
+                        dbSync = dbSyncDevice("switch",deviceProperties,deviceActions,deviceAddress,COMPONENT) 
+                        if dbSync and state and topic_key:
+                            self.dispatchNotification(getDevice,newState)
+                else:
+                    newState = int(self.convertStateValues(getDevice,mqttPayload))
+                    currentState = int(getDevice["state"])
+                    state = self.checkStateChanged(currentState,newState)
+                    dbSync = dbSyncDevice("switch",getDevice["properties"],deviceActions,getDevice["address"],COMPONENT,newState)
+                    if dbSync and state:
+                        self.dispatchNotification(getDevice,newState)
+
+
             
             
 
