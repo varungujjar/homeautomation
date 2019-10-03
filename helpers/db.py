@@ -2,10 +2,11 @@ import os, sys
 sys.path.append('../')
 import sqlite3
 import json
-import time, datetime
 from helpers.logger import formatLogger
-from core.status import deviceCheckIncoming
+from helpers.dt import *
 import socketio
+import time
+from datetime import datetime as dt
 
 logger = formatLogger(__name__)
 
@@ -45,32 +46,66 @@ def Merge(oldProps, newProps):
     return result 
 
 
-def dbSyncDevice(type,prop,actions,deviceAddress,component,state=0):
-	getDevice = dbGetTable("devices",{"type":type,"component":component,"address":deviceAddress})[0]
-	if not getDevice:
-		try:
-			db = sqlite3.connect(db_path)
-			cur = db.cursor()
-			cur.execute("INSERT INTO devices(address, type, component, properties, actions, state, online, modified, created) VALUES(?,?,?,?,?,?,datetime(CURRENT_TIMESTAMP, 'localtime'),datetime(CURRENT_TIMESTAMP, 'localtime'))", (str(address), str(type), str(component),str(prop), str(actions), int(state), 1))
-			db.commit()
-		except Exception as err:
-			logger.error('[DB] Device Insert Sync Error: %s' % (str(err)))
-		finally:
-			db.close()	
+
+def dbStoreNotification(notificationClass,type,title,message):
+	dbStore("notifications",{"id":0,"class":str(notificationClass),"type":str(type),"title":str(title),"message":str(message)})
+
+
+
+def dbPushNotification(notificationClass,type,title,message):
+	data = {}
+	data["type"] = notificationClass
+	data["title"] = title
+	data["message"] = message
+	sioConnect().emit("notification", data)
+
+
+
+def dbCheckDeviceStatus(devices,threshold):
+	for getDevice in devices:
+		deviceId = getDevice["id"]
+		deviceName = getDevice["name"]
+		deviceRoomName = getDevice["room_name"]
+		deviceComponent = getDevice["component"]
+		now = dt.now()
+		modified = dt.strptime(str(device["modified"]), '%Y-%m-%d %H:%M:%S')
+		delta = now-modified
+		seconds = delta.seconds
+		if seconds > threshold:
+			if device["online"] == 1:
+				dbStore("devices",{"id":int(deviceId),"online":0})
+				thisDevice = dbGetTable("devices",{"id":int(deviceId)})
+				sendDeviceSocketData(int(deviceId),thisDevice)
+				dbStoreNotification("error","device",deviceRoomName or deviceComponent,deviceName+" is offline")
+				dbPushNotification("error","device",deviceRoomName or deviceComponent,deviceName+" is offline")
+				logger.warning("Device(%d) %s is offline" % (deviceId,deviceName or deviceComponent))
+				
+
+
+def sendDeviceSocketData(deviceId, deviceData):
+	sioConnect().emit(int(deviceId), deviceData)
+
+
+
+def dbSyncDevice(address,component,type,properties,actions,state=0):
+	getDevice = dbGetTable("devices",{"address":address,"component":component,"type":type})[0]
+	deviceId = getDevice["id"]
+	deviceOnline = getDevice["online"]
+	deviceName = getDevice["name"]
+	deviceRoomName = getDevice["room_name"]
+	deviceComponent = getDevice["component"]
+	if getDevice:
+		if deviceOnline == 0:
+			dbStoreNotification("success","device",deviceRoomName or deviceComponent,"Device "+deviceName+" is now Online")
+			dbPushNotification("success","device",deviceRoomName or deviceComponent,"Device "+deviceName+" is now Online")
+			logger.info("Device(%d) %s is online" % (deviceId,deviceName))
+		combinedProperties = Merge(getDevice["properties"],properties)
+		dbStore("devices",{"id":int(deviceId),"properties":combinedProperties,"actions":actions,"state":int(state),"online":1})
 	else:
-		deviceCheckIncoming(getDevice)
-		combinedProperties = Merge(getDevice["properties"],prop)
-		try:
-			db = sqlite3.connect(db_path)
-			cur = db.cursor()
-			cur.execute("UPDATE devices SET properties=?, actions=?, state=?, modified=datetime(CURRENT_TIMESTAMP, 'localtime') WHERE component=? AND type=? AND address=?",(str(combinedProperties), str(actions), int(state), str(component), str(type), str(deviceAddress)))
-			db.commit()
-		except Exception as err:
-			logger.error('[DB] Device Update Sync Error: %s' % (str(err)))
-		finally:
-			db.close()
-	thisDevice = dbGetTable("devices",{"type":type,"component":component,"address":deviceAddress})[0]
-	sioConnect().emit(thisDevice["id"], thisDevice) #very important since this updates the device state instantly on the frontend
+		pass
+		# dbStore("devices",{"properties":combinedProperties,"actions":actions,"state":int(state),"online":1})
+	thisDevice = dbGetTable("devices",{"id":int(deviceId)})
+	sendDeviceSocketData(deviceId,thisDevice)
 	return thisDevice
 
 
@@ -186,10 +221,10 @@ def dbStore(tableName, formData):
 				cur.execute("UPDATE %s SET %s, modified=datetime(CURRENT_TIMESTAMP, 'localtime') WHERE id=?" % (tableName,joinUpdate), (formData["id"], ))
 				db.commit()
 				response = True
-				logger.info('%s Store Successfully' % (tableName))
+				logger.info('"%s" Store Successfully' % (tableName))
 			except Exception as err:
 				response = False
-				logger.error('%s Store Error: %s' % (tableName,str(err)))
+				logger.error('"%s" Store Error: %s' % (tableName,str(err)))
 			finally:
 				db.close()
 		else:
@@ -215,10 +250,10 @@ def dbStore(tableName, formData):
 				db.commit()
 				lastrowid = cur.lastrowid
 				response = lastrowid
-				logger.info('%s Inserted Successfully %s' % (tableName, lastrowid))
+				logger.info('"%s" Inserted Successfully %s' % (tableName, lastrowid))
 			except Exception as err:
 				response = False
-				logger.error('%s Insert Error: %s' % (tableName,str(err)))
+				logger.error('"%s" Insert Error: %s' % (tableName,str(err)))
 			finally:
 				db.close()
 	return response

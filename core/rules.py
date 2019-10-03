@@ -177,6 +177,6 @@ async def doThen(ruleData):
                 pass 
         else:
             logger.warning("No Valid Handlers Found for Rule")
-    importNotificationModule = __import__("core.notifications", fromlist="notifications")        
-    importNotificationModule.storeNotification("info","rule","Rule "+str(ruleID),"Triggered", True)
+    dbStoreNotification("info","rule","Rule "+str(ruleID),"Triggered")
+    dbPushNotification("info","rule","Rule "+str(ruleID),"Triggered")
 

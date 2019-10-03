@@ -2,7 +2,6 @@ import os, sys, json
 from helpers.logger import formatLogger
 from helpers.db import *
 import asyncio
-from helpers.db import *
 from hbmqtt.client import MQTTClient, ClientException, ConnectException
 from hbmqtt.mqtt.constants import QOS_1
 
@@ -34,7 +33,7 @@ def mqttHandler():
             packet = message.publish_packet
             topic = packet.variable_header.topic_name
             payload = str(packet.payload.data.decode())
-            logger.info(topic+' => '+str(payload))
+            logger.debug(topic+' => '+str(payload))
             try:
                 mqttPayload = json.loads(payload)
             except:

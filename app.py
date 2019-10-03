@@ -12,13 +12,11 @@ import signal
 import functools
 import threading
 from core.rules import *
-from core.notifications import *
-from core.status import *
 from core.network.status import *
 from core.system import *
 from core.api import *
 import time
-from components.beacon import *
+from components.eddystone import *
 from matrix_lite import led
 
 
@@ -70,9 +68,8 @@ class RunServer:
                 functionCall = getattr(importModule, "%sHandler" % service["id"])()
                 self.loop.create_task(functionCall)
         self.loop.create_task(eventsHandlerTimer())
-        self.loop.create_task(statusHandler())
         self.loop.create_task(networkHandler())
-        self.loop.create_task(ibeaconHandler())
+        self.loop.create_task(eddystoneHandler())
         app.loop.create_task(self.startLeds())
 
 

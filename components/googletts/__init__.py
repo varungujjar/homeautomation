@@ -43,23 +43,11 @@ class  googletts(object):
         # self.sync_dict_audio_library()
 
     async def playaudio(self,wav_file):    
-        CHUNK = 1024
-        if len(sys.argv) < 2:
-            print("Plays a wave file.\n\nUsage: %s filename.wav" % sys.argv[0])
-            sys.exit(-1)
-        wf = wave.open(wav_file, 'rb')
-        p = pyaudio.PyAudio()
-        stream = p.open(format=p.get_format_from_width(wf.getsampwidth()),
-                        channels=wf.getnchannels(),
-                        rate=wf.getframerate(),
-                        output=True)
-        data = wf.readframes(CHUNK)
-        while data != '':
-            stream.write(data)
-            data = wf.readframes(CHUNK)
-        stream.stop_stream()
-        stream.close()
-        p.terminate()
+        pygame.mixer.init(44000, -16, 1, 1024)
+        pygame.mixer.init()
+        pygame.mixer.music.load(wav_file)
+        pygame.mixer.music.set_volume(1.0)
+        pygame.mixer.music.play()
 
 
 
@@ -204,7 +192,7 @@ class  googletts(object):
                         combined_wav += AudioSegment.silent(duration=1) #google 35
                     else:
                         self.check_sync_dictionary(word)
-                        if self.ibm_tts_download_word(word,"p"):
+                        if self.ibm_tts_download_word(word,"m"):
                             wav_part_file = AudioSegment.from_wav(word_wav_file)
                             start_trim = self.detect_leading_silence(wav_part_file)
                             end_trim = self.detect_leading_silence(wav_part_file.reverse())
@@ -225,7 +213,7 @@ class  googletts(object):
     def sentence_words(self,paragraph):
             sentences = nltk.word_tokenize(paragraph)
             split_sentence = []
-            special_characters = {"%":"percent","#":"hash","$":"dollar","@":"at",".":"fullstop", ",":"comma","!":"fullstop",":":""}
+            special_characters = {"%":"percent","#":"hash","$":"dollar","@":"at",".":"fullstop", ",":"comma","!":"fullstop",":":"","?":""}
             for word in sentences:
                     this_word = word
                     if this_word.isdigit():
@@ -267,6 +255,7 @@ class  googletts(object):
                                                             split_sentence.append("point")
                                     except ValueError:
                                             if clean_word in special_characters:
+                                                if special_characters[clean_word] is not "":
                                                     split_sentence.append(special_characters[clean_word])
                                             else:        
                                                     split_sentence.append(this_word.lower())

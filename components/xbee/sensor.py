@@ -82,7 +82,7 @@ class sensor(object):
         else:
             pass
         logger.info("%s" % str(deviceProperties))
-        dbSyncDevice(deviceClass,deviceProperties,deviceActions,deviceAddress,COMPONENT)
+        dbSyncDevice(deviceAddress,COMPONENT,deviceClass,deviceProperties,deviceActions)
         
 
             
