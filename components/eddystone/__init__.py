@@ -7,9 +7,8 @@ from beacontools import BeaconScanner, EddystoneTLMFrame, EddystoneFilter, parse
 from helpers.db import *
 
 logger = formatLogger(__name__)
-TIMER = 1 #seconds
-CHECK_THRESHOLD = 20 #seconds if device did not respond it will be considered as offline
-
+CHECK_EVERY = 1
+CHECK_LAST_THRESHOLD = 60
 
 def received(bt_addr, rssi, packet, additional_info):
 	data = {}
@@ -38,9 +37,9 @@ async def eddystoneHandler():
 	
 	
 async def rangeCheckHandler():
-	await asyncio.sleep(CHECK_THRESHOLD)
+	await asyncio.sleep(CHECK_LAST_THRESHOLD)
 	while True:
 		beacons = dbGetTable("devices",{"type":"beacon","component":"eddystone"})
-		dbCheckDeviceStatus(beacons,CHECK_THRESHOLD)
-		await asyncio.sleep(TIMER)
+		dbCheckDeviceStatus(beacons,CHECK_LAST_THRESHOLD)
+		await asyncio.sleep(CHECK_EVERY)
 

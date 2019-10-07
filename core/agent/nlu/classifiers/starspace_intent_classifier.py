@@ -15,8 +15,10 @@ import spacy
 # from keras.layers import Dropout
 import tensorflow as tf_legacy
 import tensorflow.compat.v1 as tf
-from flask import current_app as app
 from sklearn.feature_extraction.text import CountVectorizer
+
+from helpers.logger import formatLogger
+logger = formatLogger(__name__)
 
 
 class EmbeddingIntentClassifier:
@@ -144,7 +146,7 @@ class EmbeddingIntentClassifier:
         self.intent_split_symbol = self.component_config[
             'intent_split_symbol']
         if self.intent_tokenization_flag and not self.intent_split_symbol:
-            app.logger.warning("intent_split_symbol was not specified, "
+            logger.warning("intent_split_symbol was not specified, "
                                "so intent tokenization will be ignored")
             self.intent_tokenization_flag = False
 
@@ -153,7 +155,7 @@ class EmbeddingIntentClassifier:
         num_layers = int(num_layers)
 
         if num_layers < 0:
-            app.logger.error("num_hidden_layers_{} = {} < 0."
+            logger.error("num_hidden_layers_{} = {} < 0."
                              "Set it to 0".format(name, num_layers))
             num_layers = 0
 
@@ -165,7 +167,7 @@ class EmbeddingIntentClassifier:
                                  "".format(name, layer_size,
                                            name, num_layers))
 
-            app.logger.error("The length of hidden_layer_size_{} = {} "
+            logger.error("The length of hidden_layer_size_{} = {} "
                              "does not correspond to num_hidden_layers_{} "
                              "= {}. Set hidden_layer_size_{} to "
                              "the first element = {} for all layers"
@@ -412,7 +414,7 @@ class EmbeddingIntentClassifier:
                                              is_training: False})
 
         train_acc = np.mean(np.argmax(train_sim, -1) == intents_for_X)
-        app.logger.info("epoch {} / {}: loss {}, train accuracy : {:.3f}"
+        logger.info("epoch {} / {}: loss {}, train accuracy : {:.3f}"
                         "".format((ep + 1), self.epochs,
                                   sess_out.get('loss'), train_acc))
 
@@ -466,7 +468,7 @@ class EmbeddingIntentClassifier:
 
         intent_dict = self._create_intent_dict(training_data)
         if len(intent_dict) < 2:
-            app.logger.error("Can not train an intent classifier. "
+            logger.error("Can not train an intent classifier. "
                              "Need at least 2 different classes. "
                              "Skipping training of intent classifier.")
             return
@@ -479,7 +481,7 @@ class EmbeddingIntentClassifier:
             training_data, intent_dict)
 
         # check if number of negatives is less than number of intents
-        app.logger.debug("Check if num_neg {} is smaller than "
+        logger.debug("Check if num_neg {} is smaller than "
                          "number of intents {}, "
                          "else set num_neg to the number of intents - 1"
                          "".format(self.num_neg,
@@ -553,7 +555,7 @@ class EmbeddingIntentClassifier:
         intent_ranking = []
 
         if self.session is None:
-            app.logger.error("There is no trained tf.session: "
+            logger.error("There is no trained tf.session: "
                              "component is either not trained or "
                              "didn't receive enough training data")
 
@@ -591,7 +593,7 @@ class EmbeddingIntentClassifier:
             checkpoint = os.path.join(model_dir, file_name)
 
             if not os.path.exists(os.path.join(model_dir, "checkpoint")):
-                app.logger.warning("Failed to load nlu model. Maybe path {} "
+                logger.warning("Failed to load nlu model. Maybe path {} "
                                    "doesn't exist"
                                    "".format(os.path.abspath(model_dir)))
                 return EmbeddingIntentClassifier()
@@ -638,7 +640,7 @@ class EmbeddingIntentClassifier:
             )
 
         else:
-            app.logger.warning("Failed to load nlu model. Maybe path {} "
+            logger.warning("Failed to load nlu model. Maybe path {} "
                                "doesn't exist"
                                "".format(os.path.abspath(model_dir)))
 

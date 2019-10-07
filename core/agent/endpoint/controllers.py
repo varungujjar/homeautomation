@@ -1,20 +1,17 @@
 
 import json
+# from core.agent.endpoint.utils import call_api
+from core.agent.endpoint.utils import get_synonyms
+from core.agent.endpoint.utils import split_sentence
+from core.agent.nlu.classifiers.starspace_intent_classifier import EmbeddingIntentClassifier
+from core.agent.nlu.entity_extractor import EntityExtractor
+from core.agent.nlu.tasks import model_updated_signal
+from helpers.db import *
 
-from flask import Blueprint, request, abort, Response
-from jinja2 import Template
+from helpers.logger import formatLogger
+logger = formatLogger(__name__)
 
-from app import app
-from app.endpoint.utils import SilentUndefined
-from app.endpoint.utils import call_api
-from app.endpoint.utils import get_synonyms
-from app.endpoint.utils import split_sentence
-from app.nlu.classifiers.starspace_intent_classifier import EmbeddingIntentClassifier
-from app.nlu.entity_extractor import EntityExtractor
-from app.nlu.tasks import model_updated_signal
-from app.commons.db import *
 
-endpoint = Blueprint('api', __name__, url_prefix='/api')
 
 sentence_classifier = None
 synonyms = None
@@ -22,8 +19,11 @@ entity_extraction = None
 
 
 # Request Handler
-@endpoint.route('/v1', methods=['POST'])
-def api():
+def getConversation(request_json):
+
+    
+
+
     """
     Endpoint to converse with chatbot.
     Chat context is maintained by exchanging the payload between client and bot.
@@ -44,35 +44,29 @@ def api():
       ]
     }
 
-    :param json:
-    :return json:
     """
-    request_json = request.get_json(silent=True)
     result_json = request_json
 
     if request_json:
 
         context = {"context": request_json["context"]}
 
-        if app.config["DEFAULT_WELCOME_INTENT_NAME"] in request_json.get("input"):
-            intent = dbGetTable("intent",{"intentId":app.config["DEFAULT_WELCOME_INTENT_NAME"]})[0]
-            
+        if "init_conversation" in request_json["input"]:
+            intent = dbGetTable("intent",{"intentId":"init_conversation"},"","agent")[0]
             result_json["complete"] = True
             result_json["intent"]["object_id"] = str(intent["id"])
             result_json["intent"]["id"] = str(intent["intentId"])
-            result_json["input"] = request_json.get("input")
-            template = Template(
-                intent["speechResponse"],
-                undefined=SilentUndefined)
-            result_json["speechResponse"] = split_sentence(template.render(**context))
+            result_json["input"] = request_json["input"]
+            result_json["speechResponse"] = split_sentence(intent["speechResponse"])
 
-            app.logger.info(request_json.get("input"), extra=result_json)
+            logger.info(result_json)
+
             return Response(response=json.dumps(result_json), status=200, mimetype="application/json")
 
-        intent_id, confidence, suggestions = predict(request_json.get("input"))
-        app.logger.info("intent_id => %s" % intent_id)
+        intent_id, confidence, suggestions = predict(request_json["input"])
+        logger.info("intent_id => %s" % intent_id)
 
-        intent = dbGetTable("intent",{"intentId":intent_id})[0]
+        intent = dbGetTable("intent",{"intentId":intent_id},"","agent")[0]
         if intent["parameters"]:
             parameters = intent["parameters"]
         else:
@@ -81,8 +75,8 @@ def api():
 
            
 
-        if ((request_json.get("complete") is None) or (
-                request_json.get("complete") is True)):
+        if ((request_json["complete"] is None) or (
+                request_json["complete"] is True)):
             result_json["intent"] = {
                 "object_id": str(intent["id"]),
                 "confidence": confidence,
@@ -91,8 +85,7 @@ def api():
 
             if parameters:
                 # Extract NER entities
-                extracted_parameters = entity_extraction.predict(
-                    intent_id, request_json.get("input"))
+                extracted_parameters = entity_extraction.predict(intent_id, request_json["input"])
 
                 missing_parameters = []
                 result_json["missingParameters"] = []
@@ -126,20 +119,19 @@ def api():
             else:
                 result_json["complete"] = True
 
-        elif request_json.get("complete") is False:
+        elif request_json["complete"] is False:
             if "cancel" not in intent["name"]:
                 intent_id = request_json["intent"]["id"]
-                intent = dbGetTable("intent",{"intentId":intent_id})[0]
+                intent = dbGetTable("intent",{"intentId":intent_id},"","agent")[0]
 
                 extracted_parameter = entity_extraction.replace_synonyms({
-                    request_json.get("currentNode"): request_json.get("input")
+                    request_json["currentNode"]: request_json["input"]
                 })
 
                 # replace synonyms for entity values
                 result_json["extractedParameters"].update(extracted_parameter)
 
-                result_json["missingParameters"].remove(
-                    request_json.get("currentNode"))
+                result_json["missingParameters"].remove(request_json["currentNode"])
 
                 if len(result_json["missingParameters"]) == 0:
                     result_json["complete"] = True
@@ -185,19 +177,17 @@ def api():
                 #     template = Template(intent["speechResponse"], undefined=SilentUndefined)
                 #     result_json["speechResponse"] = split_sentence(template.render(**context))
                 context["result"] = {}
-                template = Template(intent["speechResponse"], undefined=SilentUndefined)
-                result_json["speechResponse"] = split_sentence(template.render(**context))
+                result_json["speechResponse"] = split_sentence(intent["speechResponse"])
             else:
                 context["result"] = {}
-                template = Template(intent["speechResponse"], undefined=SilentUndefined)
-                result_json["speechResponse"] = split_sentence(template.render(**context))
-        app.logger.info(request_json.get("input"), extra=result_json)
-        return Response(response=json.dumps(result_json), status=200, mimetype="application/json")
+                result_json["speechResponse"] = split_sentence(intent["speechResponse"])
+        logger.info(request_json["input"])
+        return json.dumps(result_json)
     else:
         return abort(400)
 
 
-def update_model(app, message, **extra):
+def update_model(message, **extra):
     """
     Signal hook to be called after training is completed.
     Reloads ml models and synonyms.
@@ -208,20 +198,18 @@ def update_model(app, message, **extra):
     """
     global sentence_classifier
 
-    sentence_classifier = EmbeddingIntentClassifier.load(app.config["MODELS_DIR"], app.config["USE_WORD_VECTORS"])
+    sentence_classifier = EmbeddingIntentClassifier.load("core/agent/model_files/", True)
     synonyms = get_synonyms()
 
     global entity_extraction
 
     entity_extraction = EntityExtractor(synonyms)
 
-    app.logger.info("Intent Model updated")
+    logger.info("Intent Model updated")
 
 
-with app.app_context():
-    update_model(app, "Models updated")
 
-model_updated_signal.connect(update_model, app)
+# model_updated_signal.connect(update_model, app)
 
 
 def predict(sentence):
@@ -230,11 +218,11 @@ def predict(sentence):
     :param sentence:
     :return:
     """
-    bot = dbGetTable("bot",{"name":"default"})[0]
+    bot = dbGetTable("bot",{"name":"default"},"","agent")[0]
     predicted, intents = sentence_classifier.process(sentence)
-    app.logger.info("predicted intent %s", predicted)
+    logger.info("predicted intent %s", predicted)
     if predicted["confidence"] < bot["confidence_threshold"]:
-        intents = dbGetTable("intent",{"intentId":app.config["DEFAULT_FALLBACK_INTENT_NAME"]})
+        intents = dbGetTable("intent",{"intentId":"fallback"},"","agent")
         intents = intents[0]["intentId"]
         return intents, 1.0, []
     else:

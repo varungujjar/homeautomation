@@ -10,10 +10,17 @@ from datetime import datetime as dt
 
 logger = formatLogger(__name__)
 
-global db_path
-db_path = '/home/pi/db/db_home'
-# db_path = '/Volumes/Work/homeautomation/db/db'
 typeIntCols = ["published","trigger","system","enable","service","online","weather","order","room_id"]
+
+
+def getDbPath(type):
+	db_path = None
+	if type=="home":
+		db_path = "/home/pi/db/db_home"
+	elif type == "agent":
+		db_path = "/home/pi/db/db_agent"	
+	return db_path
+
 
 def sioConnect():
 	sio = socketio.RedisManager('redis://', write_only=True)
@@ -34,7 +41,7 @@ def getParmeters(component,param):
 def formatData(data):
 	jsonItem = {}
 	for key, value in data.items():
-		if key in ["properties","actions","rule_if","rule_and","rule_then","parameters"]:
+		if key in ["properties","actions","rule_if","rule_and","rule_then","parameters","entity_values","training"]:
 			jsonItem[key] = eval(value)
 		else:	
 			jsonItem[key] = value
@@ -64,15 +71,17 @@ def dbPushNotification(notificationClass,type,title,message):
 def dbCheckDeviceStatus(devices,threshold):
 	for getDevice in devices:
 		deviceId = getDevice["id"]
+		deviceOnline = getDevice["online"]
 		deviceName = getDevice["name"]
 		deviceRoomName = getDevice["room_name"]
 		deviceComponent = getDevice["component"]
+		deviceModified = getDevice["modified"]
 		now = dt.now()
-		modified = dt.strptime(str(device["modified"]), '%Y-%m-%d %H:%M:%S')
+		modified = dt.strptime(str(deviceModified), '%Y-%m-%d %H:%M:%S')
 		delta = now-modified
 		seconds = delta.seconds
 		if seconds > threshold:
-			if device["online"] == 1:
+			if deviceOnline == 1:
 				dbStore("devices",{"id":int(deviceId),"online":0})
 				thisDevice = dbGetTable("devices",{"id":int(deviceId)})
 				sendDeviceSocketData(int(deviceId),thisDevice)
@@ -110,7 +119,8 @@ def dbSyncDevice(address,component,type,properties,actions,state=0):
 
 
 
-def dbGetTable(tableName,colQuery=None, orderQuery=""):
+def dbGetTable(tableName,colQuery=None, orderQuery="",dbType="home"):
+	dbSelect = getDbPath(dbType)
 	response = False
 	compileCols = []
 	if colQuery is not None:
@@ -125,7 +135,7 @@ def dbGetTable(tableName,colQuery=None, orderQuery=""):
 				compileCols.append("%s=%s" % (col, colData))
 		joinQuery = " AND ".join(compileCols)
 		try:
-			db = sqlite3.connect(db_path)
+			db = sqlite3.connect(dbSelect)
 			db.row_factory = lambda c, r: dict([(col[0], r[idx]) for idx, col in enumerate(c.description)])
 			cur = db.cursor()
 			if(tableName=="devices"):
@@ -147,7 +157,7 @@ def dbGetTable(tableName,colQuery=None, orderQuery=""):
 		
 	else:
 		try:
-			db = sqlite3.connect(db_path)
+			db = sqlite3.connect(dbSelect)
 			db.row_factory = lambda c, r: dict([(col[0], r[idx]) for idx, col in enumerate(c.description)])
 			cur = db.cursor()
 			if(tableName=="devices"):
@@ -172,11 +182,12 @@ def dbGetTable(tableName,colQuery=None, orderQuery=""):
 
 
 
-def dbDelete(tableName,id=None):
+def dbDelete(tableName,id=None,dbType="home"):
+	dbSelect = getDbPath(dbType)
 	response = False
 	if id:
 		try:
-			db = sqlite3.connect(db_path)
+			db = sqlite3.connect(dbSelect)
 			cur = db.cursor()
 			cur.execute("DELETE FROM %s WHERE id=%s" % (tableName, int(id)))
 			db.commit()
@@ -188,7 +199,7 @@ def dbDelete(tableName,id=None):
 			db.close()
 	else:
 		try:
-			db = sqlite3.connect(db_path)
+			db = sqlite3.connect(dbSelect)
 			cur = db.cursor()
 			cur.execute("DELETE FROM %s" % (tableName))
 			db.commit()
@@ -202,7 +213,8 @@ def dbDelete(tableName,id=None):
 
 
 
-def dbStore(tableName, formData):
+def dbStore(tableName,formData,dbType="home"):
+	dbSelect = getDbPath(dbType)
 	response = False
 	if "id" in formData:
 		if formData["id"] != 0:
@@ -216,7 +228,7 @@ def dbStore(tableName, formData):
 					createUpdate.append("%s=%s" % (col, colData))
 			joinUpdate = ",".join(createUpdate)
 			try:
-				db = sqlite3.connect(db_path)
+				db = sqlite3.connect(dbSelect)
 				cur = db.cursor()
 				cur.execute("UPDATE %s SET %s, modified=datetime(CURRENT_TIMESTAMP, 'localtime') WHERE id=?" % (tableName,joinUpdate), (formData["id"], ))
 				db.commit()
@@ -244,7 +256,7 @@ def dbStore(tableName, formData):
 			joinInsertMarks = ",".join(createInsertValuesMark)
 			joinInsertValues = ",".join(createInsertValues)
 			try:
-				db = sqlite3.connect(db_path)
+				db = sqlite3.connect(dbSelect)
 				cur = db.cursor()
 				cur.execute("INSERT INTO %s(%s, created) VALUES(%s,datetime(CURRENT_TIMESTAMP, 'localtime'))" % (tableName,joinInsertCols,joinInsertValues))
 				db.commit()

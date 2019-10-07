@@ -5,9 +5,7 @@ from helpers.db import *
 from components.mqtt.publish import *
 
 logger = formatLogger(__name__)
-
 COMPONENT = "mqtt"
-
 
 class switch(object):
     def __init__(self):
@@ -91,8 +89,9 @@ class switch(object):
                 return key
 
 
-    async def deviceHandler(self,topic,mqttPayload,getDevice):
-            
+   
+
+    async def deviceHandler(self,topic,mqttPayload,getDevice):         
             getParmeter = getDevice["parameters"]
             getDeviceId = getDevice["id"]          
             topic_data = getParmeter["topic_data"]

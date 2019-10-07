@@ -2,9 +2,8 @@ import asyncio, json
 from aiohttp import web, ClientSession, ClientError
 from core.system import *
 from helpers.db import *
-import helpers.db_agent as agent
 from core.network.piwifi import *
-
+from core.agent.endpoint.controllers import *
 #request headers aiohttp reference from here..
 #https://aiohttp.readthedocs.io/en/v0.18.2/web_reference.html
 
@@ -196,23 +195,32 @@ class Api:
         return web.json_response(response)
 
 
+
+    async def apiConversation(self,request):
+        response = False
+        if(request.method=="POST"):
+            request_json = await request.json()
+            response = getConversation(request_json)
+        return web.json_response(response)
+    
+    
     async def apiAgent(self,request):
         response = False
         if(request.method=="GET"):
             if "id" in request.match_info:
-                response = agent.dbGetTable("bot",{"name":str(request.match_info['id'])})        
+                response = dbGetTable("bot",{"name":str(request.match_info['id'])},"","agent")        
             else:           
-                response = agent.dbGetTable("bot")
+                response = dbGetTable("bot",None,"","agent")
         elif(request.method=="POST"):
             if "id" in request.match_info:
                 if "command" in request.match_info:
                     if request.match_info["command"] == "delete":
                         if int(await request.json()) == 1:
-                            if dbDelete("bot",int(request.match_info["id"])):
-                                response = dbGetTable("bot")
+                            if dbDelete("bot",int(request.match_info["id"]),"agent"):
+                                response = dbGetTable("bot",None,"","agent")
                     elif request.match_info["command"] == "save":
                         formData = await request.json()
-                        response = dbStore("bot",formData)
+                        response = dbStore("bot",formData,"agent")
         return web.json_response(response)
 
 
@@ -220,19 +228,19 @@ class Api:
         response = False
         if(request.method=="GET"):
             if "id" in request.match_info:
-                response = agent.dbGetTable("intent",{"id":str(request.match_info['id'])})        
+                response = dbGetTable("intent",{"id":str(request.match_info['id'])},"","agent")        
             else:           
-                response = agent.dbGetTable("intent")
+                response = dbGetTable("intent",None,"","agent")
         elif(request.method=="POST"):
             if "id" in request.match_info:
                 if "command" in request.match_info:
                     if request.match_info["command"] == "delete":
                         if int(await request.json()) == 1:
-                            if dbDelete("intent",int(request.match_info["id"])):
-                                response = dbGetTable("intent")
+                            if dbDelete("intent",int(request.match_info["id"]),"agent"):
+                                response = dbGetTable("intent",None,"","agent")
                     elif request.match_info["command"] == "save":
                         formData = await request.json()
-                        response = dbStore("intent",formData)
+                        response = dbStore("intent",formData,"agent")
         return web.json_response(response)
 
 
@@ -240,19 +248,19 @@ class Api:
         response = False
         if(request.method=="GET"):
             if "id" in request.match_info:
-                response = agent.dbGetTable("entity",{"id":str(request.match_info['id'])})        
+                response = dbGetTable("entity",{"id":str(request.match_info['id'])},"","agent")        
             else:           
-                response = agent.dbGetTable("entity")
+                response = dbGetTable("entity",None,"","agent")
         elif(request.method=="POST"):
             if "id" in request.match_info:
                 if "command" in request.match_info:
                     if request.match_info["command"] == "delete":
                         if int(await request.json()) == 1:
-                            if dbDelete("entity",int(request.match_info["id"])):
-                                response = dbGetTable("entity")
+                            if dbDelete("entity",int(request.match_info["id"]),"agent"):
+                                response = dbGetTable("entity",None,"","agent")
                     elif request.match_info["command"] == "save":
                         formData = await request.json()
-                        response = dbStore("entity",formData)
+                        response = dbStore("entity",formData,"agent")
         return web.json_response(response)
 
 
@@ -260,23 +268,26 @@ class Api:
         response = False
         if(request.method=="GET"):
             if "id" in request.match_info:
-                response = agent.dbGetTable("entity",{"id":str(request.match_info['id'])})        
+                response = dbGetTable("entity",{"id":str(request.match_info['id'])},"","agent")        
             else:           
-                response = agent.dbGetTable("entity")
+                response = dbGetTable("entity",None,"","agent")
         elif(request.method=="POST"):
             if "id" in request.match_info:
                 if "command" in request.match_info:
                     if request.match_info["command"] == "delete":
                         if int(await request.json()) == 1:
-                            if dbDelete("entity",int(request.match_info["id"])):
-                                response = dbGetTable("entity")
+                            if dbDelete("entity",int(request.match_info["id"]),"agent"):
+                                response = dbGetTable("entity",None,"","agent")
                     elif request.match_info["command"] == "save":
                         formData = await request.json()
-                        response = dbStore("entity",formData)
+                        response = dbStore("entity",formData,"agent")
         return web.json_response(response)
 
 
     def Routers(self,app):
+        #Conversation API
+        app.router.add_post('/api/conversation', self.apiConversation) 
+
         #Agent API
         app.router.add_get('/api/agents', self.apiAgent)
         app.router.add_get('/api/agents/{id}', self.apiAgent)

@@ -10,6 +10,8 @@ logger = formatLogger(__name__)
 
 SERIALPORT = getParmeters("xbee","serialport") 
 BAUDRATE = getParmeters("xbee","baudrate")
+CHECK_EVERY = 60
+CHECK_LAST_THRESHOLD = 1800
 
 try:
     ser = Serial(SERIALPORT, BAUDRATE)
@@ -42,6 +44,14 @@ def getJsonData(payload):
     return jsonItem
 
 
+async def deviceCheckHandler():
+    await asyncio.sleep(CHECK_LAST_THRESHOLD)
+    while True:
+        devices = dbGetTable("devices",{"type":"sensor","component":"xbee"})
+        dbCheckDeviceStatus(devices,CHECK_LAST_THRESHOLD)
+        await asyncio.sleep(CHECK_EVERY)
+
+
 def xbeeReceived(payload):
     xbeeData = getJsonData(payload)
     xbeePayload = xbeeData["payload"]
@@ -72,6 +82,8 @@ def closeSerialConnection():
     ser.close()
 
 async def xbeeHandler():
+    loop = asyncio.get_event_loop()
+    loop.create_task(deviceCheckHandler())
     try:
         xbee
     except:

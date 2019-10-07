@@ -1,8 +1,9 @@
 import json
 import requests
-from jinja2 import Undefined
-from app import app
-from app.commons.db import *
+from helpers.db import *
+from helpers.logger import formatLogger
+
+logger = formatLogger(__name__)
 
 
 def split_sentence(sentence):
@@ -12,12 +13,12 @@ def split_sentence(sentence):
 def get_synonyms():
     #build synonyms from db dic
     synonyms = {}
-    entities = dbGetTable("entity")
+    entities = dbGetTable("entity",None,"","agent")
     for entity in entities:
         for value in entity["entity_values"]:
             for synonym in value["synonyms"]:
                 synonyms[synonym] = value["value"]
-    app.logger.info("loaded synonyms %s", synonyms)
+    logger.info("loaded synonyms %s", synonyms)
     return synonyms
 
 
@@ -28,7 +29,7 @@ def call_api(url, type, headers={}, parameters={}, is_json=False):
     #param parameters:
     #param is_json:
     #return:
-    app.logger.info("Initiating API Call with following info: url => {} payload => {}".format(url, parameters))
+    logger.info("Initiating API Call with following info: url => {} payload => {}".format(url, parameters))
     if "GET" in type:
         response = requests.get(url, headers=headers, params=parameters, timeout=5)
     elif "POST" in type:
@@ -46,21 +47,8 @@ def call_api(url, type, headers={}, parameters={}, is_json=False):
     else:
         raise Exception("unsupported request method.")
     result = json.loads(response.text)
-    app.logger.info("API response => %s", result)
+    logger.info("API response => %s", result)
     return result
 
 
-class SilentUndefined(Undefined):
-    """
-    Class to suppress jinja2 errors and warnings
-    """
 
-    def _fail_with_undefined_error(self, *args, **kwargs):
-        return 'undefined'
-
-    __add__ = __radd__ = __mul__ = __rmul__ = __div__ = __rdiv__ = \
-        __truediv__ = __rtruediv__ = __floordiv__ = __rfloordiv__ = \
-        __mod__ = __rmod__ = __pos__ = __neg__ = __call__ = \
-        __getitem__ = __lt__ = __le__ = __gt__ = __ge__ = __int__ = \
-        __float__ = __complex__ = __pow__ = __rpow__ = \
-        _fail_with_undefined_error

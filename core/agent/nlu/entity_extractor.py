@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import pycrfsuite
-from flask import current_app as app
 from nltk import word_tokenize
 
 
@@ -164,12 +163,12 @@ class EntityExtractor:
         :param sentence:
         :return:
         """
-        from app.nlu.tasks import pos_tagger
+        from core.agent.nlu.tasks import pos_tagger
 
         tokenized_sentence = word_tokenize(sentence)
         tagged_token = pos_tagger(sentence)
         tagger = pycrfsuite.Tagger()
-        tagger.open("{}/{}.model".format(app.config["MODELS_DIR"], model_name))
+        tagger.open("{}/{}.model".format("core/agent/model_files/", model_name))
         predicted_labels = tagger.tag(self.sent_to_features(tagged_token))
         extracted_entities = self.crf2json(
             zip(tokenized_sentence, predicted_labels))
@@ -183,7 +182,7 @@ class EntityExtractor:
         :param training_data:
         :return labeled_examples:
         """
-        from app.nlu.tasks import sentence_tokenize, pos_tag_and_label
+        from core.agent.nlu.tasks import sentence_tokenize, pos_tag_and_label
 
         labeled_examples = []
 

@@ -1,12 +1,10 @@
-from app import app
-from app import my_signals
 from nltk import word_tokenize
 from nltk.tag.perceptron import PerceptronTagger
-from app.nlu.classifiers.starspace_intent_classifier import EmbeddingIntentClassifier
-from app.nlu.entity_extractor import EntityExtractor
-from app.commons.db import *
+from core.agent.nlu.classifiers.starspace_intent_classifier import EmbeddingIntentClassifier
+from core.agent.nlu.entity_extractor import EntityExtractor
+from helpers.db import *
 
-model_updated_signal = my_signals.signal('model-updated')
+model_updated_signal = ""
 
 
 def train_models():

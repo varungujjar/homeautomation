@@ -4,7 +4,8 @@ from helpers.db import *
 import asyncio
 from hbmqtt.client import MQTTClient, ClientException, ConnectException
 from hbmqtt.mqtt.constants import QOS_1
-
+CHECK_EVERY = 60
+CHECK_LAST_THRESHOLD = 900
 
 config = {
         'keep_alive': int(getParmeters("mqtt","keepalive")),
@@ -17,8 +18,16 @@ config = {
 }
 
 C = MQTTClient(config=config)
-
 logger = formatLogger(__name__)
+
+
+async def deviceCheckHandler():
+    await asyncio.sleep(CHECK_LAST_THRESHOLD)
+    while True:
+        devices = dbGetTable("devices",{"type":"switch","component":"mqtt"})
+        dbCheckDeviceStatus(devices,CHECK_LAST_THRESHOLD)
+        await asyncio.sleep(CHECK_EVERY)
+
 
 
 @asyncio.coroutine
@@ -29,6 +38,8 @@ def mqttHandler():
     
     try:
         while True:
+            loop = asyncio.get_event_loop()
+            loop.create_task(deviceCheckHandler())
             message = yield from C.deliver_message()
             packet = message.publish_packet
             topic = packet.variable_header.topic_name

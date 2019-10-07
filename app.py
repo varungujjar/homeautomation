@@ -18,6 +18,7 @@ from core.api import *
 import time
 from components.eddystone import *
 from matrix_lite import led
+from core.agent.endpoint.controllers import *
 
 
 
@@ -98,6 +99,12 @@ class RunServer:
         self.api.Routers(app)
         return app
 
+    @sio.event
+    async def connect(sid, environ):
+        message = { "author": "them", "type": "text", "data": { "text": "Hey There" } }
+        print(message)
+        await sio.emit('agent', message )
+
 
     def runApp(self):
         loop = self.loop
@@ -105,6 +112,7 @@ class RunServer:
         app.on_startup.append(self.startBackgroundProcesses)
         for sig in (signal.SIGTERM, signal.SIGINT):
             loop.add_signal_handler(sig, lambda: asyncio.ensure_future(self.stopHandler()))
+        update_model("************Models updated************")    
         web.run_app(app, host=self.host, port=self.port, handle_signals=False) 
  
     
