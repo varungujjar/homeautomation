@@ -42,7 +42,7 @@ class  googletts(object):
         pass
         # self.sync_dict_audio_library()
 
-    async def playaudio(self,wav_file):    
+    def playaudio(self,wav_file):    
         pygame.mixer.init(44000, -16, 1, 1024)
         pygame.mixer.init()
         pygame.mixer.music.load(wav_file)
@@ -132,7 +132,7 @@ class  googletts(object):
 
 
     def triggerAction(self,getComponent,conditionProperties):
-        loop = asyncio.get_event_loop()
+        # loop = asyncio.get_event_loop()
         message = ""
         message = str(conditionProperties["message"])
         logger.info(message)
@@ -206,7 +206,7 @@ class  googletts(object):
         combined_wav = combined_wav.set_frame_rate(44000)
         combined_wav = combined_wav.set_channels(2)            
         combined_wav.export(sentence_wav_output, format="wav")
-        loop.create_task(self.playaudio(sentence_wav_output))    
+        self.playaudio(sentence_wav_output)
         return validStatus
 
 

@@ -25,7 +25,7 @@ async def networkHandler():
         if getPing == "disconnected":
             logger.error("Network Status => Disconnected)")
             await networkRestart()
-        elif getPing == "connected":
+        elif getPing == "connected":            
             logger.info("Network Status => Connected")
         await asyncio.sleep(TIMER)    
     

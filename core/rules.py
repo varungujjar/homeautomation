@@ -11,13 +11,15 @@ TIMER = 1
 logger = formatLogger(__name__)
 
 async def eventsHandlerTimer():
+    loop = asyncio.get_running_loop()
     while True:
-        eventsHandler()
+        loop.create_task(eventsHandler())
         logger.info("OK")
         await asyncio.sleep(TIMER)
+        # return True
 
 
-def eventsHandler():
+async def eventsHandler():
     logger.debug("Rule Check Started")
     getRules = dbGetTable("rules",{"published":1})
     for ruleData in getRules:
@@ -37,8 +39,8 @@ def eventsHandler():
         else:
             pass    
         if triggerStatus:
-            loop = asyncio.get_event_loop()
-            loop.create_task(doThen(ruleData))    
+            await doThen(ruleData)
+    return True        
     logger.debug("Rule Check Completed")
     
 
@@ -144,9 +146,11 @@ async def doThen(ruleData):
                     importModule = __import__(buildComponentPath, fromlist=getDeviceModule)
                     importDeviceClass = getattr(importModule, getDeviceClass)
                     deviceClass = importDeviceClass()
-                    triggerStatus = deviceClass.triggerAction(getDevice,conditionProperties)
-                    if triggerStatus:
-                        logger.info("Rule %s Triggered" % ruleID)            
+                    deviceClass.triggerAction(getDevice,conditionProperties)
+                    # while triggerStatus:
+                    #     continue
+                    # if triggerStatus:
+                    #     logger.info("Rule %s Triggered" % ruleID)            
                 except ImportError as error:
                     logger.error("%s" % str(error)) 
                 except Exception as exception:
@@ -165,9 +169,11 @@ async def doThen(ruleData):
                     importModule = __import__(buildComponentPath, fromlist=getSystemComponent)
                     importDeviceClass = getattr(importModule, getSystemComponent)
                     deviceClass = importDeviceClass()
-                    triggerStatus = deviceClass.triggerAction(getComponent,conditionProperties)
-                    if triggerStatus:
-                        logger.info("Rule %s Triggered" % ruleID)            
+                    deviceClass.triggerAction(getComponent,conditionProperties)
+                    # while triggerStatus:
+                    #     continue
+                    # if triggerStatus:
+                    #     logger.info("Rule %s Triggered" % ruleID)            
                 except ImportError as error:
                     logger.error("%s" % str(error)) 
                 except Exception as exception:
@@ -177,6 +183,8 @@ async def doThen(ruleData):
                 pass 
         else:
             logger.warning("No Valid Handlers Found for Rule")
+    logger.info("Rule %s Triggered" % ruleID)         
     dbStoreNotification("info","rule","Rule "+str(ruleID),"Triggered")
     dbPushNotification("info","rule","Rule "+str(ruleID),"Triggered")
+    return True
 

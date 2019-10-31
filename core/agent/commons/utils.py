@@ -2,6 +2,7 @@ import json
 import requests
 from helpers.db import *
 from helpers.logger import formatLogger
+
 logger = formatLogger(__name__)
 
 

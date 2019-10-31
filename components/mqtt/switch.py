@@ -2,10 +2,12 @@ import os, sys
 import json
 import asyncio
 from helpers.db import *
-from components.mqtt.publish import *
+# from components.mqtt.publish import mqttpublish
 
 logger = formatLogger(__name__)
 COMPONENT = "mqtt"
+
+
 
 class switch(object):
     def __init__(self):
@@ -66,8 +68,13 @@ class switch(object):
             topic_publish = getParmeter["topic_publish"]
             topic_publish_topic = topic_publish["topic"]
             topic_publish_values = topic_publish["values"]
-            loop = asyncio.get_event_loop()
-            loop.create_task(publish(topic_publish_topic,topic_publish_values[int(state)]))
+            
+            importModule = __import__("components.mqtt", fromlist="*")
+            importDeviceClass = getattr(importModule, "mqttPublish")
+            deviceClass = importDeviceClass()
+            deviceClass.publish(topic_publish_topic,topic_publish_values[int(state)])    
+            
+
             triggered = True
         else:
             logger.error("The Device does not support this action")    

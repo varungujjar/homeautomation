@@ -3,13 +3,15 @@ from nltk.tag.perceptron import PerceptronTagger
 from core.agent.nlu.classifiers.starspace_intent_classifier import EmbeddingIntentClassifier
 from core.agent.nlu.entity_extractor import EntityExtractor
 from helpers.db import *
+from helpers.logger import formatLogger
+logger = formatLogger(__name__)
 
-model_updated_signal = ""
 
 
 def train_models():
+    response = False
     # generate intent classifier training data
-    intents = dbGetTable("intent")
+    intents = dbGetTable("intent",None,"","agent")
     if not intents:
         raise Exception("NO_DATA")
     # train intent classifier on all intents
@@ -17,7 +19,10 @@ def train_models():
     # train ner model for each Stories
     for intent in intents:
         train_all_ner(str(intent["intentId"]), intent["training"])
-    model_updated_signal.send(app, message="Training Completed.")
+    response = True
+    logger.info("Training Completed") 
+    return response    
+    # model_updated_signal.send(app, message="Training Completed.")
 
 
 def train_intent_classifier(intents):
@@ -30,9 +35,9 @@ def train_intent_classifier(intents):
                 continue
             X.append(example.get("text"))
             y.append(str(intent["intentId"]))
-    intent_classifier = EmbeddingIntentClassifier(use_word_vectors=app.config['USE_WORD_VECTORS'])
+    intent_classifier = EmbeddingIntentClassifier(use_word_vectors=True)
     intent_classifier.train(X, y)
-    intent_classifier.persist(model_dir=app.config["MODELS_DIR"])
+    intent_classifier.persist(model_dir="core/agent/model_files/")
 
 
 def train_all_ner(story_id, training_data):

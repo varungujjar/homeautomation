@@ -1,11 +1,10 @@
 
 import json
 # from core.agent.endpoint.utils import call_api
-from core.agent.endpoint.utils import get_synonyms
-from core.agent.endpoint.utils import split_sentence
+from core.agent.commons.utils import get_synonyms
+from core.agent.commons.utils import split_sentence
 from core.agent.nlu.classifiers.starspace_intent_classifier import EmbeddingIntentClassifier
 from core.agent.nlu.entity_extractor import EntityExtractor
-from core.agent.nlu.tasks import model_updated_signal
 from helpers.db import *
 
 from helpers.logger import formatLogger
@@ -61,10 +60,10 @@ def getConversation(request_json):
 
             logger.info(result_json)
 
-            return Response(response=json.dumps(result_json), status=200, mimetype="application/json")
+            return result_json
 
         intent_id, confidence, suggestions = predict(request_json["input"])
-        logger.info("intent_id => %s" % intent_id)
+        # logger.info("intent_id => %s" % intent_id)
 
         intent = dbGetTable("intent",{"intentId":intent_id},"","agent")[0]
         if intent["parameters"]:
@@ -151,6 +150,7 @@ def getConversation(request_json):
                 result_json["complete"] = True
 
         if result_json["complete"]:
+            logger.info("Completed API=> %s" % str(result_json))
             if intent["apiTrigger"]:
                 # isJson = False
                 # parameters = result_json["extractedParameters"]
@@ -182,7 +182,7 @@ def getConversation(request_json):
                 context["result"] = {}
                 result_json["speechResponse"] = split_sentence(intent["speechResponse"])
         logger.info(request_json["input"])
-        return json.dumps(result_json)
+        return result_json
     else:
         return abort(400)
 

@@ -3,7 +3,8 @@ from aiohttp import web, ClientSession, ClientError
 from core.system import *
 from helpers.db import *
 from core.network.piwifi import *
-from core.agent.endpoint.controllers import *
+from core.agent.controller import *
+from core.agent.nlu.tasks import *
 #request headers aiohttp reference from here..
 #https://aiohttp.readthedocs.io/en/v0.18.2/web_reference.html
 
@@ -201,6 +202,11 @@ class Api:
         if(request.method=="POST"):
             request_json = await request.json()
             response = getConversation(request_json)
+            importModule = __import__("components.googletts", fromlist="googletts")
+            importDeviceClass = getattr(importModule, "googletts")
+            deviceClass = importDeviceClass()
+            # for speech in response["speechResponse"]:
+            #     deviceClass.triggerAction(None,{"message":str(speech)})
         return web.json_response(response)
     
     
@@ -267,20 +273,7 @@ class Api:
     async def apiTrain(self,request):
         response = False
         if(request.method=="GET"):
-            if "id" in request.match_info:
-                response = dbGetTable("entity",{"id":str(request.match_info['id'])},"","agent")        
-            else:           
-                response = dbGetTable("entity",None,"","agent")
-        elif(request.method=="POST"):
-            if "id" in request.match_info:
-                if "command" in request.match_info:
-                    if request.match_info["command"] == "delete":
-                        if int(await request.json()) == 1:
-                            if dbDelete("entity",int(request.match_info["id"]),"agent"):
-                                response = dbGetTable("entity",None,"","agent")
-                    elif request.match_info["command"] == "save":
-                        formData = await request.json()
-                        response = dbStore("entity",formData,"agent")
+            response = train_models()
         return web.json_response(response)
 
 
