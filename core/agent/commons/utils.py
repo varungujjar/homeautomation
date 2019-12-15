@@ -11,14 +11,13 @@ def split_sentence(sentence):
 
 
 def get_synonyms():
-    #build synonyms from db dic
     synonyms = {}
     entities = dbGetTable("entity",None,"","agent")
     for entity in entities:
         for value in entity["entity_values"]:
             for synonym in value["synonyms"]:
                 synonyms[synonym] = value["value"]
-    logger.info("loaded synonyms %s", synonyms)
+    logger.info(synonyms)
     return synonyms
 
 

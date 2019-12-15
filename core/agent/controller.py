@@ -1,15 +1,12 @@
 
 import json
-# from core.agent.endpoint.utils import call_api
 from core.agent.commons.utils import get_synonyms
 from core.agent.commons.utils import split_sentence
 from core.agent.nlu.classifiers.starspace_intent_classifier import EmbeddingIntentClassifier
 from core.agent.nlu.entity_extractor import EntityExtractor
 from helpers.db import *
-
 from helpers.logger import formatLogger
 logger = formatLogger(__name__)
-
 
 
 sentence_classifier = None
@@ -19,10 +16,6 @@ entity_extraction = None
 
 # Request Handler
 def getConversation(request_json):
-
-    
-
-
     """
     Endpoint to converse with chatbot.
     Chat context is maintained by exchanging the payload between client and bot.
@@ -57,9 +50,7 @@ def getConversation(request_json):
             result_json["intent"]["id"] = str(intent["intentId"])
             result_json["input"] = request_json["input"]
             result_json["speechResponse"] = split_sentence(intent["speechResponse"])
-
             logger.info(result_json)
-
             return result_json
 
         intent_id, confidence, suggestions = predict(request_json["input"])
@@ -70,9 +61,6 @@ def getConversation(request_json):
             parameters = intent["parameters"]
         else:
             parameters = []
-
-
-           
 
         if ((request_json["complete"] is None) or (
                 request_json["complete"] is True)):
@@ -101,8 +89,7 @@ def getConversation(request_json):
 
                     if parameter["required"]:
                         if parameter["name"] not in extracted_parameters.keys():
-                            result_json["missingParameters"].append(
-                                parameter["name"])
+                            result_json["missingParameters"].append(parameter["name"])
                             missing_parameters.append(parameter)
 
                 result_json["extractedParameters"] = extracted_parameters
@@ -197,19 +184,14 @@ def update_model(message, **extra):
     :return:
     """
     global sentence_classifier
-
     sentence_classifier = EmbeddingIntentClassifier.load("core/agent/model_files/", True)
     synonyms = get_synonyms()
 
     global entity_extraction
-
     entity_extraction = EntityExtractor(synonyms)
 
     logger.info("Intent Model updated")
 
-
-
-# model_updated_signal.connect(update_model, app)
 
 
 def predict(sentence):
@@ -220,11 +202,10 @@ def predict(sentence):
     """
     bot = dbGetTable("bot",{"name":"default"},"","agent")[0]
     predicted, intents = sentence_classifier.process(sentence)
-    logger.info("predicted intent %s", predicted)
+    logger.info(predicted)
     if predicted["confidence"] < bot["confidence_threshold"]:
         intents = dbGetTable("intent",{"intentId":"fallback"},"","agent")
         intents = intents[0]["intentId"]
         return intents, 1.0, []
-    else:
-       
+    else:  
         return predicted["intent"], predicted["confidence"], intents[1:]

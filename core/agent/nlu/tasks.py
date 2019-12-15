@@ -14,8 +14,10 @@ def train_models():
     intents = dbGetTable("intent",None,"","agent")
     if not intents:
         raise Exception("NO_DATA")
+
     # train intent classifier on all intents
     train_intent_classifier(intents)
+
     # train ner model for each Stories
     for intent in intents:
         train_all_ner(str(intent["intentId"]), intent["training"])
@@ -40,12 +42,9 @@ def train_intent_classifier(intents):
     intent_classifier.persist(model_dir="core/agent/model_files/")
 
 
-def train_all_ner(story_id, training_data):
+def train_all_ner(intentId, training_data):
     entityExtraction = EntityExtractor()
-    # generate crf training data
-    ner_training_data = entityExtraction.json2crf(training_data)
-    # train and store ner model
-    entityExtraction.train(ner_training_data, story_id)
+    entityExtraction.train(training_data, intentId)
 
 
 # Load and initialize Perceptron tagger
