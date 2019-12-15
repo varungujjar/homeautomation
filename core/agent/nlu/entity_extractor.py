@@ -122,7 +122,7 @@ class EntityExtractor:
             # include transitions that are possible, but not observed
             'feature.possible_transitions': True
         })
-        trainer.train('model_files/%s.model' % model_name)
+        trainer.train('core/agent/model_files/%s.model' % model_name)
         return True
 
     # Extract Labels from BIO tagged sentence
@@ -170,8 +170,7 @@ class EntityExtractor:
         tagger = pycrfsuite.Tagger()
         tagger.open("{}/{}.model".format("core/agent/model_files/", model_name))
         predicted_labels = tagger.tag(self.sent_to_features(tagged_token))
-        extracted_entities = self.crf2json(
-            zip(tokenized_sentence, predicted_labels))
+        extracted_entities = self.crf2json(zip(tokenized_sentence, predicted_labels))
         return self.replace_synonyms(extracted_entities)
 
     @staticmethod

@@ -14,7 +14,7 @@ from core.system import *
 from core.api import *
 from components.eddystone import *
 from core.agent.controller import *
-from matrix_lite import led
+# from matrix_lite import led
 
 
 COMPONENTS_DIR = "components"
@@ -68,7 +68,7 @@ class RunServer:
         loop.create_task(eventsHandlerTimer())  
         loop.create_task(networkHandler())
         loop.create_task(eddystoneHandler())   
-        loop.create_task(self.startLeds())   
+        # loop.create_task(self.startLeds())   
 
   
         

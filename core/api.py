@@ -214,7 +214,7 @@ class Api:
         response = False
         if(request.method=="GET"):
             if "id" in request.match_info:
-                response = dbGetTable("bot",{"name":str(request.match_info['id'])},"","agent")        
+                response = dbGetTable("bot",{"id":str(request.match_info['id'])},"","agent")        
             else:           
                 response = dbGetTable("bot",None,"","agent")
         elif(request.method=="POST"):

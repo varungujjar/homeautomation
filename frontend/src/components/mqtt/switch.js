@@ -31,21 +31,23 @@ export class ModuleList extends Component {
     constructor(props) {
         super(props);
         this._isMounted = false;
-        this.relayState = this.props.data.state;
+        this.relayState = 0;
+        this.deviceData = this.props.data;
         if(this.props.values){
             this.deviceValues = this.props.values;
-            
+            this.deviceData.properties.state = this.deviceValues.properties.state;
         }
         this.state = {
             edit:false
         }     
-        this.deviceData = this.props.data;
+        
         if(this.deviceValues){
             this.state = {
                 selectedProperty:Object.keys(this.deviceValues.properties)[0] ? Object.keys(this.deviceValues.properties)[0] : Object.keys(this.deviceData.properties)[0],
             }
           
         }
+
 
         this.defaultIfAndProperties = {"type": "device", "condition": "=", "id": this.props.data.id, "properties": {'state':this.relayState}}
         this.defaultThenProperties = {"type": "device", "id": this.props.data.id, "properties": {'state':this.relayState}}
@@ -85,12 +87,12 @@ export class ModuleList extends Component {
         })
 
         const selectedPropertyChange = selectedProperty.currentTarget.value
-        const relaysInitialStore = this.deviceValues.state;
+        const relaysInitialStore = this.deviceValues.properties.state;
         this.deviceValues.properties = {};//empty all properties before writing new one
 
         if(selectedPropertyChange=="state"){
-            this.deviceValues.state = relaysInitialStore;
-            this.props.setFieldValue(this.deviceValues.state);
+            this.deviceValues.properties.state = relaysInitialStore;
+            this.props.setFieldValue(this.deviceValues.properties.state);
         }else{
             this.props.setFieldValue(this.deviceValues.properties);
         }
@@ -108,7 +110,7 @@ export class ModuleList extends Component {
             this.deviceValues.properties.state = 0;
         }
         this.props.setFieldValue(this.deviceValues.properties.state)
-        this.deviceData.state = this.deviceValues.properties.state //update the UI
+        this.deviceData.properties.state = this.deviceValues.properties.state //update the UI
     }
 
     componentWillUnmount() {
@@ -116,6 +118,7 @@ export class ModuleList extends Component {
     }
 
     render(){
+
 
 
         return (
@@ -128,7 +131,7 @@ export class ModuleList extends Component {
                             
                            
                             <div className="p-all-less">
-                            <span className={`icon-left icon-1x icon-${this.deviceData.icon ?  this.deviceData.icon : ""} ${this.deviceData.state ? "icon-bg-on" : "icon-bg-off"}`}></span>
+                            <span className={`icon-left icon-1x icon-${this.deviceData.icon ?  this.deviceData.icon : ""} ${  this.deviceData.properties.state ? "icon-bg-on" : "icon-bg-off"}`}></span>
                             <div className="text-bold mt-1">{this.deviceData.name ? this.deviceData.name : "..."}</div>
                             <div className="text-secondary">{this.deviceData.room_name}</div>
                             </div>
@@ -204,7 +207,7 @@ export class ModuleList extends Component {
                                                
                                                 (
                                                 <div className="form-check mt-3">
-                                                <input className="form-check-input" type="checkbox" id="0" name={`${this.props.dataType}[properties][state]`} onChange={this.handleRelay} checked={this.deviceData.state ? true : false} />
+                                                <input className="form-check-input" type="checkbox" id="0" name={`${this.props.dataType}[properties][state]`} onChange={this.handleRelay} checked={this.deviceValues.properties.state ? true : false} />
                                                 <label htmlFor="0" className="form-check-label">Switch </label>
                                                 </div>
                                                 )
@@ -250,7 +253,7 @@ export class ModuleList extends Component {
                                             this.state.selectedProperty == "state" &&
                                                 (
                                                     <div className="form-check mt-3">
-                                                        <input className="form-check-input" type="checkbox" id="0" name={`${this.props.dataType}[properties][state]`} onChange={this.handleRelay} checked={this.deviceData.state ? true : false} />
+                                                        <input className="form-check-input" type="checkbox" id="0" name={`${this.props.dataType}[properties][state]`} onChange={this.handleRelay} checked={this.deviceValues.properties.state ? true : false} />
                                                         <label htmlFor="0" className="form-check-label">Switch</label>
                                                     </div>
                                                 )
@@ -387,7 +390,7 @@ export const Module = (props) => {
                 <div className="card-body">
                                 <div className={device_state ? ("on") : ("")} >
                                     <DeviceModal data={device}/>  
-                                    <div onClick={() => { toggleState(device.id, index, state) }}>
+                                    <div onClick={() => { toggleState(device.id, device_state) }}>
                                     <span className={`icon-1x icon-${device.icon ?  device.icon : ""} ${device_state ? "icon-bg-on" : "icon-bg-off"}`} ></span>
                                     {/* <div className="text-status">
                                         {

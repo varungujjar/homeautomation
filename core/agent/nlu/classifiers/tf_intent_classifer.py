@@ -36,8 +36,7 @@ class TfIntentClassifier:
             Define and return tensorflow model.
             """
             model = Sequential()
-            model.add(Dense(256, activation=tf.nn.relu,
-                            input_shape=(vocab_size,)))
+            model.add(Dense(256, activation=tf.nn.relu,input_shape=(vocab_size,)))
             model.add(Dropout(0.2))
             model.add(Dense(128, activation=tf.nn.relu))
             model.add(Dropout(0.2))
@@ -73,7 +72,7 @@ class TfIntentClassifier:
 
         self.model = create_model()
         # start training
-        self.model.fit(x_train, y_train, shuffle=True, epochs=300, verbose=1)
+        self.model.fit(x_train, y_train, shuffle=True, epochs=300, verbose=10)
 
         if models_dir:
             tf.keras.models.save_model(
@@ -152,8 +151,7 @@ class TfIntentClassifier:
                 ranking = list(zip(list(intents), list(probabilities)))
                 ranking = ranking[:INTENT_RANKING_LENGTH]
 
-                intent = {"intent": intents[0],
-                          "confidence": float("%.2f" % probabilities[0])}
+                intent = {"intent": intents[0],"confidence": float("%.2f" % probabilities[0])}
 
                 intent_ranking = [{"intent": intent_name,
                                    "confidence": float("%.2f" % score)}
