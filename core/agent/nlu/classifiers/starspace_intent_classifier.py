@@ -1,24 +1,20 @@
-# -*- coding: utf-8 -*-
-
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 import io
 import os
 import re
-
+import keras
 import cloudpickle as pickle
 import numpy as np
 import spacy
-# from keras.layers import Dense
-# from keras.layers import Dropout
-import tensorflow as tf_legacy
-import tensorflow.compat.v1 as tf
+import tensorflow as tf
+import tensorflow.compat.v1 as tf_v1
 from sklearn.feature_extraction.text import CountVectorizer
-
 from helpers.logger import formatLogger
 logger = formatLogger(__name__)
+
+tf.contrib._warning = None
+
+import tensorflow.python.util.deprecation as deprecation
+deprecation._PRINT_DEPRECATION_WARNINGS = False
 
 
 class EmbeddingIntentClassifier:
@@ -263,26 +259,74 @@ class EmbeddingIntentClassifier:
         return X, Y, helper_data
 
 
+
+    # # tf helpers:
+    # def _create_tf_embed_nn(self, x_in, is_training, num_layers, layer_size, name):
+    #     """Create embed nn for layer with name"""
+
+    #     reg = tf.contrib.layers.l2_regularizer(self.C2)
+    #     x = x_in
+    #     for i in range(num_layers):
+    #         x = keras.layers.dense(inputs=x,
+    #                             units=layer_size[i],
+    #                             activation=tf.nn.relu,
+    #                             kernel_regularizer=reg,
+    #                             name='hidden_layer_{}_{}'.format(name, i))
+    #         x = keras.layers.dropout(x, rate=self.droprate, training=is_training)
+ 
+    #     x = keras.layers.dense(inputs=x,
+    #                         units=self.embed_dim,
+    #                         kernel_regularizer=reg,
+    #                         name='embed_layer_{}'.format(name))
+    #     return x
+
+
+    # def _create_tf_embed_nn(self, x_in, is_training, num_layers, layer_size, name):
+    #     """Create embed nn for layer with name"""
+
+    #     reg = tf.contrib.layers.l2_regularizer(self.C2)
+    #     x = x_in
+
+    #     print(x_in)
+        # for i in range(num_layers):
+        #     v = keras.engine.input_layer.Input(x)
+        #     x = keras.layers.Dense(units=layer_size[i],
+        #                         activation=tf.nn.relu,
+        #                         kernel_regularizer=reg,
+        #                         name='hidden_layer_{}_{}'.format(name, i))(v)
+        #     x = keras.layers.Dropout(rate=self.droprate, noise_shape=None, seed=None)(x)
+
+        # w = keras.engine.input_layer.Input(x)          
+        # x = keras.layers.Dense(units=self.embed_dim,
+        #                     kernel_regularizer=reg,
+        #                     name='embed_layer_{}'.format(name))(w)
+        # return x
+
+
     
     # tf helpers:
     def _create_tf_embed_nn(self, x_in, is_training, num_layers, layer_size, name):
         """Create embed nn for layer with name"""
 
-        reg = tf_legacy.contrib.layers.l2_regularizer(self.C2)
+        reg = tf.contrib.layers.l2_regularizer(self.C2)
         x = x_in
         for i in range(num_layers):
-            x = tf.layers.dense(inputs=x,
+            x = tf_v1.layers.dense(inputs=x,
                                 units=layer_size[i],
                                 activation=tf.nn.relu,
                                 kernel_regularizer=reg,
                                 name='hidden_layer_{}_{}'.format(name, i))
-            x = tf.layers.dropout(x, rate=self.droprate, training=is_training)
+            x = tf_v1.layers.dropout(x, rate=self.droprate, training=is_training)
  
-        x = tf.layers.dense(inputs=x,
+        x = tf_v1.layers.dense(inputs=x,
                             units=self.embed_dim,
                             kernel_regularizer=reg,
                             name='embed_layer_{}'.format(name))
         return x
+
+
+
+
 
 
 
@@ -329,8 +373,10 @@ class EmbeddingIntentClassifier:
                 # penalize max similarity between intent embeddings
                 tf.reduce_mean(max_sim_emb) * self.C_emb +
                 # add regularization losses
-                tf.losses.get_regularization_loss())
+                tf_v1.losses.get_regularization_loss())
         return loss
+
+
 
     def _create_tf_graph(self, a_in, b_in, is_training):
         """Create tf graph for training"""
@@ -347,6 +393,9 @@ class EmbeddingIntentClassifier:
         loss = self._tf_loss(sim, sim_emb)
 
         return sim, loss
+
+
+
 
     # training helpers:
     def _create_batch_b(self, batch_pos_b, intent_ids):
@@ -370,11 +419,13 @@ class EmbeddingIntentClassifier:
 
         return np.concatenate([batch_pos_b, batch_neg_b], 1)
 
+
+
     def _train_tf(self, X, Y, helper_data,
                   sess, a_in, b_in, sim,
                   loss, is_training, train_op):
         """Train tf graph"""
-        sess.run(tf.global_variables_initializer())
+        sess.run(tf_v1.global_variables_initializer())
 
         intents_for_X, all_Y = helper_data
 
@@ -402,6 +453,7 @@ class EmbeddingIntentClassifier:
                                            sess, a_in, b_in,
                                            sim, is_training,
                                            ep, sess_out)
+
 
     def _output_training_stat(self,
                               X, intents_for_X, all_Y,
@@ -491,22 +543,25 @@ class EmbeddingIntentClassifier:
 
         self.graph = tf.Graph()
         with self.graph.as_default():
-            a_in = tf.placeholder(tf.float32, (None, X.shape[-1]),
+            a_in = tf_v1.placeholder(tf.float32, (None, X.shape[-1]),
                                   name='a')
-            b_in = tf.placeholder(tf.float32, (None, None, Y.shape[-1]),
+            b_in = tf_v1.placeholder(tf.float32, (None, None, Y.shape[-1]),
                                   name='b')
+
             self.embedding_placeholder = a_in
             self.intent_placeholder = b_in
 
-            is_training = tf.placeholder_with_default(False, shape=())
+            is_training = tf_v1.placeholder_with_default(False, shape=())
 
             sim, loss = self._create_tf_graph(a_in, b_in, is_training)
             self.similarity_op = sim
 
-            train_op = tf.train.AdamOptimizer().minimize(loss)
+
+            
+            train_op = tf_v1.train.AdamOptimizer().minimize(loss)
 
             # train tensorflow graph
-            sess = tf.Session()
+            sess = tf_v1.Session()
             self.session = sess
 
             self._train_tf(X, Y, helper_data,
@@ -600,16 +655,16 @@ class EmbeddingIntentClassifier:
 
             graph = tf.Graph()
             with graph.as_default():
-                sess = tf.Session()
-                saver = tf.train.import_meta_graph(checkpoint + '.meta')
+                sess = tf_v1.Session()
+                saver = tf_v1.train.import_meta_graph(checkpoint + '.meta')
 
                 saver.restore(sess, checkpoint)
 
-                embedding_placeholder = tf.get_collection(
+                embedding_placeholder = tf_v1.get_collection(
                     'embedding_placeholder')[0]
-                intent_placeholder = tf.get_collection(
+                intent_placeholder = tf_v1.get_collection(
                     'intent_placeholder')[0]
-                similarity_op = tf.get_collection(
+                similarity_op = tf_v1.get_collection(
                     'similarity_op')[0]
 
             with io.open(os.path.join(
@@ -676,7 +731,7 @@ class EmbeddingIntentClassifier:
                                          self.similarity_op)
 
             # saver = tf.train.Saver()
-            saver = tf.train.Saver()
+            saver = tf_v1.train.Saver()
             saver.save(self.session, checkpoint)
 
         with io.open(os.path.join(

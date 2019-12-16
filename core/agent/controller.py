@@ -3,7 +3,7 @@ import json
 from core.agent.commons.utils import get_synonyms
 from core.agent.commons.utils import split_sentence
 from core.agent.nlu.classifiers.starspace_intent_classifier import EmbeddingIntentClassifier
-from core.agent.nlu.entity_extractor import EntityExtractor
+from core.agent.nlu.extractors.sklearn_entity_extractor import EntityExtractor
 from helpers.db import *
 from helpers.logger import formatLogger
 logger = formatLogger(__name__)

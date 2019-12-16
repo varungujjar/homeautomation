@@ -148,13 +148,14 @@ class EntityExtractor:
             all_possible_transitions=True,
         )
         trainer.fit(features, labels)
+        logger.info("Creating Model for Intent %s",model_name)
         joblib.dump(trainer, 'core/agent/model_files/%s.model' % model_name)
         return True
 
 
     def _convert_example(self,example):
         def convert_entity(entity):
-            return entity["begin"], entity["end"], entity["name"]
+            return entity["start"], entity["end"], entity["entity"]
         return [convert_entity(ent) for ent in example.get("entities", [])]
 
 
