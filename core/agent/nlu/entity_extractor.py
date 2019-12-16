@@ -1,5 +1,4 @@
 
-from nltk import word_tokenize
 import sklearn_crfsuite
 import warnings
 import joblib
@@ -130,10 +129,6 @@ class EntityExtractor:
         :param model_name:
         :return:
         """
-        # train_sentences = self.json2crf(training_data)
-        # train_sentences = self._from_json_to_crf(training_data)
-        # print(train_sentences)
-
         dataset = []
         for example in training_data:
             entity_offsets = self._convert_example(example)
@@ -215,41 +210,11 @@ class EntityExtractor:
         return labels
 
 
-    # @staticmethod
-    # def __additional_ner_features(message: Message) -> List[Any]:
-    #     features = message.get("ner_features", [])
-    #     tokens = message.get("tokens", [])
-    #     if len(tokens) != len(features):
-    #         warn_string = "Number of custom NER features ({}) does not match number of tokens ({})".format(
-    #             len(features), len(tokens)
-    #         )
-    #         raise Exception(warn_string)
-    #     # convert to python-crfsuite feature format
-    #     features_out = []
-    #     for feature in features:
-    #         feature_dict = {
-    #             str(index): token_features
-    #             for index, token_features in enumerate(feature)
-    #         }
-    #         converted = {"custom_ner_features": feature_dict}
-    #         features_out.append(converted)
-    #     return features_out
-
-
 
     def _from_text_to_crf(self, message, entities=None):
         """Takes a sentence and switches it to crfsuite format."""
-
         crf_format = []
-        if self.pos_features:
-            tokens = self.nlp(message["text"])
-        else:
-            tokens = message.get("tokens")
-
-        ner_features = (
-            self.__additional_ner_features(message) if self.use_ner_features else None
-        )
-
+        tokens = self.nlp(message["text"])    
         for i, token in enumerate(tokens):
             pattern = {}
             entity = entities[i] if entities else "N/A"
@@ -440,23 +405,17 @@ class EntityExtractor:
         :param sentence:
         :return:
         """
-        from core.agent.nlu.tasks import pos_tagger
-        tokenized_sentence = word_tokenize(sentence)
-        tagged_token = pos_tagger(sentence)
-        
         tagger = joblib.load('core/agent/model_files/%s.model' % model_name)
-
-        # text_data = self._from_text_to_crf(sentence)
-        features = self._sentence_to_features(tagged_token)
+        sentencetoJson = {"text":sentence}
+        text_data = self._from_text_to_crf(sentencetoJson)
+        features = self._sentence_to_features(text_data)
         ents = tagger.predict_marginals_single(features)
         extracted_entities = self._from_crf_to_json(self.nlp(sentence), ents)
-
         print("*****************")
         for entity in extracted_entities:
             thisentity = entity["entity"]+" - "+entity["value"]
             print(thisentity)
         print("*****************")
-
         # return self.replace_synonyms(extracted_entities)
 
 
