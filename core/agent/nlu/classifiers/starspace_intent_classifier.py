@@ -11,8 +11,9 @@ from sklearn.feature_extraction.text import CountVectorizer
 from helpers.logger import formatLogger
 logger = formatLogger(__name__)
 
-tf.contrib._warning = None
 
+##supressing depreciated warnings
+tf.contrib._warning = None
 import tensorflow.python.util.deprecation as deprecation
 deprecation._PRINT_DEPRECATION_WARNINGS = False
 
@@ -115,6 +116,7 @@ class EmbeddingIntentClassifier:
         self.vect = vectorizer
         self.use_word_vectors = use_word_vectors
 
+
     def _load_nn_architecture_params(self):
         self.num_hidden_layers_a = self.component_config['num_hidden_layers_a']
         self.hidden_layer_size_a = self.component_config['hidden_layer_size_a']
@@ -122,6 +124,7 @@ class EmbeddingIntentClassifier:
         self.hidden_layer_size_b = self.component_config['hidden_layer_size_b']
         self.batch_size = self.component_config['batch_size']
         self.epochs = self.component_config['epochs']
+
 
     def _load_embedding_params(self):
         self.embed_dim = self.component_config['embed_dim']
@@ -131,10 +134,12 @@ class EmbeddingIntentClassifier:
         self.num_neg = self.component_config['num_neg']
         self.use_max_sim_neg = self.component_config['use_max_sim_neg']
 
+
     def _load_regularization_params(self):
         self.C2 = self.component_config['C2']
         self.C_emb = self.component_config['C_emb']
         self.droprate = self.component_config['droprate']
+
 
     def _load_flag_if_tokenize_intents(self):
         self.intent_tokenization_flag = self.component_config[
@@ -146,6 +151,7 @@ class EmbeddingIntentClassifier:
                                "so intent tokenization will be ignored")
             self.intent_tokenization_flag = False
 
+
     @staticmethod
     def _check_hidden_layer_sizes(num_layers, layer_size, name=''):
         num_layers = int(num_layers)
@@ -154,7 +160,6 @@ class EmbeddingIntentClassifier:
             logger.error("num_hidden_layers_{} = {} < 0."
                              "Set it to 0".format(name, num_layers))
             num_layers = 0
-
         if isinstance(layer_size, list) and len(layer_size) != num_layers:
             if len(layer_size) == 0:
                 raise ValueError("hidden_layer_size_{} = {} "
@@ -178,6 +183,7 @@ class EmbeddingIntentClassifier:
 
         return num_layers, layer_size
 
+
     @staticmethod
     def _check_tensorflow():
         if tf is None:
@@ -185,6 +191,7 @@ class EmbeddingIntentClassifier:
                 'Failed to import `tensorflow`. '
                 'Please install `tensorflow`. '
                 'For example with `pip install tensorflow`.')
+
 
     # training data helpers:
     @staticmethod
@@ -195,6 +202,7 @@ class EmbeddingIntentClassifier:
                                 for example in intent_examples])
         return {intent: idx
                 for idx, intent in enumerate(sorted(distinct_intents))}
+
 
     @staticmethod
     def _create_intent_token_dict(intents, intent_split_symbol):
@@ -211,10 +219,10 @@ class EmbeddingIntentClassifier:
         return {token: idx for idx, token in
                 enumerate(distinct_tokens)}
 
+
     def _create_encoded_intents(self, intent_dict):
         """Create matrix with intents encoded in rows as bag of words,
         if intent_tokenization_flag = False this is identity matrix"""
-
         if self.intent_tokenization_flag:
             intent_token_dict = self._create_intent_token_dict(
                 list(intent_dict.keys()), self.intent_split_symbol)
@@ -229,79 +237,28 @@ class EmbeddingIntentClassifier:
         else:
             return np.eye(len(intent_dict))
 
+
     # data helpers:
     def _create_all_Y(self, size):
         # stack encoded_all_intents on top of each other
         # to create candidates for training examples
         # to calculate training accuracy
         all_Y = np.stack([self.encoded_all_intents for _ in range(size)])
-
         return all_Y
+
 
     def _prepare_data_for_training(self, training_data, intent_dict):
         """Prepare data for training"""
-
         intent_examples = training_data.get("intent_examples")
-
         X = np.stack([e.get("text_features")
                       for e in intent_examples])
-
         intents_for_X = np.array([intent_dict[e.get("intent")]
                                   for e in intent_examples])
-
         Y = np.stack([self.encoded_all_intents[intent_idx]
                       for intent_idx in intents_for_X])
-
         all_Y = self._create_all_Y(X.shape[0])
-
         helper_data = intents_for_X, all_Y
-
         return X, Y, helper_data
-
-
-
-    # # tf helpers:
-    # def _create_tf_embed_nn(self, x_in, is_training, num_layers, layer_size, name):
-    #     """Create embed nn for layer with name"""
-
-    #     reg = tf.contrib.layers.l2_regularizer(self.C2)
-    #     x = x_in
-    #     for i in range(num_layers):
-    #         x = keras.layers.dense(inputs=x,
-    #                             units=layer_size[i],
-    #                             activation=tf.nn.relu,
-    #                             kernel_regularizer=reg,
-    #                             name='hidden_layer_{}_{}'.format(name, i))
-    #         x = keras.layers.dropout(x, rate=self.droprate, training=is_training)
- 
-    #     x = keras.layers.dense(inputs=x,
-    #                         units=self.embed_dim,
-    #                         kernel_regularizer=reg,
-    #                         name='embed_layer_{}'.format(name))
-    #     return x
-
-
-    # def _create_tf_embed_nn(self, x_in, is_training, num_layers, layer_size, name):
-    #     """Create embed nn for layer with name"""
-
-    #     reg = tf.contrib.layers.l2_regularizer(self.C2)
-    #     x = x_in
-
-    #     print(x_in)
-        # for i in range(num_layers):
-        #     v = keras.engine.input_layer.Input(x)
-        #     x = keras.layers.Dense(units=layer_size[i],
-        #                         activation=tf.nn.relu,
-        #                         kernel_regularizer=reg,
-        #                         name='hidden_layer_{}_{}'.format(name, i))(v)
-        #     x = keras.layers.Dropout(rate=self.droprate, noise_shape=None, seed=None)(x)
-
-        # w = keras.engine.input_layer.Input(x)          
-        # x = keras.layers.Dense(units=self.embed_dim,
-        #                     kernel_regularizer=reg,
-        #                     name='embed_layer_{}'.format(name))(w)
-        # return x
-
 
     
     # tf helpers:
@@ -323,11 +280,6 @@ class EmbeddingIntentClassifier:
                             kernel_regularizer=reg,
                             name='embed_layer_{}'.format(name))
         return x
-
-
-
-
-
 
 
 
@@ -474,11 +426,9 @@ class EmbeddingIntentClassifier:
         return ' '.join([t.lemma_ for t in message])
 
     def prepare_training_data(self, X, y):
-
         training_data = {
             "intent_examples": []
         }
-
         # use even single character word as a token
         self.vect = CountVectorizer(
             token_pattern=r'(?u)\b\w\w+\b',
@@ -490,16 +440,11 @@ class EmbeddingIntentClassifier:
             max_features=None,
             preprocessor=lambda s: re.sub(r'\b[0-9]+\b', 'NUMBER', s.lower())
         )
-
         spacy_docs = [self.nlp(x) for x in X]
-
         lem_exs = [self._lemmatize(x)
                    for x in spacy_docs]
-
         self.vect = self.vect.fit(lem_exs)
-
         X = self.vect.transform(lem_exs).toarray()
-
         for i, intent in enumerate(y):
             # create bag for each example
             training_data["intent_examples"].append(
@@ -510,8 +455,8 @@ class EmbeddingIntentClassifier:
 
                     "intent": intent
                 })
-
         return training_data
+
 
     def train(self, X, y):
         """Train the embedding intent classifier on a data set."""
@@ -568,6 +513,7 @@ class EmbeddingIntentClassifier:
                            sess, a_in, b_in, sim,
                            loss, is_training, train_op)
 
+
     # process helpers
     def _calculate_message_sim(self, X, all_Y):
         """Load tf graph and calculate message similarities"""
@@ -590,6 +536,7 @@ class EmbeddingIntentClassifier:
 
         return intent_ids, message_sim
 
+
     def transform(self, query):
         spacy_doc = self.nlp(query)
 
@@ -600,6 +547,7 @@ class EmbeddingIntentClassifier:
             "text_features": np.hstack((vectorized[0], spacy_doc.vector))
             if self.use_word_vectors else vectorized
         }
+
 
     def process(self, query, INTENT_RANKING_LENGTH=5):
         """Return the most likely intent and its similarity to the input."""
@@ -640,6 +588,7 @@ class EmbeddingIntentClassifier:
                                   for intent_idx, score in ranking]
 
         return intent, intent_ranking
+
 
     @classmethod
     def load(cls, model_dir=None, use_word_vectors=False):
@@ -700,6 +649,7 @@ class EmbeddingIntentClassifier:
                                "".format(os.path.abspath(model_dir)))
 
             return EmbeddingIntentClassifier()
+
 
     def persist(self, model_dir):
         """Persist this model into the passed directory.

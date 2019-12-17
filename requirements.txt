@@ -45,14 +45,12 @@ msgpack-numpy==0.4.3.2
 multidict==4.5.2
 murmurhash==1.0.2
 netifaces==0.10.6
-nltk==3.4.5
 num2words==0.5.10
 numpy==1.16.4
 paho-mqtt==1.4.0
 passlib==1.7.1
 pkg-resources==0.0.0
 plac==0.9.6
-playsound==1.2.2
 preshed==2.0.1
 protobuf==3.9.1
 psutil==5.6.3

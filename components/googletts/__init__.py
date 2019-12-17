@@ -12,7 +12,7 @@ os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="/home/pi/components/googletts/googleapi.json"
 from google.cloud import texttospeech
 import pygame
-import nltk
+# import nltk
 import ipaddress
 from num2words import num2words
 from pydub import AudioSegment

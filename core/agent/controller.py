@@ -189,7 +189,6 @@ def update_model(message, **extra):
 
     global entity_extraction
     entity_extraction = EntityExtractor(synonyms)
-
     logger.info("Intent Model updated")
 
 
