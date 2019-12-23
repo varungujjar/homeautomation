@@ -114,7 +114,7 @@ class RunServer:
         app.on_startup.append(self.startBackgroundProcesses)
         for sig in (signal.SIGTERM, signal.SIGINT):
             loop.add_signal_handler(sig, lambda: asyncio.ensure_future(self.stopHandler()))
-        update_model("Agent models updated")
+        update_model()
         web.run_app(app, host=self.host, port=self.port, handle_signals=False) 
  
     

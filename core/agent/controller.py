@@ -8,41 +8,28 @@ from helpers.db import *
 from helpers.logger import formatLogger
 logger = formatLogger(__name__)
 
-
 sentence_classifier = None
 synonyms = None
 entity_extraction = None
 
 
-# Request Handler
 def getConversation(request_json):
-    """
-    Endpoint to converse with chatbot.
-    Chat context is maintained by exchanging the payload between client and bot.
-
-    sample input/output payload =>
-
-    {
-      "currentNode": "",
-      "complete": false,
-      "parameters": [],
-      "extractedParameters": {},
-      "missingParameters": [],
-      "intent": {
-      },
-      "context": {},
-      "input": "hello",
-      "speechResponse": [
-      ]
-    }
-
-    """
+    # {
+    #   "currentNode": "",
+    #   "complete": false,
+    #   "parameters": [],
+    #   "extractedParameters": {},
+    #   "missingParameters": [],
+    #   "intent": {
+    #   },
+    #   "context": {},
+    #   "input": "hello",
+    #   "speechResponse": [
+    #   ]
+    # }
     result_json = request_json
-
     if request_json:
-
         context = {"context": request_json["context"]}
-
         if "init_conversation" in request_json["input"]:
             intent = dbGetTable("intent",{"intentId":"init_conversation"},"","agent")[0]
             result_json["complete"] = True
@@ -50,12 +37,9 @@ def getConversation(request_json):
             result_json["intent"]["id"] = str(intent["intentId"])
             result_json["input"] = request_json["input"]
             result_json["speechResponse"] = split_sentence(intent["speechResponse"])
-            logger.info(result_json)
             return result_json
 
-        intent_id, confidence, suggestions = predict(request_json["input"])
-        # logger.info("intent_id => %s" % intent_id)
-
+        intent_id, confidence, suggestions = sentence_classifier.predict(request_json["input"])
         intent = dbGetTable("intent",{"intentId":intent_id},"","agent")[0]
         if intent["parameters"]:
             parameters = intent["parameters"]
@@ -69,7 +53,6 @@ def getConversation(request_json):
                 "confidence": confidence,
                 "id": str(intent["intentId"])
             }
-
             if parameters:
                 # Extract NER entities
                 extracted_parameters = entity_extraction.predict(intent_id, request_json["input"])
@@ -79,8 +62,6 @@ def getConversation(request_json):
                 result_json["extractedParameters"] = {}
                 result_json["parameters"] = []
                 for parameter in parameters:
-                  
-
                     result_json["parameters"].append({
                         "name": parameter["name"],
                         "type": parameter["type"],
@@ -137,7 +118,6 @@ def getConversation(request_json):
                 result_json["complete"] = True
 
         if result_json["complete"]:
-            logger.info("Completed API=> %s" % str(result_json))
             if intent["apiTrigger"]:
                 # isJson = False
                 # parameters = result_json["extractedParameters"]
@@ -168,21 +148,14 @@ def getConversation(request_json):
             else:
                 context["result"] = {}
                 result_json["speechResponse"] = split_sentence(intent["speechResponse"])
-        logger.info(request_json["input"])
+        logger.info(request_json)
         return result_json
     else:
         return abort(400)
 
 
-def update_model(message, **extra):
-    """
-    Signal hook to be called after training is completed.
-    Reloads ml models and synonyms.
-    :param app:
-    :param message:
-    :param extra:
-    :return:
-    """
+
+def update_model():
     global sentence_classifier
     sentence_classifier = EmbeddingIntentClassifier.load("core/agent/model_files/", True)
     synonyms = get_synonyms()
@@ -193,18 +166,4 @@ def update_model(message, **extra):
 
 
 
-def predict(sentence):
-    """
-    Predict Intent using Intent classifier
-    :param sentence:
-    :return:
-    """
-    bot = dbGetTable("bot",{"name":"default"},"","agent")[0]
-    predicted, intents = sentence_classifier.process(sentence)
-    logger.info(predicted)
-    if predicted["confidence"] < bot["confidence_threshold"]:
-        intents = dbGetTable("intent",{"intentId":"fallback"},"","agent")
-        intents = intents[0]["intentId"]
-        return intents, 1.0, []
-    else:  
-        return predicted["intent"], predicted["confidence"], intents[1:]
+

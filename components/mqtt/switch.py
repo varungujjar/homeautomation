@@ -7,6 +7,8 @@ from helpers.db import *
 logger = formatLogger(__name__)
 COMPONENT = "mqtt"
 
+CONFIG_PARAMETERS = {"topic_subscribe":"text","topic_state":"text","topic_publish":"text","topic_publish_value":"text"}
+ACTIONS = {"state","brightness"}
 
 
 class switch(object):

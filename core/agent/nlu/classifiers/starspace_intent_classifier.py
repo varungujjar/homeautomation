@@ -9,6 +9,7 @@ import tensorflow as tf
 import tensorflow.compat.v1 as tf_v1
 from sklearn.feature_extraction.text import CountVectorizer
 from helpers.logger import formatLogger
+from helpers.db import *
 logger = formatLogger(__name__)
 
 
@@ -699,3 +700,17 @@ class EmbeddingIntentClassifier:
             pickle.dump(self.vect, f)
 
         return {"classifier_file": self.name + ".ckpt"}
+
+
+    def predict(self,sentence):
+        bot = dbGetTable("bot",{"name":"default"},"","agent")[0]
+        predicted, intents = self.process(sentence)
+        logger.info(predicted)
+        if predicted["confidence"] < bot["confidence_threshold"]:
+            intents = dbGetTable("intent",{"intentId":"fallback"},"","agent")
+            intents = intents[0]["intentId"]
+            return intents, 1.0, []
+        else:  
+            return predicted["intent"], predicted["confidence"], intents[1:]
+
+    

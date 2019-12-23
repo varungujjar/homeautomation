@@ -1,5 +1,3 @@
-from nltk import word_tokenize
-from nltk.tag.perceptron import PerceptronTagger
 from core.agent.nlu.classifiers.starspace_intent_classifier import EmbeddingIntentClassifier
 from core.agent.nlu.extractors.sklearn_entity_extractor import EntityExtractor
 from helpers.db import *

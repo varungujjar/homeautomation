@@ -219,45 +219,28 @@ export class IntentsEdit extends Component {
             parameters:[],
             training:[]
         }
-        this.initialValues = [];
         this.showEntitySelect=false;
         this.textIsSelected = false;
+        this.entities = [];
         this.addRemoveEntity = this.addRemoveEntity.bind(this);
+        //this.contentEditable = React.createRef();
+        //this.focus = () => this.refs.editor.focus();
         this.onEntityMouseOver = this.onEntityMouseOver.bind(this);
         this.closeEntitySelector = this.closeEntitySelector.bind(this);
     }
 
 
-    getEntitiesMapped = (entities) => {
-            let newEntities = [];
-            entities.map((entity,index)=>{
-                newEntities[index] = {
-                    "entityMap":this.getEnityMapIndex(entity.entity),
-                    "value":entity.value.trim(),
-                    "start":entity.start,
-                    "end":entity.end,
-                    "entity":entity.entity,
-                }
-            })
-            return newEntities
-    }
-
-    
-
-
-    getEnityMapIndex = (entityName) => {
-        let n = null;
-        this.initialValues.parameters.map((parameter,index)=>{
-            if(parameter.name==entityName){
-                n = index
-            }
+    addIndexMap = (dataArray) => {
+        let result = [];
+        var mergeJSON = require("merge-json");               
+        dataArray.map((arrayItem, index)=>{
+            const addIndex = {"indexMap":index}
+            var dataMerged = mergeJSON.merge(addIndex, arrayItem);
+            result[index]= dataMerged
         })
-        return n
+        return result;
     }
 
-    getEnityNameByIndex = (entityIndexMap) => {
-        return this.initialValues.parameters[entityIndexMap].name
-    }
 
     componentDidMount() {    
         this._isMounted = true;
@@ -266,12 +249,12 @@ export class IntentsEdit extends Component {
                 fetch(`/api/intents/${this.props.match.params.id}`)
                     .then(response => response.json())
                     .then((result) => {
+                        fetch(`/api/entities`)
+                                .then(response => response.json())
+                                .then((entitiesResult) => {
+                                    this.entities = entitiesResult;
                                     let trainingData = [];
                                     result.training.map((item,index)=>{
-                                        this.initialValues.parameters = result.parameters
-                                        const thisEntities = this.getEntitiesMapped(item.entities)
-                                        item.entities = thisEntities;
-
                                         const blocksFromHTML = convertFromHTML(item.text);      
                                         const state = ContentState.createFromBlockArray(
                                             blocksFromHTML.contentBlocks,
@@ -283,33 +266,34 @@ export class IntentsEdit extends Component {
                                             component:(props) => this.HandleSpan(props,item,index),
                                             //props: { entities: item.entities }
                                             }
-                                        ]);
-
+                                        ]);                                    
                                         trainingData[index] = {
                                             text:item.text,
-                                            entities:thisEntities,
+                                            entities:item.entities,
                                             editorState:EditorState.createWithContent(state,compositeDecorator)
                                         }
                                     })
-                                    this.initialValues =  {
+                                    this.setState({
+                                        dataLoaded: true,
                                         id:result.id,
                                         name:result.name,
                                         intentId:result.intentId,
                                         speechResponse:result.speechResponse,
-                                        parameters:result.parameters,
+                                        parameters:this.addIndexMap(result.parameters),
                                         training:trainingData
-                                    }
-
-                                    this.setState({
-                                        dataLoaded: true,
                                     })
 
                             })
 
-                   
+                            
+                    })
+                    .catch((error) => {
+                        console.error(error)
+                    })
             } else {
                 this.setState({
                     dataLoaded: true,
+                    allLoaded:true
                 })
             }
         }
@@ -319,22 +303,23 @@ export class IntentsEdit extends Component {
 
     handleStrategy(contentBlock, callback, contentState, item) {
             item.entities.forEach(entity => {
-                callback(entity.start, entity.end);
+                callback(entity.begin === -1 ? 0 : entity.begin, entity.end);
         });
     }
 
 
 
     HandleSpan = (props,item,trainingIndex) => {
+        console.log(props)
         let curEntityIndex = null;
         let startOffset = null;
         let endOffset = null;
         item.entities.map((itemData,prevIndex)=>{
-            if(props.decoratedText==itemData.value && props.start == itemData.start){ //first we find a match from state-entities cause you cannot pass args from startegy to componen
-                this.initialValues.parameters.map((entity,index)=>{ //now we map the entities to get the actual entity index from the match above
-                    if(itemData.entityMap==index)
+            if(props.decoratedText==itemData.value && props.start == (itemData.begin === -1 ? 0 : itemData.begin)){ //first we find a match from state-entities cause you cannot pass args from startegy to componen
+                this.entities.map((entity,index)=>{ //now we map the entities to get the actual entity index from the match above
+                    if(itemData.name==entity.name)
                         curEntityIndex = index;
-                        startOffset = itemData.start
+                        startOffset = itemData.begin
                         endOffset = itemData.end
                 })
 
@@ -362,102 +347,23 @@ export class IntentsEdit extends Component {
             entities:[],
             editorState:EditorState.createEmpty()
         }
-        const newTraining = this.initialValues.training.slice()
+
+
+        const newTraining = this.state.training.slice()
         newTraining.unshift(trainingTemplate);
-        this.initialValues.training = newTraining;
-        setFieldValue(this.initialValues.training)
+        this.state.training = newTraining;
+        setFieldValue(this.state.training)
     }
+
 
     deleteTrainingData = (setFieldValue,index) => {
-        const newTraining = this.initialValues.training.slice()
+        const newTraining = this.state.training.slice()
         newTraining.splice(index, 1)
-        this.initialValues.training = newTraining;
-        setFieldValue(this.initialValues.training)
-    }
-
-
-
-
-    renderDecorate = (stateTraining,trainingIndex,newEntitiesList) => {
-        stateTraining[trainingIndex] = {...stateTraining[trainingIndex],"entities":newEntitiesList}
-        const compositeDecorator = new CompositeDecorator([
-        {
-            strategy: (contentBlock, callback, contentState) => this.handleStrategy(contentBlock, callback, contentState,stateTraining[trainingIndex]),
-            component:(props) => this.HandleSpan(props, stateTraining[trainingIndex], trainingIndex),
-        }
-        ]); 
-        let editorState = stateTraining[trainingIndex].editorState;
-        editorState = EditorState.set(editorState, {decorator: compositeDecorator});  
-        stateTraining[trainingIndex] = {...stateTraining[trainingIndex],editorState}
-        return stateTraining[trainingIndex]
-    }
-    
-
-    addParametersData = (setFieldValue) => {
-        const parameterTemplate = {
-            name:"",
-            type:"free_text",
-            required:false,
-            prompt:""
-        }
-        this.initialValues.parameters.push(parameterTemplate);
-        setFieldValue(this.initialValues.parameters)
-    }
-
-
-    changeParameterName = (event,setFieldValue,parameterIndex) => {
-        this.initialValues.parameters[parameterIndex].name = event.currentTarget.value
-        setFieldValue(this.initialValues.parameters)
-        let stateTraining = [...this.initialValues.training];
-        this.initialValues.training.map((trainingItem,trainingIndex)=>{
-            let newEntitiesList = [];
-            trainingItem.entities.map((entity,index)=>{
-                newEntitiesList[index] = {
-                    "entityMap":entity.entityMap,
-                    "value":entity.value.trim(),
-                    "start":entity.start,
-                    "end":entity.end,
-                    "entity":this.initialValues.parameters[entity.entityMap].name,
-                }
-            })
-            stateTraining[trainingIndex] = this.renderDecorate(stateTraining,trainingIndex,newEntitiesList)
-        })
-        this.initialValues.training = stateTraining;
-        setFieldValue(this.initialValues.training)
-    }
-
-    changeParameterPrompt = (event,setFieldValue,parameterIndex) => {
-        this.initialValues.parameters[parameterIndex].prompt = event.currentTarget.value
-        setFieldValue(this.initialValues.parameters)
-    }
-
-    changeParameterRequired = (event,setFieldValue,parameterIndex) => {
-        this.initialValues.parameters[parameterIndex].required = this.initialValues.parameters[parameterIndex].required ? false : true
-        setFieldValue(this.initialValues.parameters)
+        this.state.training = newTraining;
+        setFieldValue(this.state.training)
     }
 
     
-    deleteParameterData = (setFieldValue,parameterIndex) => {
-        const newParameters = this.initialValues.parameters.slice()
-        newParameters.splice(parameterIndex, 1)
-        this.initialValues.parameters = newParameters;
-        setFieldValue(this.initialValues.parameters)
-        let stateTraining = [...this.initialValues.training];
-        this.initialValues.training.map((trainingItem,trainingIndex)=>{
-            let newEntitiesList = [];
-            trainingItem.entities.map((entity,index)=>{
-                if(entity.entityMap!=parameterIndex){
-                    newEntitiesList.push(entity);
-                }     
-            })
-            let reMappedEntity = this.getEntitiesMapped(newEntitiesList)
-            stateTraining[trainingIndex] = this.renderDecorate(stateTraining,trainingIndex,reMappedEntity)
-        })
-        this.initialValues.training = stateTraining;
-        setFieldValue(this.initialValues.training)
-    }
-
-
     getSelectionText = (trainingIndex,editorState) => {
         var selectionState = editorState.getSelection();
         var anchorKey = selectionState.getAnchorKey();
@@ -491,11 +397,9 @@ export class IntentsEdit extends Component {
 
             if(childPos!==null){
                 const styles = {
-                    top: childPos.top,
+                    top: childPos.top - parentPos.top + 330,
                     left: childPos.left - 250
                 };
-                console.log(parentPos.top)
-                console.log(childPos.top)
 
                 let renderHTML = (
                     <div className="dropdown" style={styles}>
@@ -503,8 +407,8 @@ export class IntentsEdit extends Component {
                         <div> Anoting word : {entityText}</div>
                          <ul>
                              {
-                                this.initialValues.parameters.length > 0 ?
-                                this.initialValues.parameters.map((entity,index)=>{
+                                this.entities.length > 0 ?
+                                this.entities.map((entity,index)=>{
                                         return(<li className={curEntityIndex===index ? "active" : ""} key={index} onClick={()=>this.addRemoveEntity(trainingIndex,index,entityText,startOffset,endOffset)}>{entity.name}</li>)
                                 }) : null
                              }
@@ -534,45 +438,70 @@ export class IntentsEdit extends Component {
         this.openEntitySelector(null,0,null,null);
     }
     
+    getEntityData = (index) => {
+        return this.entities[index];
+    }
+
 
     addRemoveEntity = (trainingIndex,newEntityIndex,entityText,startOffset,endOffset) => {
-        let entities = this.initialValues.training[trainingIndex].entities;        
-        const newEntityName = this.initialValues.parameters[newEntityIndex].name;
+        let entities = this.state.training[trainingIndex].entities;        
+        const newEntityName = this.entities[newEntityIndex].name;
+
         let entityTemplate = {}
         if((startOffset==0 || startOffset) && endOffset){
             entityTemplate = {
-                "entityMap":newEntityIndex,
                 "value":entityText.trim(),
-                "start":startOffset,
+                "begin":startOffset === 0 ? -1 : startOffset,
                 "end":endOffset,
-                "entity":newEntityName.trim(),
+                "name":newEntityName.trim(),
             }
         }
 
         let newEntitiesList = [];
         entities.map((entity,index)=>{
-            if(entity.start >= startOffset && entity.start <= endOffset || entity.end >= startOffset && entity.end <= endOffset){
+            if(entity.begin >= startOffset && entity.begin <= endOffset || entity.end >= startOffset && entity.end <= endOffset){
             }else{
                 newEntitiesList.push(entity);
             }
         })
         newEntitiesList.push(entityTemplate);
-        let stateTraining = [...this.initialValues.training];
-        stateTraining[trainingIndex] = this.renderDecorate(stateTraining,trainingIndex,newEntitiesList)
-        this.initialValues.training = stateTraining;
-        this.closeEntitySelector();
+
+        let stateTraining = [...this.state.training];
+        stateTraining[trainingIndex] = {...stateTraining[trainingIndex],"entities":newEntitiesList}
+
+        const compositeDecorator = new CompositeDecorator([
+        {
+            strategy: (contentBlock, callback, contentState) => this.handleStrategy(contentBlock, callback, contentState,stateTraining[trainingIndex]),
+            component:(props) => this.HandleSpan(props, stateTraining[trainingIndex], trainingIndex),
+        }
+        ]); 
+        
+        let editorState = stateTraining[trainingIndex].editorState;
+        editorState = EditorState.set(editorState, {decorator: compositeDecorator});  
+        stateTraining[trainingIndex] = {...stateTraining[trainingIndex],editorState}
+
         this.setState({
-            dataLoaded: true,
+            training:stateTraining
         })
+        this.closeEntitySelector();
     }
+
+   
+
+    // editorOnBlur = () => {
+    //     this.showEntitySelect = false;
+    //     if(!this.textIsSelected){
+    //         this.closeEntitySelector();
+    //     }
+    // }
 
 
     editTrainingData = (editorState,setFieldValue,index) => {
         const trainingIndex = index;
         this.getSelectionText(trainingIndex, editorState);
         const getText = editorState.getCurrentContent().getPlainText('');
-        let stateTraining = [...this.initialValues.training];
-        const entities = this.initialValues.training[index].entities;
+        let stateTraining = [...this.state.training];
+        const entities = this.state.training[index].entities;
         let newEntitiesList = [];
         entities.map((entity)=>{
             const findWord = new RegExp("\\b" + entity.value + "\\b").test(getText)
@@ -582,17 +511,21 @@ export class IntentsEdit extends Component {
         });
 
         stateTraining[index] = {...stateTraining[index],"text":getText, "entities":newEntitiesList}
+        
         const compositeDecorator = new CompositeDecorator([
         {
             strategy: (contentBlock, callback, contentState) => this.handleStrategy(contentBlock, callback, contentState,stateTraining[index]),
             component:(props) => this.HandleSpan(props, stateTraining[index], index),
         }
         ]); 
+
         editorState = EditorState.set(editorState, {decorator: compositeDecorator});  
         stateTraining[index] = {...stateTraining[index],editorState}
-        stateTraining[trainingIndex] = this.renderDecorate(stateTraining,trainingIndex,newEntitiesList)
-        this.initialValues.training = stateTraining
-        setFieldValue(this.initialValues.training)
+
+        this.setState({
+            training:stateTraining
+        })
+        setFieldValue(this.state.training[index])
     }
 
 
@@ -625,29 +558,10 @@ export class IntentsEdit extends Component {
         result["id"]= formValues.id;
         result["name"]= formValues.name;
         result["intentId"]= formValues.intentId;
+        result["parameters"]= formValues.parameters;
         result["speechResponse"]= formValues.speechResponse;
         let trainingData = []
-        let parameters = []
-        formValues.parameters.map((parameter,index)=>{
-            let createDeviceCondition = {}
-            Object.keys(parameter).map((key,index)=>{
-                if(key!="indexMap"){
-                    createDeviceCondition[key] = parameter[key]
-                }
-            })
-            parameters[index] = createDeviceCondition
-        })
-        result["parameters"]= parameters
         formValues.training.map((train,index) => {
-            train.entities.map((entity,index)=>{
-                let createEntity = {
-                    value:entity.value,
-                    start:entity.start,
-                    end:entity.end,
-                    entity:this.getEnityNameByIndex(entity.entityMap),
-                }
-                train.entities[index] = createEntity
-            });
             trainingData[index] = {
                 text:train.text,
                 entities:train.entities
@@ -655,6 +569,13 @@ export class IntentsEdit extends Component {
         })
         result["training"]= trainingData;
         return result;
+        // let cleanForm = {}
+        // for (let [key, value] of Object.entries(formValues)) {
+        //     if(key!=="dataLoaded"){
+        //         cleanForm[key]=value;
+        //     }
+        // }
+        // return cleanForm;
     }
 
 
@@ -667,14 +588,13 @@ export class IntentsEdit extends Component {
                 {
                     this.state.dataLoaded && (
                         <Formik
-                            // enableReinitialize
-                            initialValues={this.initialValues}
+                            enableReinitialize
+                            initialValues={this.state}
                             // validate={}
                             onSubmit={(values, { setSubmitting }) => {
                                 const getCleanFormData = this.cleanFormData(values);
-                                console.log(getCleanFormData)
-                                // this.saveFormData(getCleanFormData);
-                                
+                                this.saveFormData(getCleanFormData);
+                                console.log(getCleanFormData);
                                 setSubmitting(false);
                             }}
                             handleChange={(event) => {
@@ -703,44 +623,26 @@ export class IntentsEdit extends Component {
                                     <input className="form-control" value={values.speechResponse} name="speechResponse" onChange={handleChange} type="text" />
 
 
-                                    <button className="btn btn-info m-t" onClick={() => this.addParametersData(setFieldValue)} type="button">+ Add Parameter</button>
-                                    {/* {
-                                        console.log(values.parameters)
-                                    } */}
-                                    
-                                    {
-                                            values.parameters.length > 0 ?
-                                            values.parameters.map((parameter,index)=>{
-                                                return(
-                                                    <div key={index} className="m-t m-b">
-                                                            <input className="form-control" value={values.parameters[index].name} name={`parameters[${index}][name]`} onChange={(event)=>this.changeParameterName(event,setFieldValue,index)} type="text" />
-                                                            <input className="form-control" value={values.parameters[index].required} name={`parameters[${index}][required]`} onChange={(event)=>this.changeParameterRequired(event,setFieldValue,index)} type="checkbox" checked={`${values.parameters[index].required ? "checked" : ""}`}/>
-                                                            {
-                                                                values.parameters[index].required == true ?
-                                                                <input className="form-control" value={values.parameters[index].prompt} name={`parameters[${index}][prompt]`} onChange={(event)=>this.changeParameterPrompt(event,setFieldValue,index)} type="text" />
-                                                                : null
-                                                            }
-                                                            <input className="form-control" value="free_text" name={`parameters[${index}][type]`} type="hidden" />
-                                                            <button type="button" className="btn btn-primary" onClick={()=>this.deleteParameterData(setFieldValue,index)}>X</button>
-                                                    </div>
-                                                )
-                                            })
-                                            :null
-                                    }
+
                                     <div className="mt-4">
                                     <button className="btn btn-info" onClick={() => this.addTrainingData(setFieldValue)} type="button">+ Add Training</button>
                                     <div id="draftDropdown"></div>   
+                                    
                                     {            
-                                        values.training.length > 0 ? 
-                                        values.training.map((data,index) => {
-                                        return(
+                                        this.state.training.length > 0 ? 
+                                        this.state.training.map((data,index) => {
+
+                                
+                                           
+                                            return(
+
                                                 <div className="row mb-3" key={index}>
                                                 <div className="col-md-12">
                                                     <div className="row">
                                                         <div className="col-md-10">
                                                         <Editor 
                                                         // customStyleMap={styleMap}
-                                                        editorState={this.initialValues.training[index].editorState} 
+                                                        editorState={this.state.training[index].editorState} 
                                                         onChange={(editorState)=>this.editTrainingData(editorState,setFieldValue,index)}
                                                         // onBlur={()=>this.editorOnBlur()}
                                                         // onFocus={()=>this.onEditorFocus()}
@@ -751,36 +653,43 @@ export class IntentsEdit extends Component {
                                                          />
                                                        
                                                         </div>
+                                                        
                                                         <div className="col-md-2">
                                                             <button type="button" className="btn btn-primary" onClick={()=>this.deleteTrainingData(setFieldValue,index)}>X</button>
                                                         </div>
+
                                                     </div>
                                                     {
-                                                    data.entities.length > 0 ?
-                                                    data.entities.map((entity,index)=>{
-                                                        return(
-                                                            <div className="row" key={index}>
-                                                                <div className="col-md-6">{entity.value}</div>
-                                                                <div className="col-md-4">{entity.entity}</div>
-                                                                <div className="col-md-2">X</div>
-                                                            </div>    
-                                                            )
-                                                    }) : null
-                                                    }
-                                                    </div>
-                                                    </div>
-                                                )
-                                                })
-                                        : null          
-                                        }
+
+data.entities.length > 0 ?
+data.entities.map((entity,index)=>{
+    return(
+        <div className="row" key={index}>
+            <div className="col-md-6">{entity.value}</div>
+            <div className="col-md-4">{entity.name}</div>
+            <div className="col-md-2">X</div>
+
+        </div>    
+        )
+
+}) : null
+}
+                                                </div>
+                                                </div>
+                                            )
+                                            })
+                                      : null          
+                                    }
                                     </div>
 
                                     </div>
                                     <div className="card-footer">
                                     <div className="btn-group">
+
                                     <button type="submit" disabled={isSubmitting} className={`btn btn-info`}>
                                     <i className="fas fa-check-circle"></i> Save Intent
                                     </button>
+
                                     <Link to={{ pathname: `/agent/intents`, data: null }} className="btn btn-default">Cancel</Link>
                                     </div>
                                     </div>

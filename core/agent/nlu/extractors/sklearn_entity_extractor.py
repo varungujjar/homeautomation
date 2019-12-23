@@ -56,17 +56,10 @@ class EntityExtractor:
 
 
     def replace_synonyms(self, entities):
-        """
-        replace extracted entity values with
-        root word by matching with synonyms dict.
-        :param entities:
-        :return:
-        """
         for entity in entities.keys():
             entity_value = str(entities[entity])
             if entity_value.lower() in self.synonyms:
                 entities[entity] = self.synonyms[entity_value.lower()]
-
         return entities
 
 
@@ -320,16 +313,13 @@ class EntityExtractor:
     def _find_bilou_end(self, word_idx, entities):
         ent_word_idx = word_idx + 1
         finished = False
-
         # get information about the first word, tagged with `B-...`
         label, confidence = self.most_likely_entity(word_idx, entities)
         entity_label = self._entity_from_label(label)
 
         while not finished:
             label, label_confidence = self.most_likely_entity(ent_word_idx, entities)
-
             confidence = min(confidence, label_confidence)
-
             if label[2:] != entity_label:
                 # words are not tagged the same entity class
                 logger.debug(
@@ -359,7 +349,7 @@ class EntityExtractor:
 
 
     def _create_entity_dict(self,message,tokens,start,end,entity,confidence):
-        if isinstance(tokens, list):  # tokens is a list of Token
+        if isinstance(tokens, list):  
             _start = tokens[start].offset
             _end = tokens[end].end
             value = tokens[start].text
@@ -369,11 +359,10 @@ class EntityExtractor:
                     for i in range(start + 1, end + 1)
                 ]
             )
-        else:  # tokens is a Doc
+        else: 
             _start = tokens[start].idx
             _end = tokens[start : end + 1].end_char
             value = tokens[start : end + 1].text
-
         return {
             "start": _start,
             "end": _end,
@@ -383,8 +372,8 @@ class EntityExtractor:
         }
 
 
+    # using the BILOU tagging scheme
     def _convert_bilou_tagging_to_entity_result(self, message, tokens, entities):
-        # using the BILOU tagging scheme
         json_ents = []
         word_idx = 0
         while word_idx < len(tokens):
@@ -398,25 +387,18 @@ class EntityExtractor:
         return json_ents
 
 
-
-    def predict(self, model_name, sentence):
-        """
-        Predict NER labels for given model and query
-        :param model_name:
-        :param sentence:
-        :return:
-        """
+    #Predict NER labels for given model and query
+    def predict(self, model_name, sentence):     
         tagger = joblib.load('core/agent/model_files/%s.model' % model_name)
         sentencetoJson = {"text":sentence}
         text_data = self._from_text_to_crf(sentencetoJson)
         features = self._sentence_to_features(text_data)
         ents = tagger.predict_marginals_single(features)
         extracted_entities = self._from_crf_to_json(self.nlp(sentence), ents)
-        print("*****************")
+        logger.info(extracted_entities)
+        create_entity_list = {}
         for entity in extracted_entities:
-            thisentity = entity["entity"]+" - "+entity["value"]
-            print(thisentity)
-        print("*****************")
-        # return self.replace_synonyms(extracted_entities)
+            create_entity_list.update({entity["entity"]:entity["value"]})
+        return self.replace_synonyms(create_entity_list)
 
 
